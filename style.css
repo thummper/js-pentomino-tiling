@@ -1,0 +1,22 @@
+*{
+    border: 0;
+    margin: 0;
+}
+html{
+    height: 100%;
+    width: 100%;
+}
+body {
+    height: 100%;
+    opacity: 0;
+    transition: all linear 0.5s; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.canvas_wrapper{
+    display: flex;
+}
+canvas {
+    border: solid 1px red;
+}
