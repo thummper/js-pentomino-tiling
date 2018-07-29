@@ -155,54 +155,33 @@ function rect(x, y, w, h, colour, border) {
 }
 //MOVE TO SHAPE.
 function drag(shape) {
-	let blocknumber = -1;
-	let bc = 0;
-	let br = 0;
-
-	for (let i = 0; i < shape.pattern.length; i++) {
-		for (let j = 0; j < shape.pattern[i].length; j++) {
-			if (shape.pattern[i][j]) {
-				//Non 0 value. 
-				blocknumber += 1;
-				if (blocknumber == shape.blockdrag) {
-					//Found the block we are dragging. 
-					bc = i;
-					br = j;
-				}
-			}
-		}
-	}
-	//TODO figure out what this does.
-	shape.x = mx - (bc * xspan) - xspan / 2;
-	shape.y = my - (br * yspan) - yspan / 2;
-	//shape.x = mx;
-	//shape.y = my;
-
-
-
+	//Shape should remain on grid while being dragged? 
+	//Get the nearest gridpoint to the block that is being dragged, translate and then set shape coords. 
+	
+	
 }
 //MOVE TO SHAPE
 function gridSnap(shape) {
-	//Snap the shape to the nearest gridpoint.
-	let xrem = mx % tileSize;
-	let yrem = my % tileSize;
-	let xsnap, ysnap;
-	xsnap = mx - xrem;
-	ysnap = my - yrem;
-	//Find the block we are dragging and translate the coords.
-	xsnap -= Math.floor((shape.pattern[0].length)/2) * tileSize;
-	ysnap -= Math.floor((shape.pattern.length)/2   ) * tileSize;
-	//Don't let shape off the canvas.
-	if(xsnap < 0){
-		xsnap = 0;
-	}
-	if(ysnap < 0){
-		ysnap = 0;
-	}
-	testx = xsnap;
-	testy = ysnap;
-	shape.x = xsnap;
-	shape.y = ysnap;
+//	//Snap the shape to the nearest gridpoint.
+//	let xrem = mx % tileSize;
+//	let yrem = my % tileSize;
+//	let xsnap, ysnap;
+//	xsnap = mx - xrem;
+//	ysnap = my - yrem;
+//	//Find the block we are dragging and translate the coords.
+//	xsnap -= Math.floor((shape.pattern[0].length)/2) * tileSize;
+//	ysnap -= Math.floor((shape.pattern.length)/2   ) * tileSize;
+//	//Don't let shape off the canvas.
+//	if(xsnap < 0){
+//		xsnap = 0;
+//	}
+//	if(ysnap < 0){
+//		ysnap = 0;
+//	}
+//	testx = xsnap;
+//	testy = ysnap;
+//	shape.x = xsnap;
+//	shape.y = ysnap;
 }
 
 function random_range(min, max) {
