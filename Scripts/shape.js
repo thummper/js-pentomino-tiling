@@ -2,7 +2,7 @@ var Shape = function (colour, x, y) {
     this.draggable = true;
     this.dragging = false;
     this.patterns = this.pickPattern();
-    this.pattern = this.patterns[0];
+    this.pattern = this.patterns[0].slice();
     this.pattern_number = 0;
     this.colour = colour || "black";
     this.x = x;
@@ -17,12 +17,35 @@ var Shape = function (colour, x, y) {
 
 
 }
+Shape.prototype.getmiddle = function(){
+    //Returns middle block of array
+    let midr = Math.floor(this.pattern.length / 2);
+    let midc = Math.ceil(this.pattern[midr].length / 2);
+    console.log("middle is: ", midr, " ", midc);
+    
+    for(i in this.blocks ){
+        if(this.blocks[i].col == midc && this.blocks[i].row == midr){
+            return this.blocks[i];
+        }
+    }
+    
+    
+   
+    
+}
+
+
 Shape.prototype.mirror = function(){
 	//Change pattern to the mirror pattern.
-	this.pattern = this.pattern.slice(0).map(function(arr){return arr.reverse();});
+
+    
+    for(i in this.pattern){
+        this.pattern[i] = this.pattern[i].slice().reverse();
+    }
+ 
 }
 Shape.prototype.pickPattern = function () {
-    var p = pieces[parseInt(Math.random() * pieces.length, 10)];
+    var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
     this.colour = p[1];
     return p[0];
 
@@ -121,10 +144,20 @@ Shape.prototype.draw_on_mouse = function () {
 	this.y = ty;
 	
 	//Loop through and draw?
-	for(i in this.blocks){
-		let blk = this.blocks[i];
-		rect(tx + (blk.col * tileSize), ty + (blk.row * tileSize), tileSize, tileSize, this.colour);
-	}
+    
+    //Should draw though pattern array so that scrolling and relflecting work in real time
+    
+    for( i in this.pattern ){
+        for( j in this.pattern[i] ){
+            if(this.pattern[i][j]){
+                //Draw
+                rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, this.colour);
+            }   
+        }
+    }
+    
+    
+
 	
 	
 
@@ -133,6 +166,16 @@ Shape.prototype.draw_on_mouse = function () {
 Shape.prototype.scroll = function(){
     this.pattern_number = (this.pattern_number + 1) % this.patterns.length;
     this.pattern = this.patterns[this.pattern_number];
- 
+    
+    //reset dragging block 
+    
+    for(i in this.blocks){
+        let block = this.blocks[i];
+        if(block.dragging){
+            block.dragging = false;
+        }
+    }
+    let newdrag = this.getmiddle();
+    newdrag.dragging = true;
     
 }
