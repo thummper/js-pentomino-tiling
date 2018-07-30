@@ -37,11 +37,11 @@ Shape.prototype.getmiddle = function(){
 
 Shape.prototype.mirror = function(){
 	//Change pattern to the mirror pattern.
-
-    
-    for(i in this.pattern){
-        this.pattern[i] = this.pattern[i].slice().reverse();
+    let temp_pattern = this.pattern.slice();
+    for(i in temp_pattern){
+        temp_pattern[i] = temp_pattern[i].slice().reverse();
     }
+    this.pattern = temp_pattern;
  
 }
 Shape.prototype.pickPattern = function () {
