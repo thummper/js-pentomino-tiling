@@ -27,7 +27,7 @@ Shape.prototype.getmiddle = function(){
         if(this.blocks[i].col == midc && this.blocks[i].row == midr){
             return this.blocks[i];
         }
-    }
+    } 
     
     
    
@@ -72,6 +72,14 @@ Shape.prototype.draw = function () {
                 //Non zero pattern, add to board. 
                 board[boardcol + x][boardrow + y].contains = this;
                 this.blocks.push({
+                    col: y,
+                    row: x,
+                    x: board[boardcol + x][boardrow + y].x,
+                    y: board[boardcol + x][boardrow + y].y,
+                    dragging: false
+                });
+            } else {
+                               this.blocks.push({
                     col: y,
                     row: x,
                     x: board[boardcol + x][boardrow + y].x,
