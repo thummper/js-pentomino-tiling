@@ -97,45 +97,27 @@ Shape.prototype.drag = function () {
 	let mousex = mx;
 	let mousey = my;
 	let xgrid, ygrid;
-	//Coords of each gridpoint are a multiple of tileSize, find the nearest x,y multiples of tilesize to the mouse.
-	
-	//X COORD
-	let x_remainder = mousex / tileSize;
-	//Decide whether to move left or right. 
-	
-	if(x_remainder <= tileSize / 2){
-		//Move left.
-		xgrid = tileSize * Math.floor(mousex / tileSize);
-	} else {
-		//Move right.
-		xgrid = tileSize * Math.ceil(mousex / tileSize);
-	}
-	
-	//Y COORD
-	let y_remainder = mousey / tileSize;
-	if(y_remainder <= tileSize / 2){
-		//Move up
-		ygrid = tileSize * Math.floor(mousey / tileSize);
-	} else {
-		//Move down
-		ygrid = tileSize * Math.ceil(mousey/ tileSize);
-	}
+
+    ygrid = Math.ceil(mousey / tileSize) * tileSize;
+    xgrid = Math.ceil(mousex / tileSize) * tileSize;
+
+    //midx/midy is the closest grid square to the mouse
 	this.midx = xgrid;
 	this.midy = ygrid;
+    
+    
 	testx = xgrid;
 	testy = ygrid;
-	
-	
-	
-	
-	
-	
-	
+    
+    //console.log("Snapped grid coords: " + testx + " / " + testy);
 
 }
+
+
 Shape.prototype.draw_on_mouse = function () {
 	//The block we picked up should be drawn on the mouse?
 	let bx, by;
+    //The block we picked up should be drawn in the grid space closest to the mouse
 	
 	for( i in this.blocks){
 		let blk = this.blocks[i];
@@ -144,30 +126,32 @@ Shape.prototype.draw_on_mouse = function () {
 			by = blk.row;
 		}
 	}
+    
 	//We have the col/row.
-	//If midx / midy should be the coords of blk, translate - row and - col and set shape coords.
-	tx = this.midx - (tileSize * bx);
-	ty = this.midy - (tileSize * by);
+    
+	// midx/midy is the closes grid square to the mouse.
+	tx = this.midx - (tileSize * bx) - tileSize;
+	ty = this.midy - (tileSize * by) - tileSize;
 	this.x = tx;
 	this.y = ty;
 	
-	//Loop through and draw?
-    
-    //Should draw though pattern array so that scrolling and relflecting work in real time
-    
     for( i in this.pattern ){
         for( j in this.pattern[i] ){
             if(this.pattern[i][j]){
+                
+                if(j == bx && i == by){
+                    console.log("Dragging block");
+                    rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, "pink", "orange");
+                } else {
+                    console.log(" no Dragging block");
+                    rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, this.colour);
+                   
+                }
                 //Draw
-                rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, this.colour);
+                
             }   
         }
     }
-    
-    
-
-	
-	
 
 }
 
@@ -183,7 +167,6 @@ Shape.prototype.scroll = function(){
             block.dragging = false;
         }
     }
-    let newdrag = this.getmiddle();
-    newdrag.dragging = true;
+
     
 }
