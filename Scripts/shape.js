@@ -2,7 +2,6 @@ var Shape = function (colour, x, y) {
     this.draggable = true;
     this.dragging = false;
     this.patterns = this.pickPattern();
-    this.pattern_number = 0;
     this.pattern = this.patterns[0].slice();
     this.colour = colour || "black";
     this.x = x;
@@ -15,12 +14,7 @@ var Shape = function (colour, x, y) {
 }
 
 Shape.prototype.mirror = function () {
-    //Change pattern to the mirror pattern.
-    let temp_pattern = this.pattern.slice();
-    for (i in temp_pattern) {
-        temp_pattern[i] = temp_pattern[i].slice().reverse();
-    }
-    this.pattern = temp_pattern;
+    this.blocks.map(function(arr){return arr.reverse();});
 }
 
 
@@ -53,7 +47,7 @@ Shape.prototype.makeBlocks = function () {
 }
 
 Shape.prototype.pickPattern = function () {
-    var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
+    var p = pieces[ parseInt(Math.random() * pieces.length, 10) ].slice();
     this.colour = p[1];
     return p[0];
 }
