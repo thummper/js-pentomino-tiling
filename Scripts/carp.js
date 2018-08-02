@@ -65,8 +65,6 @@ function setup() {
 
 function loop() {
 	//Clear canvas
-    holder.trySpawn();
-	   
 	clear();
 	//Draw the grid
 	resetBoard();
@@ -81,6 +79,7 @@ function loop() {
 	//Draw grid and shapes.
 	
 	drawBoard();
+    holder.trySpawn();
 	holder.drawSpace();
 	
 	
@@ -90,11 +89,6 @@ function loop() {
 		let shape = draggingShapes[i];
 		shape.drag();
 		shape.draw_on_mouse();
-	}
-	
-	//Draw the x/y of the dragging shape.
-	if (testx && testy) {
-		rect(testx, testy, tileSize, tileSize, "yellow");
 	}
 	
 	//Run loop as fast as possible.

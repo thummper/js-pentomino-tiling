@@ -1,6 +1,7 @@
 var Holder = function () {
 	//Max pattern size is 5 x 5, the bottom 5 grid spaces are reserved for spawning pieces.
 	//When holder is made, the board is already defined.
+    
 	this.padding = 1;
 	this.padSpaces;
 	this.y = canvas.height - ((5 + this.padding) * tileSize);
@@ -11,46 +12,48 @@ var Holder = function () {
 
 }
 Holder.prototype.checkSpaces = function(){
-	console.log("check spaces");
-	//Checks each space to see if it is empty. 
-	for(let k in this.spaces){
-		
-		let space = this.spaces[k];
-		//Do a similar thing to the shape draw function - check if the grid is empty based on x,y,w,h.
-		console.log("SPACE %i/%i", space.x, space.y);
-		
-		
-		for(let row in board){
-			
-			for(let col in board[row]){
-				
-				let cell = board[row][col];
-				
-				if(cell.x == space.x && cell.y == space.y){
-					console.log("CELL MATCH: %i/%i", cell.x, cell.y);
-					//Found the cell 
-					let free = true;
-					
-					for(let i = 0; i < this.height; i++){
-						for(let j = 0; j < this.width; j++){
-							if(board[parseInt(row) + i][parseInt(col) + j].contains){
-								free = false;
-							}
-						}
-					}
-					if(free){
-						space.piece = false;
-						console.log("Space %i is free", parseInt(k));
-					} else {
-						console.log("Space %i is not free", parseInt(k));	
-					}
-				}
-			}
-		}
-		
-	}
-	
+    
+	console.log("Checking Spaces");
+	//Checks each space to see if it is empty.
+    for(let i = 0; i < this.spaces.length; i++){
+        
+        let space = this.spaces[i];
+        let free = true;
+        //Find the space on the board
+        for(let x = 0; x < board.length; x++){
+            
+            for(let y = 0; y < board[x].length; y++){
+                let cell = board[x][y];
+                if(cell.x == space.x && cell.y == space.y){                    
+                    //Found the top left of the cell.
+                    //Loop through all cells in shape.
+                    let r = x + space.h;
+                    let t = y + space.w;
+
+                    
+                    for(let j = x; j < r; j++){
+                        for(let k = y; k < t; k++){
+                            console.log("checking: ")
+                            if(board[j][k].contains){
+
+                                free = false;   
+                            }
+                        }
+                    } 
+                }
+            }
+        }
+        
+        if(free){
+            //Holder is empty. 
+            console.log("Holder is free");
+            space.piece = false;
+        } else {
+            space.piece = true;
+        }
+    }
 }
+
 Holder.prototype.trySpawn = function(){
 	//Will attempt to spawn a new shape. 
 	for(let i in this.spaces){
@@ -59,9 +62,9 @@ Holder.prototype.trySpawn = function(){
 			space.piece = true;
 			shapes.push(new Shape(randomcol(), space.x, space.y));
 		}
-	}
-	
+	}	
 }
+
 Holder.prototype.makeSpaces = function(){
 	//Set up the shape spaces.
 	let spaces = Math.floor((width - this.padding) / this.width);

@@ -56,18 +56,17 @@ function mouse_down(event) {
                         }
                     }
                 }
+                shape.draw();
             } //end shapes loop 
         } else {
             //Nothing in the array.
             let rect = canvas.getBoundingClientRect();
             mx = event.clientX - rect.left;
             my = event.clientY - rect.top;
-
-
-
+            
             for (let i = shapes.length - 1; i >= 0; i--) {
                 let shape = shapes[i];
-
+                
                 for (let j in shape.blocks) {
                     
                     for (let k in shape.blocks[j]) {
@@ -78,8 +77,6 @@ function mouse_down(event) {
                                 block.dragging = true;
                                 shape.dragging = true;
                                 shape.draggable = false;
-                               
-                                
                                 draggingShapes.push(shape);
                                 shapes.splice(i, 1);
                             }
@@ -89,13 +86,11 @@ function mouse_down(event) {
                 }
             }
         }
-
-
+        
         drawBoard();
         holder.checkSpaces();
         //When a shape is dropped, check the holder to see if a new shape can be spawned.
-
-
+        
     } else {
         //Right button. 
         if (draggingShapes.length > 0) {
@@ -105,18 +100,12 @@ function mouse_down(event) {
             }
         }
     }
-
-
-
-
-
-
-
+    
 }
 
 function mouse_move(event) {
     let rect = canvas.getBoundingClientRect();
     mx = event.clientX - rect.left;
     my = event.clientY - rect.top;
-
+    
 }
