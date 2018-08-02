@@ -36,9 +36,6 @@ Holder.prototype.checkSpaces = function(){
 							if(board[parseInt(row) + i][parseInt(col) + j].contains){
 								free = false;
 							}
-							
-							
-
 						}
 					}
 					if(free){
@@ -59,7 +56,6 @@ Holder.prototype.trySpawn = function(){
 	for(let i in this.spaces){
 		let space = this.spaces[i];
 		if(space.piece == false){
-			//Space is empty, we can spawn a shape in it. 
 			space.piece = true;
 			shapes.push(new Shape(randomcol(), space.x, space.y));
 		}
@@ -72,13 +68,11 @@ Holder.prototype.makeSpaces = function(){
 	this.padSpaces = (width - this.padding) % 5;
 	console.log("SPACES AVAILAIBLE: " + spaces + " PADDING: " + this.padSpaces );
 	//Ignore padding for now as width/height is static.
-	
 	for(let i = 0; i < spaces; i++){
 		let extra = 0;
 		if(this.padSpaces > 0){
 			extra = 1
 			this.padSpaces--;
-			
 		}
 		this.spaces.push({
 			

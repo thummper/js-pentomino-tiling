@@ -42,15 +42,18 @@ function mouse_down(event) {
                 //Loop backwards as deleting elements. 
                 let shape = draggingShapes[i];
                 //Snap shape to grid. 
-                gridSnap(shape);
+              
                 draggingShapes.splice(i, 1);
                 shapes.push(shape);
                 shape.draggable = true;
                 shape.dragging = false;
-
-                for (j in shape.blocks) {
-                    if (shape.blocks[i].dragging) {
-                        shape.blocks[i].dragging = false;
+                
+                for(let j = 0; j < shape.blocks.length; j++){
+                    for(let k = 0; k < shape.blocks[j].length; k++){
+                        let block = shape.blocks[j][k];
+                        if(block.dragging){
+                            block.dragging = false;
+                        }
                     }
                 }
             } //end shapes loop 
@@ -59,24 +62,30 @@ function mouse_down(event) {
             let rect = canvas.getBoundingClientRect();
             mx = event.clientX - rect.left;
             my = event.clientY - rect.top;
-         
-            
-            
+
+
+
             for (let i = shapes.length - 1; i >= 0; i--) {
                 let shape = shapes[i];
-                
+
                 for (let j in shape.blocks) {
                     
-                    let block = shape.blocks[j];
-                    if (block.solid && (mx > block.x && mx < block.x + tileSize) && (my > block.y && my < block.y + tileSize)) {
-                        if (shape.draggable && !shape.dragging) {
-                            shape.dragging = true;
-                            shape.draggable = false;
-                            block.dragging = true;
-                            draggingShapes.push(shape);
-                            shapes.splice(i, 1);
+                    for (let k in shape.blocks[j]) {
+                        let block = shape.blocks[j][k];
+                        
+                        if (block.solid && (mx > block.x && mx < block.x + tileSize) && (my > block.y && my < block.y + tileSize)) {
+                            if (shape.draggable && !shape.dragging) {
+                                block.dragging = true;
+                                shape.dragging = true;
+                                shape.draggable = false;
+                               
+                                
+                                draggingShapes.push(shape);
+                                shapes.splice(i, 1);
+                            }
                         }
                     }
+                    
                 }
             }
         }
