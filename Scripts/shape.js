@@ -28,15 +28,15 @@ Shape.prototype.makeBlocks = function () {
     this.blocks = [];
     for (let x = 0; x < this.pattern.length; x++) {
         this.blocks.push([]);
-        
+
         for (let y = 0; y < this.pattern[x].length; y++) {
-            if(this.pattern[x][y]) {
+            if (this.pattern[x][y]) {
                 //Non zero pattern, add to board. 
                 let block = {
                     dragging: false,
                     solid: true,
                     colour: this.colour || "black",
-                    
+
                 };
                 this.blocks[x][y] = block;
             } else {
@@ -49,7 +49,7 @@ Shape.prototype.makeBlocks = function () {
             }
         }
     }
-   
+
 }
 
 Shape.prototype.pickPattern = function () {
@@ -61,7 +61,7 @@ Shape.prototype.pickPattern = function () {
 Shape.prototype.draw = function () {
     //Adds shape to the board.
     let boardcol, boardrow;
-    
+
     for (let col = 0; col < width; col++) {
         for (let row = 0; row < height; row++) {
             if (board[col][row].x == this.x && board[col][row].y == this.y) {
@@ -70,7 +70,7 @@ Shape.prototype.draw = function () {
             }
         }
     }
-    
+
     for (let x = 0; x < this.blocks.length; x++) {
         for (let y = 0; y < this.blocks[x].length; y++) {
             if (this.blocks[x][y].solid) {
@@ -79,7 +79,7 @@ Shape.prototype.draw = function () {
                 this.blocks[x][y].x = board[boardcol + x][boardrow + y].x;
                 this.blocks[x][y].y = board[boardcol + x][boardrow + y].y;
             } else {
-                
+
                 this.blocks[x][y].x = board[boardcol + x][boardrow + y].x;
                 this.blocks[x][y].y = board[boardcol + x][boardrow + y].y;
             }
@@ -113,12 +113,12 @@ Shape.prototype.draw_on_mouse = function () {
             by = blk.row;
         }
     }
-    
-    
-    for(let i = 0; i < this.blocks.length; i++){
-        for(let j = 0; j < this.blocks[i].length; j++){
+
+
+    for (let i = 0; i < this.blocks.length; i++) {
+        for (let j = 0; j < this.blocks[i].length; j++) {
             let block = this.blocks[i][j];
-            if(block.dragging){
+            if (block.dragging) {
                 bx = j;
                 by = i;
             }
@@ -140,11 +140,11 @@ Shape.prototype.draw_on_mouse = function () {
         }
 
     }
-    
-    for(let i = 0; i < this.blocks.length; i++){
-        for(let j = 0; j < this.blocks[i].length; j++){
+
+    for (let i = 0; i < this.blocks.length; i++) {
+        for (let j = 0; j < this.blocks[i].length; j++) {
             let block = this.blocks[i][j];
-            if(block.solid){
+            if (block.solid) {
                 rect(this.x + (j * tileSize), this.y + (i * tileSize), tileSize, tileSize, block.colour);
             }
         }
@@ -158,30 +158,57 @@ Shape.prototype.draw_on_mouse = function () {
 
 }
 
-Shape.prototype.scroll = function () {
+Shape.prototype.scroll = function (dir) {
     //Rotate the blocks matrix by 90 deg
     let width = this.blocks.length;
     let height = this.blocks[0].length;
     if (width == height) {
         //Square matrix 
-        this.rotateSquare();
+        if(dir){
+            this.rotateCounter();
+        } else {
+            this.rotateSquare();   
+        }
+        
     } else {
         //Non square
         this.rotate();
     }
 }
 
-Shape.prototype.rotateSquare = function() {
-        let a = this.blocks;
-        var n=a.length;
-        for (var i=0; i<n/2; i++) {
-            for (var j=i; j<n-i-1; j++) {
-                var tmp=a[i][j];
-                a[i][j]=a[n-j-1][i];
-                a[n-j-1][i]=a[n-i-1][n-j-1];
-                a[n-i-1][n-j-1]=a[j][n-i-1];
-                a[j][n-i-1]=tmp;
-            }
+Shape.prototype.rotateSquare = function () {
+    //Rotate a square array 90 degrees clockwise
+    let a = this.blocks;
+    var n = a.length;
+    for (var i = 0; i < n / 2; i++) {
+        for (var j = i; j < n - i - 1; j++) {
+            var tmp = a[i][j];
+            a[i][j] = a[n - j - 1][i];
+            a[n - j - 1][i] = a[n - i - 1][n - j - 1];
+            a[n - i - 1][n - j - 1] = a[j][n - i - 1];
+            a[j][n - i - 1] = tmp;
         }
-    this.draw_on_mouse();
     }
+    this.draw_on_mouse();
+}
+
+Shape.prototype.rotateCounter = function () {
+    let a = this.blocks;
+    var n = a.length;
+    for (var i = 0; i < n / 2; i++) {
+        for (var j = i; j < n - i - 1; j++) {
+            var tmp = a[i][j];
+            a[i][j] = a[j][n - i - 1];
+            a[j][n - i - 1] = a[n - i - 1][n - j - 1];
+            a[n - i - 1][n - j - 1] = a[n - j - 1][i];
+            a[n - j - 1][i] = tmp;
+        }
+    }
+    return a;
+
+
+}
+
+Shape.prototype.rotate = function () {
+    //Rotate a non-square array 90 degrees clockwise.
+}
