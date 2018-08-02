@@ -1,8 +1,7 @@
 var Shape = function (colour, x, y) {
     this.draggable = true;
     this.dragging = false;
-    this.patterns = this.pickPattern();
-    this.pattern = this.patterns[0].slice();
+    this.pattern = this.pickPattern();
     this.colour = colour || "black";
     this.x = x;
     this.y = y;
@@ -48,6 +47,8 @@ Shape.prototype.makeBlocks = function () {
 
 Shape.prototype.pickPattern = function () {
     var p = pieces[ parseInt(Math.random() * pieces.length, 10) ].slice();
+    console.log("Picked: ");
+    console.log(p[0]);
     this.colour = p[1];
     return p[0];
 }

@@ -14,7 +14,6 @@ function add_event_listeners(cnv) {
         mouse_move(e);
     });
     window.addEventListener("wheel", function (e) {
-
         scrolled(e.deltaY < 0);
     });
 }
