@@ -26,6 +26,8 @@ Shape.prototype.makeBlocks = function () {
             if (this.pattern[x][y]) {
                 //Non zero pattern, add to board. 
                 let block = {
+					x: this.x + (y * tileSize),
+					y: this.y + (x * tileSize),
                     dragging: false,
                     solid: true,
                     colour: this.colour || "black",
@@ -34,6 +36,8 @@ Shape.prototype.makeBlocks = function () {
                 this.blocks[x][y] = block;
             } else {
                 let block = {
+					x: this.x + (y * tileSize),
+					y: this.y + (x * tileSize),
                     dragging: false,
                     solid: false,
                     colour: this.colour || "black",
@@ -55,31 +59,28 @@ Shape.prototype.pickPattern = function () {
 
 Shape.prototype.draw = function () {
     //Adds shape to the board.
-    let boardcol, boardrow;
-
-    for (let col = 0; col < width; col++) {
-        for (let row = 0; row < height; row++) {
-            if (board[col][row].x == this.x && board[col][row].y == this.y) {
-                boardcol = col;
-                boardrow = row;
-            }
+    for (let col = 0; col < board.length; col++) {
+        for (let row = 0; row < board[col].length; row++) {
+			let cell = board[col][row];
+			
+			for(let i = 0; i < this.blocks.length; i++){
+				for(let j = 0; j < this.blocks[i].length; j++){
+					let block = this.blocks[i][j];
+					if(block.x == cell.x && block.y == cell.y){
+						//Draw the block
+						if(block.solid){
+							rect(block.x, block.y, tileSize, tileSize, block.colour);
+							cell.contains = block;
+						}
+					}
+				}
+			}
         }
     }
+	
 
-    for (let x = 0; x < this.blocks.length; x++) {
-        for (let y = 0; y < this.blocks[x].length; y++) {
-            if (this.blocks[x][y].solid) {
-                //Solid block here, add to array.
-                board[boardcol + x][boardrow + y].contains = this.blocks[x][y];
-                this.blocks[x][y].x = board[boardcol + x][boardrow + y].x;
-                this.blocks[x][y].y = board[boardcol + x][boardrow + y].y;
-            } else {
+	
 
-                this.blocks[x][y].x = board[boardcol + x][boardrow + y].x;
-                this.blocks[x][y].y = board[boardcol + x][boardrow + y].y;
-            }
-        }
-    }
     //Blocks have been added to the grid.
 }
 
@@ -126,19 +127,17 @@ Shape.prototype.draw_on_mouse = function () {
     this.x = tx;
     this.y = ty;
     // tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
-    for (i in this.blocks) {
+  
 
-        let block = this.blocks[i];
-        if (block.solid) {
 
-            rect(this.x + (block.col * tileSize), this.y + (block.row * tileSize), tileSize, tileSize, this.colour);
-        }
-
-    }
 
     for (let i = 0; i < this.blocks.length; i++) {
         for (let j = 0; j < this.blocks[i].length; j++) {
             let block = this.blocks[i][j];
+			block.x = this.x + (j * tileSize);
+			block.y = this.y + (i * tileSize);
+			
+			
             if (block.solid) {
                 rect(this.x + (j * tileSize), this.y + (i * tileSize), tileSize, tileSize, block.colour);
             }
