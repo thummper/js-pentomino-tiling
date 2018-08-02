@@ -34,11 +34,8 @@ function mouse_down(event) {
 
     console.log(event.button);
     //Check if we are dragging a shape, if so drop it, else look for shape to pick up. 
-
-
     if (event.button == 0) {
-
-
+        //If LEFT CLICK
         if (draggingShapes.length > 0) {
             //There's something in the array.
             for (let i = draggingShapes.length - 1; i >= 0; i--) {
@@ -59,25 +56,19 @@ function mouse_down(event) {
             } //end shapes loop 
         } else {
             //Nothing in the array.
-            
-            
             let rect = canvas.getBoundingClientRect();
             mx = event.clientX - rect.left;
             my = event.clientY - rect.top;
-            console.log("Mouse X/Y : " + mx + " / " + my);
+         
             
             
             for (let i = shapes.length - 1; i >= 0; i--) {
-                
                 let shape = shapes[i];
                 
                 for (let j in shape.blocks) {
                     
                     let block = shape.blocks[j];
-                    
-                    if (  (mx > block.x && mx < block.x + tileSize) && (my > block.y && my < block.y + tileSize) ) {
-                        let middle = shape.getmiddle();
-
+                    if (block.solid && (mx > block.x && mx < block.x + tileSize) && (my > block.y && my < block.y + tileSize)) {
                         if (shape.draggable && !shape.dragging) {
                             shape.dragging = true;
                             shape.draggable = false;

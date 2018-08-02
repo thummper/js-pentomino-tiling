@@ -9,31 +9,9 @@ var Shape = function (colour, x, y) {
     this.y = y;
     //Store the coordinates of each of its blocks. 
     this.blocks = [];
-	
 	this.midx;
 	this.midy;
-
-
-
-
 }
-Shape.prototype.getmiddle = function(){
-    //Returns middle block of array
-    let midr = Math.floor(this.pattern.length / 2);
-    let midc = Math.ceil(this.pattern[midr].length / 2);
-    console.log("middle is: ", midr, " ", midc);
-    
-    for(i in this.blocks ){
-        if(this.blocks[i].col == midc && this.blocks[i].row == midr){
-            return this.blocks[i];
-        }
-    } 
-    
-    
-   
-    
-}
-
 
 Shape.prototype.mirror = function(){
 	//Change pattern to the mirror pattern.
@@ -42,13 +20,12 @@ Shape.prototype.mirror = function(){
         temp_pattern[i] = temp_pattern[i].slice().reverse();
     }
     this.pattern = temp_pattern;
- 
 }
+
 Shape.prototype.pickPattern = function () {
     var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
     this.colour = p[1];
     return p[0];
-
 }
 
 Shape.prototype.draw = function () {
@@ -67,7 +44,6 @@ Shape.prototype.draw = function () {
     }
     for (let x = 0; x < this.pattern.length; x++) {
         for (let y = 0; y < this.pattern[x].length; y++) {
-
             if (this.pattern[x][y]) {
                 //Non zero pattern, add to board. 
                 board[boardcol + x][boardrow + y].contains = this;
@@ -76,49 +52,43 @@ Shape.prototype.draw = function () {
                     row: x,
                     x: board[boardcol + x][boardrow + y].x,
                     y: board[boardcol + x][boardrow + y].y,
-                    dragging: false
+                    dragging: false,
+                    solid: true
                 });
             } else {
-                               this.blocks.push({
+                
+                this.blocks.push({
                     col: y,
                     row: x,
                     x: board[boardcol + x][boardrow + y].x,
                     y: board[boardcol + x][boardrow + y].y,
-                    dragging: false
+                    dragging: false,
+                    solid: false
                 });
             }
-
         }
+        //So blocks array is exactly the same as shape array but contains more information.
     }
-
 }
+
 Shape.prototype.drag = function () {
 	//Get the nearest blockpoint to the mouse and put the block we are dragging on it.
 	let mousex = mx;
 	let mousey = my;
 	let xgrid, ygrid;
-
     ygrid = Math.ceil(mousey / tileSize) * tileSize;
     xgrid = Math.ceil(mousex / tileSize) * tileSize;
-
     //midx/midy is the closest grid square to the mouse
 	this.midx = xgrid;
 	this.midy = ygrid;
-    
-    
 	testx = xgrid;
 	testy = ygrid;
-    
-    //console.log("Snapped grid coords: " + testx + " / " + testy);
-
 }
-
 
 Shape.prototype.draw_on_mouse = function () {
 	//The block we picked up should be drawn on the mouse?
 	let bx, by;
     //The block we picked up should be drawn in the grid space closest to the mouse
-	
 	for( i in this.blocks){
 		let blk = this.blocks[i];
 		if(blk.dragging){
@@ -126,32 +96,28 @@ Shape.prototype.draw_on_mouse = function () {
 			by = blk.row;
 		}
 	}
-    
-	//We have the col/row.
-    
-	// midx/midy is the closes grid square to the mouse.
+    // midx/midy is the position the block should be drawn.
+
 	tx = this.midx - (tileSize * bx) - tileSize;
 	ty = this.midy - (tileSize * by) - tileSize;
 	this.x = tx;
 	this.y = ty;
-	
-    for( i in this.pattern ){
-        for( j in this.pattern[i] ){
-            if(this.pattern[i][j]){
-                
-                if(j == bx && i == by){
-                    console.log("Dragging block");
-                    rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, "pink", "orange");
-                } else {
-                    console.log(" no Dragging block");
-                    rect(tx + (j * tileSize), ty + (i * tileSize), tileSize, tileSize, this.colour);
-                   
-                }
-                //Draw
-                
-            }   
+    // tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
+    for( i in this.blocks ){
+        
+        let block = this.blocks[i];
+        if(block.solid){
+            
+        rect( this.x + (block.col * tileSize), this.y + (block.row * tileSize), tileSize, tileSize, this.colour);            
         }
+
     }
+    
+    
+    
+    
+    
+
 
 }
 
