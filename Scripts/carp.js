@@ -53,9 +53,10 @@ function setup() {
 			};
 		}
 	}
+    
+    //Make and set up the shape holder
 	holder = new Holder();
 	holder.makeSpaces();
-
 	//Add event listeners.
 	add_event_listeners(canvas);
 	//Start the game
@@ -68,15 +69,18 @@ function loop() {
 	//Draw the grid
 	resetBoard();
 	//Add all shapes to the grid.
-	for (i in shapes) {
-		let shape = shapes[i];
-		shape.draw();
-	}
+    if(shapes.length > 0){
+        for (i in shapes) {
+		  let shape = shapes[i];
+            shape.draw();
+        }
+    }
+
 	//Draw grid and shapes.
 	
 	drawBoard();
+    holder.trySpawn();
 	holder.drawSpace();
-	holder.trySpawn();
 	
 	
 	
@@ -87,11 +91,6 @@ function loop() {
 		shape.draw_on_mouse();
 	}
 	
-	//Draw the x/y of the dragging shape.
-	if (testx && testy) {
-		rect(testx, testy, tileSize, tileSize, "yellow");
-	}
-	
 	//Run loop as fast as possible.
 	window.requestAnimationFrame(loop);
 }
@@ -100,11 +99,13 @@ function drawBoard() {
 	for (let row = 0; row < width; row++) {
 		for (let col = 0; col < height; col++) {
 			if (board[row][col].contains) {
-				rect(col * tileSize, row * tileSize, tileSize, tileSize, board[row][col].contains.colour, "rgba(0,0,0,0.3)");
-
+                //Gridspot contains a block, draw it.
+                let block = board[row][col].contains;
+                if(block.solid){
+                    rect(block.x, block.y, tileSize, tileSize, block.colour, "black");    
+                }
 			} else {
 				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0,0,0,0.3)");
-
 			}
 		}
 	}
@@ -118,7 +119,7 @@ function resetBoard() {
 			board[row][col] = {
 				x: col * tileSize,
 				y: row * tileSize,
-				contains: false
+				contains: null
 			};
 		}
 	}
@@ -153,36 +154,7 @@ function rect(x, y, w, h, colour, border) {
 	}
 
 }
-//MOVE TO SHAPE.
-function drag(shape) {
-	//Shape should remain on grid while being dragged? 
-	//Get the nearest gridpoint to the block that is being dragged, translate and then set shape coords. 
-	
-	
-}
-//MOVE TO SHAPE
-function gridSnap(shape) {
-//	//Snap the shape to the nearest gridpoint.
-//	let xrem = mx % tileSize;
-//	let yrem = my % tileSize;
-//	let xsnap, ysnap;
-//	xsnap = mx - xrem;
-//	ysnap = my - yrem;
-//	//Find the block we are dragging and translate the coords.
-//	xsnap -= Math.floor((shape.pattern[0].length)/2) * tileSize;
-//	ysnap -= Math.floor((shape.pattern.length)/2   ) * tileSize;
-//	//Don't let shape off the canvas.
-//	if(xsnap < 0){
-//		xsnap = 0;
-//	}
-//	if(ysnap < 0){
-//		ysnap = 0;
-//	}
-//	testx = xsnap;
-//	testy = ysnap;
-//	shape.x = xsnap;
-//	shape.y = ysnap;
-}
+
 
 function random_range(min, max) {
 	//Return random positive integer. 
