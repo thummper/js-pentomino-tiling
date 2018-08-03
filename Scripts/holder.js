@@ -60,7 +60,7 @@ Holder.prototype.trySpawn = function(){
 		let space = this.spaces[i];
 		if(space.piece == false){
 			space.piece = true;
-			shapes.push(new Shape(randomcol(), space.x, space.y));
+			shapes.push(new Shape(space.x, space.y));
 		}
 	}	
 }

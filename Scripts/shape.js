@@ -1,8 +1,8 @@
-var Shape = function (colour, x, y) {
+var Shape = function (x, y) {
     this.draggable = true;
     this.dragging = false;
     this.pattern = this.pickPattern();
-    this.colour = colour || "black";
+    this.colour = randomcol();
     this.x = x;
     this.y = y;
     //Store the coordinates of each of its blocks. 
@@ -51,10 +51,9 @@ Shape.prototype.makeBlocks = function () {
 
 Shape.prototype.pickPattern = function () {
     var p = pieces[ parseInt(Math.random() * pieces.length, 10) ].slice();
-    console.log("Picked: ");
-    console.log(p[0]);
-    this.colour = p[1];
-    return p[0];
+
+    this.colour = randomcol;
+    return p;
 }
 
 Shape.prototype.draw = function () {

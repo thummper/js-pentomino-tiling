@@ -20,15 +20,7 @@ let testx;
 let testy;
 let shapes = [];
 let draggingShapes = [];
-let pieces = [
-	[I, "cyan"],
-	[J, "blue"],
-	[L, "orange"],
-	[O, "yellow"],
-	[S, "green"],
-	[T, "purple"],
-	[Z, "red"]
-];
+let pieces = [P, F, Y, T, W, N, U, V, L, Z, X, I];
 let board = [];
 let holder;
 
@@ -167,6 +159,6 @@ function clear() {
 
 let cols = ["red", "orange", "green", "purple", "yellow", "teal", "cyan", "magenta", "darkorange", "black", "grey"];
 function randomcol(){
-	return cols[random_range(0, cols.length)];
+	return '#'+(Math.random()*0xFFFFFF<<0).toString(16);;
 	
 }
