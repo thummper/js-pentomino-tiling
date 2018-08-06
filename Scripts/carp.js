@@ -114,9 +114,14 @@ function drawBoard() {
                 let block = board[row][col].contains;
                 if(block.solid){
                     rect(block.x, block.y, tileSize, tileSize, block.colour, "black");    
+                } else {
+                    rect(block.x, block.y, tileSize, tileSize, "white", "black");  
                 }
+                
+                
+                
 			} else{
-				rect(col * tileSize, row * tileSize, tileSize, tileSize, "transparent", "rgba(0,0,0,0.3)");
+				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "black");
 			}
 		}
 	}
