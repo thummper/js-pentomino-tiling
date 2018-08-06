@@ -52,7 +52,15 @@ function setup() {
 	//Add event listeners.
 	add_event_listeners(canvas);
 	//Start the game
-	loop();
+	let hole = new Hole(1,2,3);
+    hole.generate();
+    console.log("generated hole: ");
+    console.log(hole.blocks);
+    
+    
+    //loop();
+    
+    
 }
 
 function loop() {
