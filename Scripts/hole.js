@@ -3,7 +3,7 @@ var Hole = function (x, y, d) {
     this.y = y;
     this.difficulty = d;
     //Max width / height of this piece.
-    this.maxw = this.maxh = 8;
+    this.maxw = this.maxh = 10;
     this.numblocks = 0;
     this.freeslots = [];
 
@@ -13,88 +13,125 @@ var Hole = function (x, y, d) {
 }
 
 Hole.prototype.generate = function () {
-    this.blocks = [];
-    this.numblocks = 0;
-    this.freeslots = [];
-    //Bad algorithm.
+
     //Generates a hole that can be filled with pentominos.
     //Lets say that difficulty is the amount of pentominoes this hole is made from.
     //OK, if there are no blocks in the array, make one and add it. 
-    if (this.numblocks == 0) {
-        //Nothing in hole. 
-        let shape = this.pickPattern();
-        //Pick a random valid x/y pair to serve as base coords (this is col/row relative to the hole's position). 
-        let shapex = random_range(0, this.maxw - (shape.length + 1));
-        let shapey = random_range(0, this.maxh - (shape.length + 1));
-        console.log("Shape is at: ", shapex, " ", shapey);
-        //Add the shape's blocks to the block array? 
-        //At this point the blocks array should be empty, so we'll make it and add this shape's blocks.
-        for (let i = 0; i < this.maxh; i++) {
-            let row = [];
-            for (let k = 0; k < this.maxw; k++) {
-                row.push(0);
-            }
-            this.blocks.push(row);
-        }
-        //Draw the shape on the board.
+    //Nothing in hole. 
+    let shape = this.pickPattern();
+    //Pick a random valid x/y pair to serve as base coords (this is col/row relative to the hole's position). 
+    let shapex = random_range(0, this.maxw - (shape.length + 1));
+    let shapey = random_range(0, this.maxh - (shape.length + 1));
 
-        for (let i = 0; i < shape.length; i++) {
-            for (let j = 0; j < shape[i].length; j++) {
-                //Add the shape to the block array. 
-                if (shape[i][j]) {
-                    this.blocks[shapey + i][shapex + j] = 1;
-                }
+
+    //Generate hole's blocks.
+    for (let i = 0; i < this.maxh; i++) {
+        let row = [];
+        for (let k = 0; k < this.maxw; k++) {
+            row.push(0);
+        }
+        this.blocks.push(row);
+    }
+    //Draw the shape on the board.
+
+    for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+            //Add the shape to the block array. 
+            if (shape[i][j]) {
+                this.blocks[shapey + i][shapex + j] = 1;
             }
         }
-        this.numblocks++;
-        this.findSpaces();
     }
+    this.numblocks = 1;
+
     //At this point we have a hole with one pentomino in it?
     //Check if number blocks = to difficulty. 
     for (let i = this.numblocks; i < this.difficulty; i++) {
+
+
         console.log("Generated additional shape");
-        //While blocks need to be added, add them.
-        let shape = this.pickPattern();
-        let canDraw = true;
-        for (let j = this.freeslots.length - 1; j >= 0; j--) {
-            let row = this.freeslots[j][0];
-            let col = this.freeslots[j][1];
+        shape = this.pickPattern();
+        //Loop through the blocks. 
+        for (let x = 0; x < this.blocks.length; x++) {
+            for (let y = 0; y < this.blocks[x].length; y++) {
+                let cell = this.blocks[x][y];
+                if (cell != 1) {
+                    //There's nothing in this space, try to draw the block.
+                    let draw = true;
 
-            if ((row + shape.length < this.maxh) && col + shape[0].length < this.maxw) {
-                for (let k = 0; k < shape.length; k++) {
-                    for (let l = 0; l < shape[k].length; l++) {
-                        if (shape[k][l]) {
-                            if (this.blocks[row + k][col + l] == 1) {
-                                console.log("This slot wont work");
-                                canDraw = false;
-                                break;
-                                //Remove this slot as it is impossilbe to draw in.
-                            }
-                        }
-                    }
-                }
-
-
-                if (canDraw) {
                     for (let j = 0; j < shape.length; j++) {
                         for (let k = 0; k < shape[j].length; k++) {
                             if (shape[j][k]) {
-                                this.blocks[row + j][col + k] = 1;
+                                //Non-zero shape block.
+                                if ((x + j) <= this.blocks.length - shape.length && (y + k) <= this.blocks[0].length - shape[0].length) {
+                                    if (this.blocks[x + j][y + k]) {
+                                        draw = false;
+                                    }
+                                } else {
+                                    draw = false;
+                                }
                             }
                         }
                     }
-                    this.numblocks++;
-                    this.findSpaces();
-                } else {
-                    console.log("cant draw shape");
-                }
 
+                    if (draw) {
+                        console.log("Could draw shape");
+                        //We could draw the block here, but should we? 
+                        //At least 1 non-zero shape block HAS to be touching another one.
+                        let sdraw = false;
+                        for (let j = 0; j < shape.length; j++) {
+                            for (let k = 0; k < shape[j].length; k++) {
+                                if (shape[j][k]) {
+                                    //for each non-zero shape, check if the blocks around it would contain something 
+                                    //if it was drawn into the blocks array.
+                                    let trow = x + j;
+                                    let tcol = y + k;
+
+
+                                    if (trow + 1 <= this.blocks.length) {
+                                        if (this.blocks[trow + 1][tcol] == 1) {
+                                            sdraw = true;
+                                        }
+                                    }
+                                    if (trow + -1 >= 0) {
+                                        if (this.blocks[trow - 1][tcol] == 1) {
+                                            sdraw = true;
+                                        }
+                                    }
+                                    if (tcol - 1 >= 0) {
+                                        if (this.blocks[trow][tcol - 1] == 1) {
+                                            sdraw = true;
+                                        }
+                                    }
+                                    if (tcol + 1 <= this.blocks.length) {
+                                        if (this.blocks[trow][tcol + 1] == 1) {
+                                            sdraw = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (sdraw && (this.numblocks < this.difficulty)) {
+                            console.log("Drawing a Shape");
+                            //We can and should draw this shape.
+                            for (let j = 0; j < shape.length; j++) {
+                                for (let k = 0; k < shape[j].length; k++) {
+                                    if (shape[j][k]) {
+                                        this.blocks[x + j][y + k] = 1;
+                                    }
+                                }
+                            }
+                            this.numblocks++;
+                        }
+                    }
+                }
             }
         }
     }
-    if(this.numblocks != this.difficulty){
-     this.generate();   
-    }
+
+    console.log("Generated a hole with: " + this.numblocks + " spaces");
+
+
 }
 
 
