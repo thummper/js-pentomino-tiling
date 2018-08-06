@@ -178,3 +178,41 @@ Hole.prototype.pickPattern = function () {
     var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
     return p;
 }
+
+Hole.prototype.draw = function(){
+
+    //Draw the hole onto the grid.
+    for(let row = 0; row < board.length; row++){
+        for(let col = 0; col < board[row].length; col++){
+            
+            let cell = board[row][col];
+            if(row == this.y && col == this.x){
+                //Found start of hole.
+                for(let i = 0; i < this.blocks.length; i++){
+                    for(let j = 0; j < this.blocks[i].length; j++){
+                        let block = this.blocks[i][j];
+                        if(block){
+                            board[row + i][col + j].contains = {
+                                x:  (this.x + i) * tileSize,
+                                y:  (this.y + j) * tileSize,
+                                solid: true,
+                                colour: "black"
+                            };
+                            
+                        }
+                        
+                    }
+                    
+                    
+                }
+                
+                
+            }
+            
+            
+        }
+    }
+    
+    
+    
+}

@@ -23,6 +23,7 @@ let draggingShapes = [];
 let pieces = [P, F, Y, T, W, N, U, V, L, Z, X, I];
 let board = [];
 let holder;
+let hole = null;
 
 
 
@@ -52,13 +53,11 @@ function setup() {
 	//Add event listeners.
 	add_event_listeners(canvas);
 	//Start the game
-	let hole = new Hole(1,2,3);
-    hole.generate();
-    console.log("generated hole: ");
-    console.log(hole.blocks);
+
+
     
     
-    //loop();
+    loop();
     
     
 }
@@ -68,6 +67,18 @@ function loop() {
 	clear();
 	//Draw the grid
 	resetBoard();
+    
+    if(!hole){
+        //Theres no hole. 
+        hole = new Hole(1, 1, 4);
+        hole.generate();
+    } else {
+        //There is a hole. 
+        hole.draw();
+        
+    }
+    
+    
 	//Add all shapes to the grid.
     if(shapes.length > 0){
         for (i in shapes) {
@@ -104,8 +115,8 @@ function drawBoard() {
                 if(block.solid){
                     rect(block.x, block.y, tileSize, tileSize, block.colour, "black");    
                 }
-			} else {
-				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0,0,0,0.3)");
+			} else{
+				rect(col * tileSize, row * tileSize, tileSize, tileSize, "transparent", "rgba(0,0,0,0.3)");
 			}
 		}
 	}
