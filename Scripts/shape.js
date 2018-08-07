@@ -31,6 +31,8 @@ Shape.prototype.makeBlocks = function () {
                     dragging: false,
                     solid: true,
                     colour: this.colour || "black",
+                    border: "transparent",
+                    type: "shape_solid"
 
                 };
                 this.blocks[x][y] = block;
@@ -42,6 +44,7 @@ Shape.prototype.makeBlocks = function () {
                     dragging: false,
                     solid: false,
                     colour: "transparent",
+                    type:"shape_hollow"
                 };
                 this.blocks[x][y] = block;
             }

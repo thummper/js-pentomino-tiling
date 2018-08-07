@@ -7,6 +7,8 @@ var Hole = function (x, y, d) {
     this.numblocks = 0;
     //Blocks should store all solid blocks inside hole.
     this.blocks = [];
+    this.spaces = 0;
+    this.filled = 0;
 }
 
 Hole.prototype.generate = function () {
@@ -111,6 +113,7 @@ Hole.prototype.generate = function () {
                                 for (let k = 0; k < shape[j].length; k++) {
                                     if (shape[j][k]) {
                                         this.blocks[x + j][y + k] = 1;
+                                        this.spaces++;
                                     }
                                 }
                             }
@@ -133,7 +136,6 @@ Hole.prototype.draw = function () {
     for (let row = 0; row < board.length; row++) {
         for (let col = 0; col < board[row].length; col++) {
             let cell = board[row][col];
-            
             if (row == this.y && col == this.x) {
                 //Found start of hole.
                 for (let i = 0; i < this.blocks.length; i++) {
@@ -145,14 +147,39 @@ Hole.prototype.draw = function () {
                                 y: (this.y + j) * tileSize,
                                 solid: true,
                                 colour: "rgba(0, 0, 0, 0.2)",
-                                border: "transparent"
+                                border: "transparent",
+                                type: "hole"
                             };
-                            
                         }
                     }
                 }
                 break;
             }
         }
+    }
+}
+Hole.prototype.checkState = function(){
+    //Will determine if the hole is filled or not. 
+    //Number of free spaces in spaces/ taken spaces in filled.
+    for(let i = 0; i < this.blocks.length; i++){
+        for(let j = 0; j < this.blocks[i].length; j++){
+            let block = this.blocks[i][j];
+            if(block){
+                //Block is actually a hole.
+                //Check the board.
+                let boardcell = board[this.y + i][this.x + j];
+                if(boardcell.contains.type == "shape_solid"){
+                    //There's a shape block in this hole.
+                    this.spaces--;
+                }
+            }
+        }
+    }
+    
+    if(this.filled == this.spaces){
+        //Hole is filled.
+      console.log("Hole is filled");
+    } else{
+        console.log("Hole has: " + this.spaces + " empty spaces");
     }
 }

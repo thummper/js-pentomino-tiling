@@ -102,6 +102,7 @@ function loop() {
             shape.draw();
         }
     }
+    hole.checkState();
 
 	//Draw grid and shapes.
 	drawBoard();
