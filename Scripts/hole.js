@@ -80,8 +80,6 @@ Hole.prototype.generate = function () {
                                     //if it was drawn into the blocks array.
                                     let trow = x + j;
                                     let tcol = y + k;
-
-
                                     if (trow + 1 <= this.blocks.length) {
                                         if (this.blocks[trow + 1][tcol] == 1) {
                                             sdraw++;
@@ -113,7 +111,7 @@ Hole.prototype.generate = function () {
                                 for (let k = 0; k < shape[j].length; k++) {
                                     if (shape[j][k]) {
                                         this.blocks[x + j][y + k] = 1;
-                                        this.spaces++;
+                                       
                                     }
                                 }
                             }
@@ -124,6 +122,7 @@ Hole.prototype.generate = function () {
             }
         }
     }
+    this.spaces = this.numblocks * 5;
 }
 
 Hole.prototype.pickPattern = function () {
@@ -159,6 +158,7 @@ Hole.prototype.draw = function () {
     }
 }
 Hole.prototype.checkState = function(){
+    this.filled = 0;
     //Will determine if the hole is filled or not. 
     //Number of free spaces in spaces/ taken spaces in filled.
     for(let i = 0; i < this.blocks.length; i++){
@@ -169,17 +169,15 @@ Hole.prototype.checkState = function(){
                 //Check the board.
                 let boardcell = board[this.y + i][this.x + j];
                 if(boardcell.contains.type == "shape_solid"){
-                    //There's a shape block in this hole.
-                    this.spaces--;
+                    this.filled++;
                 }
             }
         }
     }
     
     if(this.filled == this.spaces){
-        //Hole is filled.
       console.log("Hole is filled");
     } else{
-        console.log("Hole has: " + this.spaces + " empty spaces");
+        console.log("Hole has: " + (this.spaces - this.filled) + " empty spaces");
     }
 }
