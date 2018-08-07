@@ -1,5 +1,5 @@
-# YPP-Carpentry-Clone
-An attempt to clone the carpentry puzzle (a pentomino style tiling puzzle) from Puzzle Pirates in JS.
+# Pentomino Tiling Puzzle
+A pentomini tiling game. 
 
 
 ![Gif](https://i.imgur.com/H7cosi2.gif)
