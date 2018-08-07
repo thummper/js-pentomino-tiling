@@ -33,7 +33,7 @@ Holder.prototype.checkSpaces = function(){
                     
                     for(let j = x; j < r; j++){
                         for(let k = y; k < t; k++){
-                            console.log("checking: ")
+                        
                             if(board[j][k].contains){
 
                                 free = false;   

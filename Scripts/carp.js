@@ -5,8 +5,8 @@ window.onload = function () {
 	setup();
 };
 //variables 
-let tileSize = 34;
-let width = 22;
+let tileSize = 28;
+let width = 26;
 let height = width;
 let xspan;
 let yspan;
@@ -20,7 +20,7 @@ let testx;
 let testy;
 let shapes = [];
 let draggingShapes = [];
-let pieces = [P, F, Y, T, W, N, U, V, L, Z, X, I];
+let pieces = [P, P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
 let board = [];
 let holder;
 let hole = null;
@@ -30,11 +30,11 @@ let hole = null;
 
 
 function setup() {
+    
 	canvas = document.getElementById("carp_canvas");
 	ctx = canvas.getContext("2d");
 	canvas.width = tileSize * width;
 	canvas.height = tileSize * height;
-
 	//Set up the gameboard. 
 	for (let row = 0; row < height; row++) {
 		board[row] = [];
@@ -53,10 +53,6 @@ function setup() {
 	//Add event listeners.
 	add_event_listeners(canvas);
 	//Start the game
-
-
-    
-    
     loop();
     
     
@@ -70,15 +66,35 @@ function loop() {
     
     if(!hole){
         //Theres no hole. 
-        hole = new Hole(1, 1, 4);
-        hole.generate();
+        let holes =[];
+        let maxi, maxn;
+        for(let i = 0; i < 10; i++){
+            let hhole = new Hole(8, 8, random_range(2, 8));
+            hhole.generate();
+            holes.push(hhole);
+        }
+        
+        
+        for(i in holes){
+            if(maxi && maxn){
+                if(holes[i].numblocks >= maxn){
+                    maxn = holes[i].numblocks;
+                    maxi = i;
+                }
+            } else {
+                maxi = i;
+                maxn = holes[i].numblocks;
+            }
+        }
+        console.log("Picked hole: " + maxn);
+        hole = holes[maxi];
+        console.log("Array: " );
+        console.log(hole.blocks);   
+        
     } else {
         //There is a hole. 
         hole.draw();
-        
     }
-    
-    
 	//Add all shapes to the grid.
     if(shapes.length > 0){
         for (i in shapes) {
@@ -88,13 +104,9 @@ function loop() {
     }
 
 	//Draw grid and shapes.
-	
 	drawBoard();
     holder.trySpawn();
 	holder.drawSpace();
-	
-	
-	
 	//Draw the dragging shape on the mouse.
 	for (i in draggingShapes) {
 		let shape = draggingShapes[i];
@@ -109,19 +121,11 @@ function loop() {
 function drawBoard() {
 	for (let row = 0; row < width; row++) {
 		for (let col = 0; col < height; col++) {
-			if (board[row][col].contains) {
-                //Gridspot contains a block, draw it.
-                let block = board[row][col].contains;
-                if(block.solid){
-                    rect(block.x, block.y, tileSize, tileSize, block.colour, "black");    
-                } else {
-                    rect(block.x, block.y, tileSize, tileSize, "white", "black");  
-                }
-                
-                
-                
+            let cell = board[row][col];
+			if (cell.contains && cell.contains.solid) {
+                rect(cell.x, cell.y, tileSize, tileSize, cell.contains.colour, cell.contains.border);    
 			} else{
-				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "black");
+				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0, 0, 0, 0.3)");
 			}
 		}
 	}
@@ -135,7 +139,7 @@ function resetBoard() {
 			board[row][col] = {
 				x: col * tileSize,
 				y: row * tileSize,
-				contains: null
+				contains: false
 			};
 		}
 	}

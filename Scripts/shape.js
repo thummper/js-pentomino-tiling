@@ -35,12 +35,13 @@ Shape.prototype.makeBlocks = function () {
                 };
                 this.blocks[x][y] = block;
             } else {
+                //Non Zero
                 let block = {
 					x: this.x + (y * tileSize),
 					y: this.y + (x * tileSize),
                     dragging: false,
                     solid: false,
-                    colour: this.colour || "black",
+                    colour: "transparent",
                 };
                 this.blocks[x][y] = block;
             }
@@ -57,23 +58,33 @@ Shape.prototype.pickPattern = function () {
 }
 
 Shape.prototype.draw = function () {
+ 
     //Adds shape to the board.
     for (let col = 0; col < board.length; col++) {
         for (let row = 0; row < board[col].length; row++) {
+            
+            
+            
 			let cell = board[col][row];
 			
-			for(let i = 0; i < this.blocks.length; i++){
-				for(let j = 0; j < this.blocks[i].length; j++){
-					let block = this.blocks[i][j];
-					if(block.x == cell.x && block.y == cell.y){
-						//Draw the block
-						if(block.solid){
-							rect(block.x, block.y, tileSize, tileSize, block.colour);
-							cell.contains = block;
-						}
-					}
-				}
-			}
+            if(cell.x == this.x && cell.y == this.y){
+                //Found pos on grid 
+                for(let i = 0; i < this.blocks.length; i++){
+                    for(let j = 0; j < this.blocks[i].length; j++){
+                        let block = this.blocks[i][j];
+                        if(block.solid){
+                            //Add to grid.
+                            board[col + i][row + j].contains = block;
+                        }
+                    }
+                }
+                
+                
+                
+            }
+            
+            
+
         }
     }
 	
@@ -126,10 +137,6 @@ Shape.prototype.draw_on_mouse = function () {
     this.x = tx;
     this.y = ty;
     // tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
-  
-
-
-
     for (let i = 0; i < this.blocks.length; i++) {
         for (let j = 0; j < this.blocks[i].length; j++) {
             let block = this.blocks[i][j];
@@ -167,6 +174,7 @@ Shape.prototype.scroll = function (dir) {
         //Non square
         this.rotate();
     }
+    this.draw_on_mouse();
 }
 
 Shape.prototype.rotateSquare = function () {

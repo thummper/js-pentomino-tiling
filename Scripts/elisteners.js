@@ -25,6 +25,7 @@ function scrolled(event) {
             let shape = draggingShapes[i];
             console.log("Scroll");
             shape.scroll();
+           
         }
     }
 }
@@ -36,10 +37,12 @@ function mouse_down(event) {
     if (event.button == 0) {
         //If LEFT CLICK
         if (draggingShapes.length > 0) {
+            
             //There's something in the array.
             for (let i = draggingShapes.length - 1; i >= 0; i--) {
                 //Loop backwards as deleting elements. 
                 let shape = draggingShapes[i];
+                shape.draw_on_mouse();
                 //Snap shape to grid. 
               
                 draggingShapes.splice(i, 1);
@@ -55,6 +58,7 @@ function mouse_down(event) {
                         }
                     }
                 }
+        
                 shape.draw();
             } //end shapes loop 
         } else {
