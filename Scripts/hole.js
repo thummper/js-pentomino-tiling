@@ -139,16 +139,20 @@ Hole.prototype.draw = function () {
                 //Found start of hole.
                 for (let i = 0; i < this.blocks.length; i++) {
                     for (let j = 0; j < this.blocks[i].length; j++) {
+						
                         let block = this.blocks[i][j];
                         if (block) {
-                            board[row + i][col + j].contains = {
+							
+                            board[row + i][col + j].contains.push(
+								{
                                 x: (this.x + i) * tileSize,
                                 y: (this.y + j) * tileSize,
                                 solid: true,
                                 colour: "rgba(0, 0, 0, 0.2)",
-                                border: "transparent",
+                                border: "black",
                                 type: "hole"
-                            };
+                            }
+							);
                         }
                     }
                 }
@@ -168,16 +172,16 @@ Hole.prototype.checkState = function(){
                 //Block is actually a hole.
                 //Check the board.
                 let boardcell = board[this.y + i][this.x + j];
-                if(boardcell.contains.type == "shape_solid"){
-                    this.filled++;
+                if(boardcell.contains){
+            
                 }
             }
         }
     }
     
     if(this.filled == this.spaces){
-      console.log("Hole is filled");
+      
     } else{
-        console.log("Hole has: " + (this.spaces - this.filled) + " empty spaces");
+
     }
 }

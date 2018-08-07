@@ -33,11 +33,15 @@ Holder.prototype.checkSpaces = function(){
                     
                     for(let j = x; j < r; j++){
                         for(let k = y; k < t; k++){
-                        
-                            if(board[j][k].contains){
-
-                                free = false;   
-                            }
+							for(let m in board[j][k].contains){
+								let blk = board[j][k].contains[m];
+								if(blk.type == "shape_solid"){
+								free = false; 	
+								}
+							}
+							
+							
+                     
                         }
                     } 
                 }

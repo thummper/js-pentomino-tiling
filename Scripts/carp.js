@@ -30,7 +30,7 @@ let hole = null;
 
 
 function setup() {
-    
+
 	canvas = document.getElementById("carp_canvas");
 	ctx = canvas.getContext("2d");
 	canvas.width = tileSize * width;
@@ -42,20 +42,20 @@ function setup() {
 			board[row][col] = {
 				x: col * tileSize,
 				y: row * tileSize,
-				contains: false
+				contains: []
 			};
 		}
 	}
-    
-    //Make and set up the shape holder
+
+	//Make and set up the shape holder
 	holder = new Holder();
 	holder.makeSpaces();
 	//Add event listeners.
 	add_event_listeners(canvas);
 	//Start the game
-    loop();
-    
-    
+	loop();
+
+
 }
 
 function loop() {
@@ -63,50 +63,50 @@ function loop() {
 	clear();
 	//Draw the grid
 	resetBoard();
-    
-    if(!hole){
-        //Theres no hole. 
-        let holes =[];
-        let maxi, maxn;
-        for(let i = 0; i < 10; i++){
-            let hhole = new Hole(8, 8, random_range(2, 8));
-            hhole.generate();
-            holes.push(hhole);
-        }
-        
-        
-        for(i in holes){
-            if(maxi && maxn){
-                if(holes[i].numblocks >= maxn){
-                    maxn = holes[i].numblocks;
-                    maxi = i;
-                }
-            } else {
-                maxi = i;
-                maxn = holes[i].numblocks;
-            }
-        }
-        console.log("Picked hole: " + maxn);
-        hole = holes[maxi];
-        console.log("Array: " );
-        console.log(hole.blocks);   
-        
-    } else {
-        //There is a hole. 
-        hole.draw();
-    }
+
+	if (!hole) {
+		//Theres no hole. 
+		let holes = [];
+		let maxi, maxn;
+		for (let i = 0; i < 10; i++) {
+			let hhole = new Hole(8, 8, random_range(2, 8));
+			hhole.generate();
+			holes.push(hhole);
+		}
+
+
+		for (i in holes) {
+			if (maxi && maxn) {
+				if (holes[i].numblocks >= maxn) {
+					maxn = holes[i].numblocks;
+					maxi = i;
+				}
+			} else {
+				maxi = i;
+				maxn = holes[i].numblocks;
+			}
+		}
+		console.log("Picked hole: " + maxn);
+		hole = holes[maxi];
+		console.log("Array: ");
+		console.log(hole.blocks);
+
+	} else {
+		//There is a hole. 
+		hole.draw();
+	}
 	//Add all shapes to the grid.
-    if(shapes.length > 0){
-        for (i in shapes) {
-		  let shape = shapes[i];
-            shape.draw();
-        }
-    }
-    hole.checkState();
+	if (shapes.length > 0) {
+		for (i in shapes) {
+			let shape = shapes[i];
+			shape.draw();
+		}
+	}
+	hole.checkState();
 
 	//Draw grid and shapes.
 	drawBoard();
-    holder.trySpawn();
+	holder.trySpawn();
 	holder.drawSpace();
 	//Draw the dragging shape on the mouse.
 	for (i in draggingShapes) {
@@ -114,7 +114,7 @@ function loop() {
 		shape.drag();
 		shape.draw_on_mouse();
 	}
-	
+
 	//Run loop as fast as possible.
 	window.requestAnimationFrame(loop);
 }
@@ -122,12 +122,43 @@ function loop() {
 function drawBoard() {
 	for (let row = 0; row < width; row++) {
 		for (let col = 0; col < height; col++) {
-            let cell = board[row][col];
-			if (cell.contains && cell.contains.solid) {
-                rect(cell.x, cell.y, tileSize, tileSize, cell.contains.colour, cell.contains.border);    
-			} else{
-				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0, 0, 0, 0.3)");
+			let cell = board[row][col];
+			if(cell.contains.length > 0){
+				for(let i = cell.contains.length-1; i >= 0; i--){
+					
+					let block = cell.contains[i];
+					rect(col * tileSize, row * tileSize, tileSize, tileSize, block.colour);
+					break;
+					
+
+				}
+				
+				
+				
+				
+			} else {
+			rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0, 0, 0, 0.3)");	
 			}
+			
+			
+			
+		
+			
+		
+//			if (cell.contains.length > 0) {
+//			
+//
+//				for (let i = cell.contains.length - 1; i >= 0; i--) {
+//					let block = cell.contains[i];
+//					console.log(block);
+//					if (block && block.solid) {
+//						rect(block.x, block.y, tileSize, tileSize, block.colour, "black");
+//						break;
+//					}
+//				}
+//			} else {
+//				rect(col * tileSize, row * tileSize, tileSize, tileSize, "white", "rgba(0, 0, 0, 0.3)");
+//			}
 		}
 	}
 }
@@ -140,7 +171,7 @@ function resetBoard() {
 			board[row][col] = {
 				x: col * tileSize,
 				y: row * tileSize,
-				contains: false
+				contains: []
 			};
 		}
 	}
@@ -187,7 +218,8 @@ function clear() {
 }
 
 let cols = ["red", "orange", "green", "purple", "yellow", "teal", "cyan", "magenta", "darkorange", "black", "grey"];
-function randomcol(){
-	return '#'+(Math.random()*0xFFFFFF<<0).toString(16);;
-	
+
+function randomcol() {
+	return '#' + (Math.random() * 0xFFFFFF << 0).toString(16);;
+
 }
