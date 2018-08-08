@@ -213,3 +213,67 @@ Hole.prototype.calcScore = function (difficulty, overfill, time) {
     baseScore -= (overfill * (difficulty - 1.5));
     return baseScore;
 }
+Hole.prototype.trim = function () {
+    console.log("Blocks before: ");
+    console.log(this.blocks);
+    //Removes empty rows and columns from a hole. 
+
+
+    for (let i = this.blocks.length - 1; i >= 0; i--) {
+        let removable = true;
+        for (let j = this.blocks[i].length; j >= 0; j--) {
+            if (this.blocks[i][j] == 1) {
+                removable = false;
+            }
+        }
+        if (removable) {
+            //Remove this row.
+            this.blocks.splice(i, 1);
+        }
+    }
+
+
+
+    //Extra rows have been removed. 
+    //Remove excess columns.
+    for(let i = 0; i < this.blocks[0].length; i++){
+        //For each column in the array.
+        let removable = true;
+        
+        for(let j = 0; j < this.blocks.length; j++){
+            //For each row.
+            let cell = this.blocks[j][i];
+            if(cell == 1){
+                this.removable = false;
+            }
+        }
+        if(removable){
+            //Remove column i.
+            
+            for(let j = 0; j < this.blocks.length; j++){
+                this.blocks[j].splice(i, 1);
+            }
+            
+        }
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+
+
+    console.log("Blocks after: ");
+    console.log(this.blocks);
+
+
+
+
+}
+
+Hole.prototype.clear = function () {
+    //Remove the shapes associated with the hole.
+}

@@ -21,7 +21,6 @@ Shape.prototype.makeBlocks = function () {
     this.blocks = [];
     for (let x = 0; x < this.pattern.length; x++) {
         this.blocks.push([]);
-
         for (let y = 0; y < this.pattern[x].length; y++) {
             if (this.pattern[x][y]) {
                 //Non zero pattern, add to board. 
@@ -32,7 +31,8 @@ Shape.prototype.makeBlocks = function () {
                     solid: true,
                     colour: this.colour || "black",
                     border: "transparent",
-                    type: "shape_solid"
+                    type: "shape_solid",
+                    shape: this
 
                 };
                 this.blocks[x][y] = block;
@@ -44,7 +44,8 @@ Shape.prototype.makeBlocks = function () {
                     dragging: false,
                     solid: false,
                     colour: "transparent",
-                    type:"shape_hollow"
+                    type:"shape_hollow",
+                    shape: this
                 };
                 this.blocks[x][y] = block;
             }

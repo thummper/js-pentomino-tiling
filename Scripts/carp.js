@@ -11,6 +11,7 @@ let num_holes = 0;
 let difficulty = 4;
 let lc = 20;
 let lp = 0;
+nextx = 1;
 
 
 let shapes = [];
@@ -55,10 +56,10 @@ function setup() {
     num_holes = width % hole_dimen;
     let hpadding = width - (num_holes * hole_dimen);
 
-    for (let i = 0; i < num_holes; i++) {
+    for (let i = 0; i <= num_holes; i++) {
         //Generate best holes.
-        let tx = 1 + (i * hole_dimen);
-        let ty = 4;
+        let tx = nextx;
+        let ty = 1;
         holes.push(gen_best_hole(tx, ty, hole_dimen, (difficulty + filled)));
     }
     //Add event listeners.
@@ -83,6 +84,16 @@ function gen_best_hole(tx, ty, dimention, diff) {
             best = i;
         }
     }
+    temp_holes[best].trim();  
+    //Recaculate num holes 
+    let space = 0;
+    for( i in holes){
+        space += holes[i].blocks[0].length;
+    }
+    num_holes = (width - space) % hole_dimen;
+    nextx += space;
+    console.log("nH: " + num_holes);
+    
     return temp_holes[best];
 }
 
