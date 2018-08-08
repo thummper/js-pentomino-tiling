@@ -58,9 +58,9 @@ function setup() {
 
     for (let i = 0; i <= num_holes; i++) {
         //Generate best holes.
-        let tx = nextx;
+        let tx = 1 + (i * hole_dimen);
         let ty = 1;
-        holes.push(gen_best_hole(tx, ty, hole_dimen, (difficulty + filled)));
+        holes.push(gen_best_hole(tx, ty, hole_dimen, difficulty *2));
     }
     //Add event listeners.
     add_event_listeners(canvas);
@@ -84,7 +84,7 @@ function gen_best_hole(tx, ty, dimention, diff) {
             best = i;
         }
     }
-    temp_holes[best].trim();  
+     
     //Recaculate num holes 
     let space = 0;
     for( i in holes){
@@ -93,7 +93,7 @@ function gen_best_hole(tx, ty, dimention, diff) {
     num_holes = (width - space) % hole_dimen;
     nextx += space;
     console.log("nH: " + num_holes);
-    
+
     return temp_holes[best];
 }
 
@@ -117,24 +117,8 @@ function loop() {
     if (holes.length > 0) {
         for (let i = holes.length - 1; i >= 0; i--) {
             let hole = holes[i];
-                let finish = hole.checkState();
-                if (finish) {
-                    //Hole has been finished.
-                    if(hole.overfill == 0){
-                        //Hole was filled with no errors. 
-                        console.log("MASTERPIECE");
-                        hole.score = Math.abs(hole.score) * (mp + 1 * 2) ;
-                        
-                    } else {
-                        mp = 0;
-                    }
-                    console.log("Finished hole with score of: " + hole.score);
-                    filled++;
-                    hole.clear();
-                    holes.splice(i, 1);
-                }
+                hole.checkState();
             }
-        
     }
 
     //Draw grid and shapes.
