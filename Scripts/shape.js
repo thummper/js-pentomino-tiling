@@ -74,6 +74,7 @@ Shape.prototype.draw = function () {
                         if(block.solid){
                             //Add to grid.
                             board[col + i][row + j].contains.push(block);
+                        
                         }
                     }
                 }

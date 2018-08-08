@@ -1,49 +1,33 @@
+//variables 
+let xspan, yspan, mx, my, canvas, ctx, holder, fpsc, fps, starttime;
+let mp = 0;
+let filled = 0;
+let score = 0;
+let tileSize = 28;
+let width = 26,
+    height = width;
+let hole_dimen = 12;
+let num_holes = 0;
+let difficulty = 4;
+let lc = 20;
+let lp = 0;
+
+
+let shapes = [];
+let draggingShapes = [];
+let pieces = [P, P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
+let board = [];
+let holes = [];
+
 window.onload = function () {
     document.body.style.opacity = "1";
     fpsc = document.getElementById("fps");
     //Start script
     setup();
 };
-//variables 
-var fpsc;
-let tileSize = 28;
-let width = 26;
-let height = width;
-let xspan;
-let yspan;
-let mx;
-let my;
-let canvas;
-let ctx;
-let lc = 20;
-//Used for drawing shape x/y
-let testx;
-let testy;
-let shapes = [];
-let draggingShapes = [];
-let pieces = [P, P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
-let board = [];
-let holder;
-let hole = null;
-let lp = 0;
-let fps;
-//Hole is 12 * 12.
-let hole_dimen = 12;
-let num_holes = 0;
-let difficulty = 4;
-let holes = [];
-
-let starttime;
-
-//Game board will only update is this is true?
-let update = false;
-
 window.setInterval(function () {
     fpsc.innerHTML = fps;
-
 }, 1000);
-
-
 
 
 function setup() {
@@ -65,19 +49,18 @@ function setup() {
     //Make and set up the shape holder
     holder = new Holder();
     holder.makeSpaces();
+
+
     //Work out how many holes we can have?
     num_holes = width % hole_dimen;
+    let hpadding = width - (num_holes * hole_dimen);
 
     for (let i = 0; i < num_holes; i++) {
         //Generate best holes.
-        let tx = 0 + (i * hole_dimen);
-        let ty = 0;
-        holes.push(gen_best_hole(tx, ty, hole_dimen, difficulty));
-
-
+        let tx = 1 + (i * hole_dimen);
+        let ty = 4;
+        holes.push(gen_best_hole(tx, ty, hole_dimen, (difficulty + filled)));
     }
-
-
     //Add event listeners.
     add_event_listeners(canvas);
     loop();
@@ -89,12 +72,9 @@ function gen_best_hole(tx, ty, dimention, diff) {
     let temp_holes = [];
     let best;
     for (let i = 0; i < 5; i++) {
-        console.log("gen hole with dimen: " + dimention);
         let hole = new Hole(tx, ty, dimention, diff);
         hole.generate();
         temp_holes.push(hole);
-
-
         if (best) {
             if (hole.numblocks >= temp_holes[best].numblocks) {
                 best = i;
@@ -103,32 +83,48 @@ function gen_best_hole(tx, ty, dimention, diff) {
             best = i;
         }
     }
-
     return temp_holes[best];
 }
 
 
 function loop() {
+    work_fps();
     clearGame();
     if (holes.length > 0) {
-        for(let i in holes){
+        for (let i in holes) {
             let hole = holes[i];
             hole.draw();
-            hole.checkState();
         }
-
     }
-
-
     if (shapes.length > 0) {
         for (i in shapes) {
             let shape = shapes[i];
             shape.draw();
         }
     }
-
-
-
+    //Have to check hole state after shapes are drawn unfortunatly
+    if (holes.length > 0) {
+        for (let i = holes.length - 1; i >= 0; i--) {
+            let hole = holes[i];
+                let finish = hole.checkState();
+                if (finish) {
+                    //Hole has been finished.
+                    if(hole.overfill == 0){
+                        //Hole was filled with no errors. 
+                        console.log("MASTERPIECE");
+                        hole.score = Math.abs(hole.score) * (mp + 1 * 2) ;
+                        
+                    } else {
+                        mp = 0;
+                    }
+                    console.log("Finished hole with score of: " + hole.score);
+                    filled++;
+                    hole.clear();
+                    holes.splice(i, 1);
+                }
+            }
+        
+    }
 
     //Draw grid and shapes.
     drawBoard();
