@@ -55,23 +55,19 @@ Shape.prototype.makeBlocks = function () {
 
 Shape.prototype.pickPattern = function () {
     var p = pieces[ parseInt(Math.random() * pieces.length, 10) ].slice();
-
     this.colour = randomcol;
     return p;
 }
 
 Shape.prototype.draw = function () {
- 
-    //Adds shape to the board.
+    
     for (let col = 0; col < board.length; col++) {
         for (let row = 0; row < board[col].length; row++) {
             
-            
-            
 			let cell = board[col][row];
-			
             if(cell.x == this.x && cell.y == this.y){
-                //Found pos on grid 
+                
+                //Found the correct grid position
                 for(let i = 0; i < this.blocks.length; i++){
                     for(let j = 0; j < this.blocks[i].length; j++){
                         let block = this.blocks[i][j];

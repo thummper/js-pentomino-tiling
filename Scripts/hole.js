@@ -1,22 +1,25 @@
-var Hole = function (x, y, d) {
+var Hole = function (x, y, dimention, difficulty) {
     this.x = x;
     this.y = y;
-    this.difficulty = d;
-    //Max width / height of this piece.
-    this.maxw = this.maxh = 12;
-    this.numblocks = 0;
-    //Blocks should store all solid blocks inside hole.
+    this.difficulty = difficulty;
+    this.dimen = dimention;
+    
     this.blocks = [];
     this.spaces = 0;
     this.filled = 0;
+    this.numblocks = 0;
+    console.log("SET DIMEN: " + dimention);
 }
 
 Hole.prototype.generate = function () {
+    this.numblocks = 0;
+    this.blocks = [];
+    
     //Generates a hole that can be filled with pentominos.
     //Generate hole's blocks.
-    for (let i = 0; i < this.maxh; i++) {
+    for (let i = 0; i <= this.dimen; i++) {
         let row = [];
-        for (let k = 0; k < this.maxw; k++) {
+        for (let k = 0; k <= this.dimen; k++) {
             row.push(0);
         }
         this.blocks.push(row);
@@ -26,37 +29,39 @@ Hole.prototype.generate = function () {
     
     //Blocks array is empty - generate the first shape and add it randomly.
     let shape = this.pickPattern();
-    let shapex = random_range(0, this.maxw - (shape.length + 1));
-    let shapey = random_range(0, this.maxh - (shape.length + 1));
+    console.log("dimen: " + this.dimen);
+    console.log("len: " + (shape.length - 1));
+    let shapex = random_range(0, this.dimen - shape[0].length);
+    let shapey = random_range(0, this.dimen - shape.length);
 
-    for (let i = 0; i < shape.length; i++) {
+
+    for (let i = 0; i < shape.length; i++) {    
         for (let j = 0; j < shape[i].length; j++) {
-            //Add the shape to the block array. 
             if (shape[i][j]) {
                 this.blocks[shapey + i][shapex + j] = 1;
             }
         }
     }
     this.numblocks++;
-    
-    
-    //At this point we have a hole with one pentomino in it
-    //Try and generate the same number of blocks as difficulty. 
+
     for (let i = this.numblocks; i < this.difficulty; i++) {
-        console.log("Generated additional shape");
         shape = this.pickPattern();
         //Loop through the blocks. 
+        
         for (let x = 0; x < this.blocks.length; x++) {
             for (let y = 0; y < this.blocks[x].length; y++) {
+                
                 let cell = this.blocks[x][y];
                 if (cell != 1) {
+                    
                     //There's nothing in this space, try to draw the block.
                     let draw = true;
+                    
                     for (let j = 0; j < shape.length; j++) {
                         for (let k = 0; k < shape[j].length; k++) {
+                            
                             if (shape[j][k]) {
-                                //Non-zero shape block.
-                                if ((x + j) <= this.blocks.length - shape.length && (y + k) <= this.blocks[0].length - shape[0].length) {
+                                if ((x + j) <= this.blocks.length - shape.length && (y + k) <= this.blocks[0].length - shape[0].length){
                                     if (this.blocks[x + j][y + k]) {
                                         draw = false;
                                         break;

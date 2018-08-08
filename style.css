@@ -21,3 +21,8 @@ body {
 canvas {
     border: solid 1px red;
 }
+#fps {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
