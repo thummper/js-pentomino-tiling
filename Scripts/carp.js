@@ -3,7 +3,7 @@ let xspan, yspan, mx, my, canvas, ctx, holder, fpsc, fps, starttime;
 let mp = 0;
 let filled = 0;
 let score = 0;
-let tileSize = 28;
+let tileSize = 24;
 let width = 32,
     height = width;
 let hole_dimen = 12;
@@ -122,6 +122,7 @@ function loop() {
             //If the hole is finished, get the score and reset the hole.
             if(hole_finished){
             let hole_score = hole.calcScore();
+            console.log("Finished a hole with score: " + hole_score);
             score += hole_score;
             hole.reset();
             }

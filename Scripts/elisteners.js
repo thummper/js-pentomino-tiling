@@ -16,6 +16,17 @@ function add_event_listeners(cnv) {
     window.addEventListener("wheel", function (e) {
         scrolled(e.deltaY < 0);
     });
+    window.addEventListener("keydown", function(e){
+        let code = e.keyCode;
+        if(code == 65){
+            //Scroll up.
+            scrolled(false);
+        }
+        if(code == 90){
+           //Scroll down
+            scrolled(true);
+           }
+    });
 }
 
 function scrolled(event) {

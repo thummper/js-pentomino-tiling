@@ -31,8 +31,8 @@ Hole.prototype.generate = function () {
 	//Draw the shape on the board.
 	//Blocks array is empty - generate the first shape and add it randomly.
 	let shape = this.pickPattern();
-	let shapex = random_range(0, this.dimen - shape[0].length);
-	let shapey = random_range(0, this.dimen - shape.length);
+	let shapex = 1;
+	let shapey = 1;
 	for (let i = 0; i < shape.length; i++) {
 		for (let j = 0; j < shape[i].length; j++) {
 			if (shape[i][j]) {
@@ -172,7 +172,17 @@ Hole.prototype.checkState = function () {
         this.startTime = performance.now();
     }
 	if(this.filled == this.spaces){
-		this.endTime = performance.now();  
+		this.endTime = performance.now(); 
+        if(this.overfill == 0){
+            //There's no overfill
+            mp++;
+        } else {
+            //There's overfill, break chain
+            if(mp != 0){
+                mp = 0;
+                pp = pp - (mp * 4);
+            }
+        }
         return true;
         
 	}
