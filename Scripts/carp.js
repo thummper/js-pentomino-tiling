@@ -4,15 +4,15 @@ let mp = 0;
 let filled = 0;
 let score = 0;
 let tileSize = 28;
-let width = 26,
+let width = 32,
     height = width;
 let hole_dimen = 12;
 let num_holes = 0;
-let difficulty = 4;
+let difficulty = 7;
 let lc = 20;
 let lp = 0;
-nextx = 1;
-
+let pp = 0;
+let hole_rows = 2;
 
 let shapes = [];
 let draggingShapes = [];
@@ -53,14 +53,18 @@ function setup() {
 
 
     //Work out how many holes we can have?
-    num_holes = width % hole_dimen;
-    let hpadding = width - (num_holes * hole_dimen);
+    num_holes = Math.floor(width/hole_dimen);
 
-    for (let i = 0; i <= num_holes; i++) {
-        //Generate best holes.
-        let tx = 1 + (i * hole_dimen);
-        let ty = 1;
-        holes.push(gen_best_hole(tx, ty, hole_dimen, difficulty *2));
+
+    for (let i = 0; i < hole_rows; i++) {
+        for (let j = 0; j < num_holes; j++) {
+            
+            let hx = 3 + (j * hole_dimen);
+            let hy = 3 + (i * hole_dimen);
+            console.log("Hole at: " + hx + " " + hy);
+            holes.push(gen_best_hole(hx, hy, hole_dimen, difficulty));
+            
+        }
     }
     //Add event listeners.
     add_event_listeners(canvas);
@@ -84,16 +88,6 @@ function gen_best_hole(tx, ty, dimention, diff) {
             best = i;
         }
     }
-     
-    //Recaculate num holes 
-    let space = 0;
-    for( i in holes){
-        space += holes[i].blocks[0].length;
-    }
-    num_holes = (width - space) % hole_dimen;
-    nextx += space;
-    console.log("nH: " + num_holes);
-
     return temp_holes[best];
 }
 
@@ -108,17 +102,32 @@ function loop() {
         }
     }
     if (shapes.length > 0) {
-        for (i in shapes) {
+        for (let i = shapes.length - 1; i >= 0; i--) {
             let shape = shapes[i];
-            shape.draw();
+            if (shape.delete) {
+                //Remove the shape from the object, killing it.
+                shapes.splice(i, 1);
+            } else {
+                //Shape is not marked for deletion, let it live.
+                shape.draw();
+            }
+
         }
     }
     //Have to check hole state after shapes are drawn unfortunatly
     if (holes.length > 0) {
         for (let i = holes.length - 1; i >= 0; i--) {
             let hole = holes[i];
-                hole.checkState();
+            let hole_finished = hole.checkState();
+            //If the hole is finished, get the score and reset the hole.
+            if(hole_finished){
+            let hole_score = hole.calcScore();
+            score += hole_score;
+            hole.reset();
             }
+
+
+        }
     }
 
     //Draw grid and shapes.

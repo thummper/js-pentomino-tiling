@@ -4,7 +4,6 @@ var Hole = function (x, y, dimention, difficulty) {
 	this.difficulty = difficulty;
 	this.dimen = dimention;
 	this.create = performance.now();
-
 	this.blocks = [];
 	this.spaces = 0;
 	this.filled = 0;
@@ -12,6 +11,8 @@ var Hole = function (x, y, dimention, difficulty) {
 	this.overfill = 0;
 	this.full = false;
 	this.score = null;
+    this.startTime = null;
+    this.endTime = null;
 	console.log("SET DIMEN: " + dimention);
 }
 
@@ -30,8 +31,6 @@ Hole.prototype.generate = function () {
 	//Draw the shape on the board.
 	//Blocks array is empty - generate the first shape and add it randomly.
 	let shape = this.pickPattern();
-	console.log("dimen: " + this.dimen);
-	console.log("len: " + (shape.length - 1));
 	let shapex = random_range(0, this.dimen - shape[0].length);
 	let shapey = random_range(0, this.dimen - shape.length);
 	for (let i = 0; i < shape.length; i++) {
@@ -102,7 +101,6 @@ Hole.prototype.generate = function () {
 							}
 						}
 						if (sdraw >= 3 && (this.numblocks < this.difficulty)) {
-							console.log("Drawing a Shape");
 							//We can and should draw this shape.
 							for (let j = 0; j < shape.length; j++) {
 								for (let k = 0; k < shape[j].length; k++) {
@@ -149,7 +147,7 @@ Hole.prototype.draw = function () {
 						}
 					}
 				}
-				break;
+                break;
 			}
 		}
 	}
@@ -164,21 +162,55 @@ Hole.prototype.checkState = function () {
 				let cell = board[this.y + i][this.x + j];
 				if(cell.contains.length >= 2){
 					this.filled++;
+                    this.overfill += cell.contains.length - 2;
 				}
 			}
 		}
 	}
+    if(this.startTime == null && this.filled > 0){
+        //The first block has been put in the hole. 
+        this.startTime = performance.now();
+    }
 	if(this.filled == this.spaces){
-		console.log("Hole is filled.");	
+		this.endTime = performance.now();  
+        return true;
+        
 	}
+    return false;
 }
 
 
-Hole.prototype.calcScore = function (difficulty, overfill, time) {
+Hole.prototype.calcScore = function () {
+    let time = this.endTime - this.startTime; 
 	let baseScore = difficulty / (time / 100);
-	baseScore -= (overfill * (difficulty - 1.5));
+	baseScore -= (this.overfill * (difficulty - 1.5));
 	return baseScore;
 }
+Hole.prototype.reset = function(){
+    //Blocks are associated with a shape, loop through this hole's blocks and remove
+    //any shapes associated with the hole.
+    for(let i = 0; i < this.blocks.length; i++){
+        for(let j = 0; j < this.blocks[i].length; j++){
+            //Get the blocks from the board. 
+            let cell = board[this.y + i][this.x + j];
+            for(let k in cell.contains){
+                let cell_item = cell.contains[k];
+                if(cell_item.shape){
+                    //If the cell item is a shape, delete that shape.
+                    cell_item.shape.delete = true;
+                }    
+            }  
+        }
+    }
+    //So all shapes with blocks in the shape's range will be deleted. 
+    //Reset the hole
+    this.numblocks = 0;
+    this.score = null;
+    this.blocks = [];
+    this.generate();
+}
+
+
 Hole.prototype.trim = function () {
 	console.log("Blocks before: ");
 	console.log(this.blocks);
@@ -200,7 +232,6 @@ Hole.prototype.trim = function () {
 	for (let i = 0; i < this.blocks[0].length; i++) {
 		//For each column in the array.
 		let removable = true;
-
 		for (let j = 0; j < this.blocks.length; j++) {
 			//For each row.
 			let cell = this.blocks[j][i];
@@ -210,31 +241,11 @@ Hole.prototype.trim = function () {
 		}
 		if (removable) {
 			//Remove column i.
-
 			for (let j = 0; j < this.blocks.length; j++) {
 				this.blocks[j].splice(i, 1);
 			}
-
 		}
-
-
-
-
-
-
 	}
-
-
-
-
 	console.log("Blocks after: ");
 	console.log(this.blocks);
-
-
-
-
-}
-
-Hole.prototype.clear = function () {
-	//Remove the shapes associated with the hole.
 }

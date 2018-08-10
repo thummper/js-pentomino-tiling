@@ -10,6 +10,9 @@ var Shape = function (x, y) {
     this.midx;
     this.midy;
     this.makeBlocks();
+    //Mark a shape for deletion.
+    this.delete = false;
+    
 }
 
 Shape.prototype.mirror = function () {
@@ -33,7 +36,6 @@ Shape.prototype.makeBlocks = function () {
                     border: "transparent",
                     type: "shape_solid",
                     shape: this
-
                 };
                 this.blocks[x][y] = block;
             } else {
@@ -51,7 +53,6 @@ Shape.prototype.makeBlocks = function () {
             }
         }
     }
-
 }
 
 Shape.prototype.pickPattern = function () {
@@ -61,13 +62,10 @@ Shape.prototype.pickPattern = function () {
 }
 
 Shape.prototype.draw = function () {
-    
     for (let col = 0; col < board.length; col++) {
         for (let row = 0; row < board[col].length; row++) {
-            
 			let cell = board[col][row];
             if(cell.x == this.x && cell.y == this.y){
-                
                 //Found the correct grid position
                 for(let i = 0; i < this.blocks.length; i++){
                     for(let j = 0; j < this.blocks[i].length; j++){
@@ -75,23 +73,12 @@ Shape.prototype.draw = function () {
                         if(block.solid){
                             //Add to grid.
                             board[col + i][row + j].contains.push(block);
-                        
                         }
                     }
-                }
-                
-                
-                
+                }   
             }
-            
-            
-
         }
     }
-	
-
-	
-
     //Blocks have been added to the grid.
 }
 
