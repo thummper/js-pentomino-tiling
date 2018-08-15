@@ -13,6 +13,7 @@ var Hole = function (x, y, dimention, difficulty) {
 	this.score = null;
     this.startTime = null;
     this.endTime = null;
+    this.shapes = [];
 	console.log("SET DIMEN: " + dimention);
 }
 
@@ -202,16 +203,27 @@ Hole.prototype.reset = function(){
     for(let i = 0; i < this.blocks.length; i++){
         for(let j = 0; j < this.blocks[i].length; j++){
             //Get the blocks from the board. 
+            let block = this.blocks[i][j];
+            if(block){
+                
+            
             let cell = board[this.y + i][this.x + j];
-            for(let k in cell.contains){
+            
+                                for(let k in cell.contains){
                 let cell_item = cell.contains[k];
                 if(cell_item.shape){
                     //If the cell item is a shape, delete that shape.
                     cell_item.shape.delete = true;
                 }    
-            }  
+            } 
+            }
+                    
+                
+ 
         }
     }
+
+    
     //So all shapes with blocks in the shape's range will be deleted. 
     //Reset the hole
     this.numblocks = 0;

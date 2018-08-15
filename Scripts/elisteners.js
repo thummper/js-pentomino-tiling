@@ -69,7 +69,7 @@ function mouse_down(event) {
                         }
                     }
                 }
-        
+            
                 shape.draw();
             } //end shapes loop 
         } else {

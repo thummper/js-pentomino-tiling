@@ -61,6 +61,7 @@ Shape.prototype.pickPattern = function () {
     return p;
 }
 
+
 Shape.prototype.draw = function () {
     for (let col = 0; col < board.length; col++) {
         for (let row = 0; row < board[col].length; row++) {
