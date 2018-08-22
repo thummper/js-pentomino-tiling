@@ -1,6 +1,7 @@
 //variables 
 let xspan, yspan, mx, my, canvas, ctx, holder, fpsc, fps, starttime;
 let mp = 0;
+let scores = [];
 let filled = 0;
 let score = 0;
 let tileSize = 24;
@@ -20,14 +21,22 @@ let pieces = [P, P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
 let board = [];
 let holes = [];
 
+let time = performance.now();
+let av_score = 0;
+let perf_points_element;
+let average_score_container;
+
 window.onload = function () {
     document.body.style.opacity = "1";
     fpsc = document.getElementById("fps");
+	perf_points_element = document.getElementById("pp");average_score_container = document.getElementById("av-score");
     //Start script
     setup();
 };
 window.setInterval(function () {
     fpsc.innerHTML = fps;
+	perf_points_element.innerHTML = pp;
+	average_score_container.innerHTML = av_score;
 }, 1000);
 
 
@@ -91,8 +100,8 @@ function gen_best_hole(tx, ty, dimention, diff) {
     return temp_holes[best];
 }
 
-
-function loop() {
+function loop() {	
+	average_scores();
     work_fps();
     clearGame();
     if (holes.length > 0) {
@@ -111,7 +120,6 @@ function loop() {
                 //Shape is not marked for deletion, let it live.
                 shape.draw();
             }
-
         }
     }
     //Have to check hole state after shapes are drawn unfortunatly
@@ -126,17 +134,12 @@ function loop() {
             score += hole_score;
             hole.reset();
             }
-
-
         }
     }
-
     //Draw grid and shapes.
     drawBoard();
     holder.trySpawn();
     holder.drawSpace();
-
-
     if (draggingShapes.length > 0) {
         for (i in draggingShapes) {
             let shape = draggingShapes[i];
@@ -144,9 +147,40 @@ function loop() {
             shape.draw_on_mouse();
         }
     }
-
     lp++;
     window.requestAnimationFrame(loop);
+}
+
+function average_scores(){
+	let temp_score = av_score;
+	let time1 = performance.now();
+	if(time){
+		let timediff = time1 - time;
+		
+		if(timediff > 5000){
+			if(scores.length > 0){
+			console.log("Averaging scores.");
+			let counter = 0;
+			for(i in scores){
+				counter += scores[i];
+			}
+			av_score = counter / scores.length;
+			} else {
+				av_score = 0;
+			}
+			if(av_score > temp_score){
+				pp += 2;
+			} else if(av_score < temp_score){
+				pp -=2;
+			} 
+			console.log("Average score: " + av_score);
+			time = time1;
+		}
+		
+		
+	} else {
+		time = time1;
+	}
 }
 
 function clearGame() {

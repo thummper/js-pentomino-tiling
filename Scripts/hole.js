@@ -14,7 +14,7 @@ var Hole = function (x, y, dimention, difficulty) {
     this.startTime = null;
     this.endTime = null;
     this.shapes = [];
-	console.log("SET DIMEN: " + dimention);
+
 }
 
 Hole.prototype.generate = function () {
@@ -101,7 +101,7 @@ Hole.prototype.generate = function () {
 								}
 							}
 						}
-						if (sdraw >= 3 && (this.numblocks < this.difficulty)) {
+						if (sdraw >= 3	&& (this.numblocks < this.difficulty)) {
 							//We can and should draw this shape.
 							for (let j = 0; j < shape.length; j++) {
 								for (let k = 0; k < shape[j].length; k++) {
@@ -184,6 +184,8 @@ Hole.prototype.checkState = function () {
                 pp = pp - (mp * 4);
             }
         }
+		console.log("Finished hole, MP counter: " + mp);
+		
         return true;
         
 	}
@@ -192,9 +194,12 @@ Hole.prototype.checkState = function () {
 
 
 Hole.prototype.calcScore = function () {
-    let time = this.endTime - this.startTime; 
-	let baseScore = difficulty / (time / 100);
+    let time = (this.endTime - this.startTime)/1000; 
+	let baseScore = this.difficulty / (time / 10000);
 	baseScore -= (this.overfill * (difficulty - 1.5));
+	baseScore += (500 * mp);
+	scores.push(baseScore);
+	console.log("%c Finished hole of difficulty %i in time of %i for a score of %i", "color:orange;", this.difficulty, time, baseScore);
 	return baseScore;
 }
 Hole.prototype.reset = function(){
