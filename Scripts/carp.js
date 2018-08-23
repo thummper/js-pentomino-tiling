@@ -1,9 +1,9 @@
 //variables 
 let xspan, yspan, mx, my, canvas, ctx, holder, fpsc, fps, starttime;
 let mp = 0;
-let scores = [];
 let filled = 0;
-let score = 0;
+let scores = [];
+let score_data = [];
 let tileSize = 24;
 let width = 32,
     height = width;
@@ -14,12 +14,15 @@ let lc = 20;
 let lp = 0;
 let pp = 0;
 let hole_rows = 2;
-
+let performance_chart = document.getElementById("performance_chart");
+let p_chart;
 let shapes = [];
 let draggingShapes = [];
-let pieces = [P, P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
+let pieces = [P, P, F, F, Y, Y, T, T, W, N, U, V, L, Z, X, I];
 let board = [];
 let holes = [];
+let gr_scores = [];
+let gr_labels = [];
 
 let time = performance.now();
 let av_score = 0;
@@ -41,10 +44,25 @@ window.setInterval(function () {
 
 
 function setup() {
+	
+	
+	
     canvas = document.getElementById("carp_canvas");
     ctx = canvas.getContext("2d");
+	chartctx = document.getElementById("performance_chart").getContext("2d");
     canvas.width = tileSize * width;
     canvas.height = tileSize * height;
+	p_chart = new Chart(chartctx, {
+		type: 'line',
+		data: {
+			labels: gr_labels,
+			datasets: [{
+				data: gr_scores
+			}]
+		},
+		options: {}
+	});
+	
     //Set up the gameboard. 
     for (let row = 0; row < height; row++) {
         board[row] = [];
@@ -131,7 +149,7 @@ function loop() {
             if(hole_finished){
             let hole_score = hole.calcScore();
             console.log("Finished a hole with score: " + hole_score);
-            score += hole_score;
+            scores.push(hole_score);
             hole.reset();
             }
         }
@@ -156,31 +174,39 @@ function average_scores(){
 	let time1 = performance.now();
 	if(time){
 		let timediff = time1 - time;
-		
 		if(timediff > 5000){
-			if(scores.length > 0){
-			console.log("Averaging scores.");
-			let counter = 0;
-			for(i in scores){
-				counter += scores[i];
+			let scr = 0;
+			let scr_len = scores.length;
+			if(scr_len > 0){
+			for(let i = 0; i < scr_len; i++){
+				scr += scores[i];
 			}
-			av_score = counter / scores.length;
-			} else {
-				av_score = 0;
+			let avg_score = scr / scr_len;
+			if(avg_score > av_score){
+				pp += 10;
+			} else if(avg_score < av_score) {
+				pp -= 3;
 			}
-			if(av_score > temp_score){
-				pp += 2;
-			} else if(av_score < temp_score){
-				pp -=2;
-			} 
-			console.log("Average score: " + av_score);
+			console.log("Average: " + avg_score + " last av: " + av_score);
+			av_score = avg_score;
+			if(p_chart.data.labels.length > 20){
+				p_chart.data.labels.pop();
+				p_chart.data.datasets[0].data.pop();
+			}	
+		
+			p_chart.data.labels.push(time1);
+			p_chart.data.datasets[0].data.push(av_score);
+			p_chart.update();
+			}
 			time = time1;
 		}
-		
 		
 	} else {
 		time = time1;
 	}
+
+	
+	
 }
 
 function clearGame() {
@@ -276,5 +302,6 @@ function random_range(min, max) {
 
 
 function randomcol() {
-    return '#' + (Math.random() * 0xFFFFFF << 0).toString(16);;
+	var CSS_COLOR_NAMES = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
+    return CSS_COLOR_NAMES[Math.floor(Math.random() * CSS_COLOR_NAMES.length)];
 }

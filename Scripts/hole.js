@@ -198,7 +198,7 @@ Hole.prototype.calcScore = function () {
 	let baseScore = this.difficulty / (time / 10000);
 	baseScore -= (this.overfill * (difficulty - 1.5));
 	baseScore += (500 * mp);
-	scores.push(baseScore);
+	
 	console.log("%c Finished hole of difficulty %i in time of %i for a score of %i", "color:orange;", this.difficulty, time, baseScore);
 	return baseScore;
 }
