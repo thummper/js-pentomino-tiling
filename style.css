@@ -5,27 +5,32 @@
 	font-size: 16px;
   
 }
-html{
-    height: 100%;
-    width: 100%;
+body, html{
+	width: 100%;
+	height: 100%;
 }
-body {
-    height: 100%;
-    opacity: 0;
-    transition: all linear 0.5s; 
+body{
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.wrapper{
+	display: flex;
+	flex-direction: row;
+	margin: 0 auto;
+}
+.score {
+	display: flex;
+	justify-content: space-around;
+	
+}
+.chart-wrapper {
+
+	height: 200px;
+}
+
+.canvas-wrapper{
     display: flex;
-	flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.canvas_wrapper{
-    display: flex;
-}
-canvas {
-    border: solid 1px red;
-}
-#fps {
-    position: fixed;
-    bottom: 0;
-    right: 0;
+	flex-direction: row;
 }

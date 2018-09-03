@@ -60,7 +60,10 @@ function setup() {
 				data: gr_scores
 			}]
 		},
-		options: {}
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+		}
 	});
 	
     //Set up the gameboard. 
