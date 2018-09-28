@@ -1,125 +1,102 @@
-function add_event_listeners(cnv) {
-    cnv.addEventListener("contextmenu", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-    //Add mouse listeners.
-    cnv.addEventListener("mousedown", function (e) {
-        mouse_down(e);
-    });
-    cnv.addEventListener("mouseup", function (e) {
-        //mouse_up(e);
-    });
-    cnv.addEventListener("mousemove", function (e) {
-        mouse_move(e);
-    });
-    window.addEventListener("wheel", function (e) {
-        scrolled(e.deltaY < 0);
-    });
-    window.addEventListener("keydown", function(e){
-        let code = e.keyCode;
-        if(code == 65){
-            //Scroll up.
-            scrolled(false);
-        }
-        if(code == 90){
-           //Scroll down
-            scrolled(true);
-           }
-    });
-}
-
-function scrolled(event) {
-    //When scrolling we only care about the shape that is being dragged (if there is one)
-    if (draggingShapes.length > 0) {
-        for (let i in draggingShapes) {
-            let shape = draggingShapes[i];
-            console.log("Scroll");
-            shape.scroll();
-           
-        }
-    }
-}
-
-function mouse_down(event) {
-
-    console.log(event.button);
-    //Check if we are dragging a shape, if so drop it, else look for shape to pick up. 
-    if (event.button == 0) {
-        //If LEFT CLICK
-        if (draggingShapes.length > 0) {
-            
-            //There's something in the array.
-            for (let i = draggingShapes.length - 1; i >= 0; i--) {
-                //Loop backwards as deleting elements. 
-                let shape = draggingShapes[i];
-                shape.draw_on_mouse();
-                //Snap shape to grid. 
-              
-                draggingShapes.splice(i, 1);
-                shapes.push(shape);
-                shape.draggable = true;
-                shape.dragging = false;
-                
-                for(let j = 0; j < shape.blocks.length; j++){
-                    for(let k = 0; k < shape.blocks[j].length; k++){
-                        let block = shape.blocks[j][k];
-                        if(block.dragging){
-                            block.dragging = false;
-                        }
-                    }
-                }
-            
-                shape.draw();
-            } //end shapes loop 
-        } else {
-            //Nothing in the array.
-            let rect = canvas.getBoundingClientRect();
-            mx = event.clientX - rect.left;
-            my = event.clientY - rect.top;
-            
-            for (let i = shapes.length - 1; i >= 0; i--) {
-                let shape = shapes[i];
-                
-                for (let j in shape.blocks) {
-                    
-                    for (let k in shape.blocks[j]) {
-                        let block = shape.blocks[j][k];
-                        
-                        if (block.solid && (mx > block.x && mx < block.x + tileSize) && (my > block.y && my < block.y + tileSize)) {
-                            if (shape.draggable && !shape.dragging) {
-                                block.dragging = true;
-                                shape.dragging = true;
-                                shape.draggable = false;
-                                draggingShapes.push(shape);
-                                shapes.splice(i, 1);
-                            }
-                        }
-                    }
-                    
-                }
-            }
-        }
-        
-        drawBoard();
-        holder.checkSpaces();
-        //When a shape is dropped, check the holder to see if a new shape can be spawned.
-        
-    } else {
-        //Right button. 
-        if (draggingShapes.length > 0) {
-            for (let i = 0; i < draggingShapes.length; i++) {
-                let shape = draggingShapes[i];
-                shape.mirror();
-            }
-        }
-    }
-    
-}
-
-function mouse_move(event) {
-    let rect = canvas.getBoundingClientRect();
-    mx = event.clientX - rect.left;
-    my = event.clientY - rect.top;
-    
+class EventListeners{
+	constructor(canvas, game){
+		this.canvas = canvas;
+		this.game = game;
+		this.addListeners();
+		this.mx;
+		this.my;
+	}
+	addListeners(){
+		let cnv = this.canvas;
+		cnv.addEventListener('contextmenu', this.contextMenu(event));
+		cnv.addEventListener('mousedown', this.mousePressed(event));
+		cnv.addEventListener('mousemove', this.mouseMoved(event));
+		cnv.addEventListener('keydown', this.keyPressed(event));
+		cnv.addEventListener('wheel', this.mouseWheel(event));		
+		
+	}
+	contextMenu(event){
+		event.preventDefault();
+		event.stopPropagation();
+	}
+	mousePressed(event){
+		if (event.button == 0) {
+			if(this.game.dragShape != null){
+				//We are dragging a shape, drop it.
+				let shape = this.game.dragShape;
+				this.game.shapes.push(shape);
+				shape.draggable = true;
+				shape.dragging = false;
+				//TODO, move this to the shapes class.
+				for(let j = 0, k = shape.blocks.length; j < k; j++){
+					for(let l = 0, m = shape.blocks[j].length; l < m; l++){
+						let block = shape.blocks[j][l];
+						if(block.dragging){
+							block.dragging = false;
+						}
+					}
+				}
+				shape.draw();
+				this.game.dragShape = null;
+			} else {
+				//Nothing is being dragged.
+				let rect = this.canvas.getBoundingClientRect();
+				this.mx = event.clientX - rect.left;
+				this.my = event.clientY = rect.top;
+				for(let i = this.game.shapes.length - 1; i >= 0; i--){
+					let shape = this.game.shapes[i];
+					for(let j = 0, k = shape.blocks.length; j < k; j++){
+						for(let l = 0, m = shape.blocks[i].length; l < m; l++){
+							let block = shape.blocks[j][k];
+							if(shape.draggable && !shape.dragging && block.solid && (this.mx > block.x && this.mx < block.x + this.game.tileSize) && (this.my > block.y && my < block.y + this.game.tileSize)){
+								block.dragging = true;
+								shape.dragging = true;
+								shape.draggable = false;
+								this.game.dragShape = shape;
+								this.game.shapes.splice(i, 1);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			//Right button
+			if(this.game.dragShape != null){
+				this.game.dragShape.mirror();
+			}
+			
+		}
+		//Check holders 
+	}
+	mouseMoved(event){
+		let rect = this.canvas.getBoundingClientRect();
+		this.mx = event.clientX - rect.left;
+    	this.my = event.clientY - rect.top;
+		
+	}
+	mouseWheel(event){
+		let direction = false;
+		if(event.deltaY < 0){
+			direction = true;
+		}
+		this.scroll(direction);
+	}
+	scroll(direction){
+		//Will scroll based on boolean value
+		if(this.game.dragShape != null){
+			this.game.dragShape.scroll();
+		}
+	}
+	keyPressed(event){
+		let kc = event.keyCode;
+		if(kc == 65){
+			//Scroll 
+			this.scroll(true);
+		}
+		if(kc == 90){
+			//Scroll
+			this.scroll(false);
+		}
+		
+	}
 }
