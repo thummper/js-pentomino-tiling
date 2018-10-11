@@ -1,4 +1,4 @@
-var Holder = function (canvas, ctx, game) {
+function Holder(canvas, ctx, game) {
 	//Max pattern size is 5 x 5, the bottom 5 grid spaces are reserved for spawning pieces.
 	//When holder is made, the board is already defined.
 	this.game = game;
@@ -15,41 +15,45 @@ var Holder = function (canvas, ctx, game) {
 
 }
 Holder.prototype.checkSpaces = function () {
-	//Checks each space to see if it is empty.
-	for (let i = 0; i < this.spaces.length; i++) {
+	let board = this.game.board;
+	//Check each space and see if it's empty
+	for(let i = 0, j = this.spaces.length; i < j; i++){
 		let space = this.spaces[i];
-		let free = true;
-		//Find the space on the board
-		for (let x = 0; x < board.length; x++) {
-
-			for (let y = 0; y < board[x].length; y++) {
-				let cell = board[x][y];
-				if (cell.x == space.x && cell.y == space.y) {
-					//Found the top left of the cell.
-					//Loop through all cells in shape.
-					let r = x + space.h;
-					let t = y + space.w;
-					for (let j = x; j < r; j++) {
-						for (let k = y; k < t; k++) {
-							for (let m in board[j][k].contains) {
-								let blk = board[j][k].contains[m];
-								if (blk.type == "shape_solid") {
-									free = false;
-								}
-							}
+		space.piece = false;
+		
+		
+		let holdercol = Math.round(space.x / this.tileSize);
+		let holderrow = Math.round(space.y / this.tileSize);
+		
+		for (let row = holderrow; row < holderrow + this.height; row++){
+			let boardRow = board[row];
+			
+			for(let col = holdercol; col < holdercol + this.width; col++){
+				let boardCell = boardRow[col];
+				if(boardCell.contains.length > 0){
+					
+					for(let cell = 0; cell < boardCell.contains.length; cell++){
+						let bc = boardCell.contains[cell];
+						if(bc.type == 'shape_solid'){
+							space.piece = true;
 						}
+						
 					}
 				}
 			}
+			
+			
 		}
+		
+		
+		
 
-		if (free) {
-			//Holder is empty. 
-			console.log("Holder is free");
-			space.piece = false;
-		} else {
-			space.piece = true;
+		
+		
+		if(space.piece == false){
+			console.log("Holder: ", i, " is free");
 		}
+		
 	}
 }
 
@@ -59,7 +63,8 @@ Holder.prototype.trySpawn = function () {
 		let space = this.spaces[i];
 		if (space.piece == false) {
 			space.piece = true;
-			shapes.push(new Shape(space.x, space.y));
+			let shape = new Shape(space.x, space.y, this.game);
+			this.game.shapes.push(shape);
 		}
 	}
 }
@@ -75,6 +80,7 @@ Holder.prototype.makeSpaces = function () {
 			this.padSpaces--;
 		}
 		this.spaces.push({
+			//What the fuck does this even mean
 			x: (this.padding * this.tileSize) + (i * (5 + extra) * this.tileSize),
 			y: this.y,
 			w: this.width,
@@ -83,13 +89,14 @@ Holder.prototype.makeSpaces = function () {
 			bg: "rgba(255, 165, 0, 0.2)"
 		});
 	}
+	
 };
 
 Holder.prototype.drawSpace = function () {
-	//Loops through spaces array and draws on the board. 
-	for (let i in this.spaces) {
+	//Loops through spaces array and draws on the board.
+	for(let i in this.spaces){
 		let space = this.spaces[i];
-		//Draw
-		this.game.drawRect(space.x, space.y, space.w * this.tileSize, space.h * this.tileSize, space.bg, "black");
+		
+		this.game.drawRect(space.x, space.y, (space.w * this.tileSize), space.bg);
 	}
 }

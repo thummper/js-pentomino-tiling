@@ -1,3 +1,6 @@
+//Global pieces array
+let pieces = [P, F, Y, T, W, N, U, V, L, Z, X, I]
+
 class Game{
 	constructor(){
 		//Game Variables
@@ -57,39 +60,52 @@ class Game{
 		let hpr  = Math.floor((this.boardSize - 2) / this.holeSize);
 		let hrs  = Math.floor((this.boardSize - 7) / this.holeSize);
 		
-		let y = this.tileSize;
+		let y = 1;
 		for(let i = 0; i < hrs; i++){
-			let x = this.tileSize;
+			let x = 1;
 			//For each hole row
 			for(let j = 0; j < hpr; j++){
 				//Add holes per row.
-				x += j * this.tileSize;
+				
 				let hole = new Hole(x, y, this.holeSize, 10, this);
 				hole.makeBlocks();
 				hole.generateHole();
 				this.holes.push(hole);
+				x += this.holeSize;
 			}
-			y += this.holeSize * this.tileSize;
+			y += this.holeSize;
 		}
 		//Should have max amount of holes now.
 		//Add event listeners
 		this.eventListeners = new EventListeners(this.canvas, this);
+		this.holder.trySpawn();
 		//Start game 
 		this.loop();
 		
 	}
+	
+	checkHoles(){
+		for(let i = 0, j = this.holes.length; i < j; i++){
+			let hole = this.holes[i];
+			hole.checkState();
+		}
+	}
+	
 	loop(){
 		this.getFPS();
-		console.log("Game Loop");
+		
+		//Clear the grid and then add everything back to it.
 		this.clearCanvas();
 		this.drawHoles();
 		this.drawShapes();
+		this.checkHoles();
+		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
-		this.holder.trySpawn();
 		this.holder.drawSpace();
 		
+
 		if(this.dragShape != null){
-			this.dragShape.drag();
+			this.dragShape.drag(this.eventListeners.mx, this.eventListeners.my);
 			this.dragShape.draw_on_mouse();
 		}
 		
@@ -116,12 +132,12 @@ class Game{
 				if(cell.contains.length > 0){
 					for(let i = cell.contains.length - 1; i >= 0; i--){
 						let block = cell.contains[i];
-						this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, block.colour);
+						this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, block.color);
 						break; //Draw the last one only.
 					}
 				} else {
 					//Nothing in the cell. 
-					this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, 'white', 'black');
+					this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, 'white', 'rgba(0, 0, 0, 0.35)');
 				}
 			}
 		}	
