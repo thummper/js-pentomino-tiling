@@ -86,7 +86,7 @@ let i = [
 ]
 
 let bshapes = [
-	p, f, y, t, w, n, u, v, l, z, x, i
+	[p, '#71B3B0'], [f, '#D55A4C'], [y, '#F5994E'], [t, '#961628'], [w, '#1D6D53'], [n, '#D6BB50'], [u, '#21746C'], [v, '#2CAD7D'], [l, '#8B2134'], [z, '#D88642'], [x, '#208D99'], [i, '#4A3F4F']
 		];
 
 var Hole = function (x, y, dimention, difficulty, game) {
@@ -128,8 +128,8 @@ Hole.prototype.generateHole = function () {
 		let height = this.get_max_row(shape);
 		if (this.nShapes == 0) {
 			//This is the first shape in the array. 
-			let randRow = this.getrandom(0, this.dimen - 1 - height);
-			let randCol = this.getrandom(0, this.dimen - 1 - width);
+			let randRow = Math.floor((this.dimen / 2) - height / 2);
+			let randCol = Math.floor((this.dimen / 2) - width / 2);
 			let placed = this.placeShape(shape, this.grid, randRow, randCol);
 			if (placed) {
 				this.nShapes++;
@@ -156,19 +156,14 @@ Hole.prototype.generateHole = function () {
 			}
 		}
 	}
-
 }
 Hole.prototype.getPlaces = function (grid) {
 	let places = [];
 
 	for (let i = 0, x = grid.length; i < x; i++) {
-
 		for (let j = 0, y = grid[i].length; j < y; j++) {
-
 			let block = grid[i][j];
-
 			if (block != 0) {
-
 				try {
 					if (grid[i][j + 1] == 0) {
 						places.push([i, j + 1]);
@@ -194,12 +189,8 @@ Hole.prototype.getPlaces = function (grid) {
 					if (grid[i - 1][j] == 0) {
 						places.push([i - 1, j]);
 					}
-				} catch (err) {
-
-				}
-
+				} catch (err) {}
 			}
-
 		}
 	}
 	return places;
@@ -313,16 +304,16 @@ Hole.prototype.get_max_row = function (shape) {
 }
 
 Hole.prototype.getShape = function () {
-	let probs = [12, 12, 11, 10, 10, 9, 7, 7, 6, 6, 5, 4];
+	let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6, 5, 4, 3];
 	let shape = null;
 	//Number between 1 and 100
 	let number = Math.floor(Math.random() * 100);
 
-	let total = 0
+	let total = 0;
 	for (let i in probs) {
 		total += probs[i];
 		if (number <= total) {
-			shape = bshapes[i];
+			shape = bshapes[i][0];
 			break;
 		}
 	}
@@ -331,6 +322,9 @@ Hole.prototype.getShape = function () {
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
 	let board = this.game.board;
+
+
+
 	for (let row = 0; row < this.grid.length; row++) {
 		for (let col = 0; col < this.grid[row].length; col++) {
 			if (this.grid[row][col] != 0) {
@@ -338,7 +332,7 @@ Hole.prototype.draw = function () {
 					x: board[row + this.y][col + this.x].x,
 					y: board[row + this.y][col + this.x].y,
 					solid: true,
-					color: "rgba(0, 0, 0, 0.2)",
+					color: "rgba(54, 69, 79, 0.8)",
 					border: "black",
 					type: "hole"
 				});
@@ -350,28 +344,15 @@ Hole.prototype.checkState = function () {
 	//Check if the hole is filled or not.
 	let filled = 0;
 	let overfill = 0;
-	
-	for(let i = 0, j = this.grid.length; i < j; i++){
-		for(let k = 0, l = this.grid[i].length; k < l; k++){
-			let block = this.grid[i][k];
-			if(block != 0){
-				//Check if this block is filled on the grid.
-				let cell = this.board[i + this.y][k + this.x];
-				if(cell.contains.length >= 2){
-					//Cell is filled
-					filled++;
-					overfill += cell.contains.length - 2;
-				}
-			}
-		}
-	}
-	console.log("Hole filled: ", filled);
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
 	//	this.filled = 0;
 	//	this.overfill = 0;
 	//	for (let i = 0; i < this.blocks.length; i++) {

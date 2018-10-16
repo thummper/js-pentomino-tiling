@@ -1,10 +1,12 @@
 //Global pieces array
-let pieces = [P, F, Y, T, W, N, U, V, L, Z, X, I]
+let pieces = [
+	[P, '#71B3B0'], [F, '#D55A4C'], [Y, '#F5994E'], [T, '#961628'], [W, '#1D6D53'], [N, '#D6BB50'], [U, '#21746C'], [V, '#2CAD7D'], [L, '#8B2134'], [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
+		];
 
 class Game{
 	constructor(){
 		//Game Variables
-		this.tileSize = 24;
+		this.tileSize = 20;
 		this.holeSize = 12;
 		this.shapes   = [];
 		this.holes    = [];
@@ -57,8 +59,21 @@ class Game{
 		*/
 		let maxX = this.tileSize * (this.boardSize - 1);
 		let maxY = this.tileSize * (this.boardSize - 7);
-		let hpr  = Math.floor((this.boardSize - 2) / this.holeSize);
-		let hrs  = Math.floor((this.boardSize - 7) / this.holeSize);
+		let hpr  = Math.floor( (this.boardSize - 2) / this.holeSize);
+		let hrs  = Math.floor( (this.boardSize - 7) / this.holeSize);
+		
+		
+		let tblocks = hpr * this.holeSize;
+		let lblocks = this.boardSize - tblocks - 2;
+		let hwp = 0;
+		if(hpr > 2){
+			 hwp = Math.floor(lblocks/hpr);
+		} else {
+			 hwp = lblocks;	
+		}
+		
+		console.log("Hole Padding. ", lblocks);
+		
 		
 		let y = 1;
 		for(let i = 0; i < hrs; i++){
@@ -71,7 +86,7 @@ class Game{
 				hole.makeBlocks();
 				hole.generateHole();
 				this.holes.push(hole);
-				x += this.holeSize;
+				x += this.holeSize + hwp;
 			}
 			y += this.holeSize;
 		}
@@ -101,6 +116,7 @@ class Game{
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
+		
 		this.holder.drawSpace();
 		
 
@@ -137,7 +153,7 @@ class Game{
 					}
 				} else {
 					//Nothing in the cell. 
-					this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, 'white', 'rgba(0, 0, 0, 0.35)');
+					this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, 'white', 'rgba(0, 0, 0, 0.2)');
 				}
 			}
 		}	
@@ -150,7 +166,9 @@ class Game{
 	}
 	drawHoles(){
 		for(let i = 0, j = this.holes.length; i < j; i++){
-			this.holes[i].draw();
+			let hole = this.holes[i];
+			hole.draw();
+
 		}
 	}
 	drawShapes(){

@@ -44,16 +44,9 @@ Holder.prototype.checkSpaces = function () {
 			
 			
 		}
-		
-		
-		
-
-		
-		
 		if(space.piece == false){
 			console.log("Holder: ", i, " is free");
 		}
-		
 	}
 }
 
@@ -71,17 +64,24 @@ Holder.prototype.trySpawn = function () {
 
 Holder.prototype.makeSpaces = function () {
 	//Set up the shape spaces.
+	let numSpaces = 4;
+	let holeblocks = 4 * this.width;
+	let left = this.game.boardSize - holeblocks - 2;
+	let padding = Math.floor(left / (numSpaces - 1));
+	
 	let spaces = Math.floor((this.game.boardSize - this.padding) / this.width);
 	this.padSpaces = (this.game.boardSize - this.padding) % 5;
-	for (let i = 0; i < spaces; i++) {
-		let extra = 0;
-		if (this.padSpaces > 0) {
-			extra = 1
-			this.padSpaces--;
+	
+	let x = 1;
+	
+	for (let i = 0; i < numSpaces; i++) {
+		
+		if(i != 0){
+			x += padding;
 		}
 		this.spaces.push({
 			//What the fuck does this even mean
-			x: (this.padding * this.tileSize) + (i * (5 + extra) * this.tileSize),
+			x: ( x + (i * 5) ) * this.tileSize,
 			y: this.y,
 			w: this.width,
 			h: this.height,

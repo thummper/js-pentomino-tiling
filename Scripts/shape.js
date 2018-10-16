@@ -1,12 +1,12 @@
-class Shape{
-	
-	constructor(x, y, game){
+class Shape {
+
+	constructor(x, y, game) {
 		this.game = game;
 		this.tileSize = this.game.tileSize;
 		this.draggable = true;
 		this.dragging = false;
 		this.pattern = this.pickPattern();
-		this.color = randomColor();
+
 		this.x = x;
 		this.y = y;
 		this.blocks;
@@ -14,14 +14,14 @@ class Shape{
 		this.delete = false;
 		this.makeBlocks();
 	}
-	
-	stopDragging(){
+
+	stopDragging() {
 		this.draggable = true;
 		this.dragging = false;
-		for(let i = 0, j = this.blocks.length; i < j; i++){
-			for(let k = 0, l = this.blocks[i].length; k < l; k++){
+		for (let i = 0, j = this.blocks.length; i < j; i++) {
+			for (let k = 0, l = this.blocks[i].length; k < l; k++) {
 				let block = this.blocks[i][k];
-				if(block.dragging){
+				if (block.dragging) {
 					block.dragging = false;
 				}
 			}
@@ -33,7 +33,7 @@ class Shape{
 		for (let y = 0, xx = this.pattern.length; y < xx; y++) {
 			this.blocks.push([]);
 			for (let x = 0, yy = this.pattern[y].length; x < yy; x++) {
-				
+
 				let block = {
 					x: this.x + (x * this.tileSize),
 					y: this.y + (y * this.tileSize),
@@ -52,23 +52,35 @@ class Shape{
 					block.color = 'transparent';
 				}
 				this.blocks[y][x] = block;
-				
 			}
 		}
 	}
-	
+
 	mirror() {
 		this.blocks.map(function (arr) {
 			return arr.reverse();
 		});
 	}
-	
+
 	pickPattern() {
-		var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
-		this.color = randomColor();
-		return p;
+		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6, 5, 4, 3];
+		let shape = null;
+		//Number between 1 and 100
+		let number = Math.floor(Math.random() * 100);
+
+		let total = 0;
+		for (let i in probs) {
+			total += probs[i];
+			if (number <= total) {
+				shape = pieces[i][0];
+				this.color = pieces[i][1];
+				break;
+			}
+		}
+		
+		return shape;
 	}
-	
+
 	draw() {
 		let board = this.game.board;
 		for (let col = 0; col < board.length; col++) {
@@ -90,7 +102,7 @@ class Shape{
 		}
 		//Blocks have been added to the grid.
 	}
-	
+
 	drag(mx, my) {
 		//Get the nearest blockpoint to the mouse and put the block we are dragging on it.
 		let tileSize = this.game.tileSize;
@@ -134,7 +146,7 @@ class Shape{
 			}
 		}
 	}
-	
+
 	scroll(dir) {
 		//Rotate the blocks matrix by 90 deg
 		let width = this.blocks.length;
@@ -184,5 +196,5 @@ class Shape{
 		}
 		return a;
 	}
-	
+
 }
