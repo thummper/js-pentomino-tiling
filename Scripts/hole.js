@@ -210,12 +210,13 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 			return can;
 		}
 	}
-	let should = true;
+	let should = false;
 	if (can) {
 		//We can place the shape, but should we? 
 		if (this.nShapes != 0) {
 			//Only check if we should if there's already a shape in the grid
 			let blockcols = 0;
+			
 			for (let i = 0, j = shape.length; i < j; i++) {
 				let block = shape[i];
 				//Check above, right, bottom, left
@@ -255,10 +256,12 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 				}
 
 			}
-			if (blockcols < 3) {
-				should = false;
-				return should;
+			console.log(blockcols);
+			if (blockcols >= 3) {
+				should = true;	
 			}
+		} else {
+			should = true;
 		}
 		if (should) {
 			//We can and should place the block
@@ -266,7 +269,6 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 				let block = shape[i];
 				grid[row + block[0]][col + block[1]] = 1;
 			}
-
 		}
 	}
 	return should;
