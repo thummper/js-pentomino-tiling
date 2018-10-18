@@ -102,7 +102,10 @@ class Game{
 	checkHoles(){
 		for(let i = 0, j = this.holes.length; i < j; i++){
 			let hole = this.holes[i];
-			hole.checkState();
+			let filled = hole.checkState();
+			if(filled){
+				hole.regenerate();
+			}
 		}
 	}
 	

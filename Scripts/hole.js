@@ -216,7 +216,7 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 		if (this.nShapes != 0) {
 			//Only check if we should if there's already a shape in the grid
 			let blockcols = 0;
-			
+
 			for (let i = 0, j = shape.length; i < j; i++) {
 				let block = shape[i];
 				//Check above, right, bottom, left
@@ -258,7 +258,7 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 			}
 			console.log(blockcols);
 			if (blockcols >= 3) {
-				should = true;	
+				should = true;
 			}
 		} else {
 			should = true;
@@ -343,92 +343,93 @@ Hole.prototype.draw = function () {
 	}
 }
 Hole.prototype.checkState = function () {
+
 	//Check if the hole is filled or not.
 	let filled = 0;
 	let overfill = 0;
 
 
 
+	for (let i = 0, j = this.grid.length; i < j; i++) {
+		for (let k = 0, l = this.grid[i].length; k < l; k++) {
+			let block = this.grid[i][k];
+			if (block) {
+				//Get spot on board.
+				let cell = this.game.board[this.y + i][this.x + k];
+				let contents = cell.contains;
+				if (contents.length > 1) {
+					//Something else in the cell
+					let incell = contents.length - 2;
+					filled++;
+					if (incell > 0) {
+						//Overflow
+						overfill += incell;
+					}
+
+				}
+
+			}
+
+		}
+	}
 
 
+	if (this.nShapes * 5 == filled) {
+		console.log("Shape filled");
+		this.score = this.calcScore();
+		return true;
 
+	}
 
-
-
-	//	this.filled = 0;
-	//	this.overfill = 0;
-	//	for (let i = 0; i < this.blocks.length; i++) {
-	//		for (let j = 0; j < this.blocks[i].length; j++) {
-	//			let block = this.blocks[i][j];
-	//			if (block) {
-	//				let cell = board[this.y + i][this.x + j];
-	//				if(cell.contains.length >= 2){
-	//					this.filled++;
-	//                    this.overfill += cell.contains.length - 2;
-	//				}
-	//			}
-	//		}
-	//	}
-	//    if(this.startTime == null && this.filled > 0){
-	//        //The first block has been put in the hole. 
-	//        this.startTime = performance.now();
-	//    }
-	//	if(this.filled == this.spaces){
-	//		this.endTime = performance.now(); 
-	//        if(this.overfill == 0){
-	//            //There's no overfill
-	//            mp++;
-	//        } else {
-	//            //There's overfill, break chain
-	//            if(mp != 0){
-	//                mp = 0;
-	//                pp = pp - (mp * 4);
-	//            }
-	//        }
-	//		console.log("Finished hole, MP counter: " + mp);
-	//		
-	//        return true;
-	//        
-	//	}
-	//    return false;
 	return false;
 }
 
 
 Hole.prototype.calcScore = function () {
-	let time = (this.endTime - this.startTime) / 1000;
-	let baseScore = this.difficulty / (time / 10000);
-	baseScore -= (this.overfill * (difficulty - 1.5));
-	baseScore += (500 * mp);
 
-	console.log("%c Finished hole of difficulty %i in time of %i for a score of %i", "color:orange;", this.difficulty, time, baseScore);
-	return [this.endTime, baseScore];
+
+	console.log("%c Finished hole of difficulty %i in time of XX for a score of XX", "color:orange;", this.difficulty);
+
+	return [this.endTime, 100];
+
 }
-Hole.prototype.reset = function () {
-	//Blocks are associated with a shape, loop through this hole's blocks and remove
-	//any shapes associated with the hole.
-	for (let i = 0; i < this.blocks.length; i++) {
-		for (let j = 0; j < this.blocks[i].length; j++) {
+
+Hole.prototype.regenerate = function () {
+	//Should probably not have this here.
+	this.removeShapes();
+	this.grid = null;
+	this.nShapes = 0;
+	this.blocks = [];
+	this.spaces = 0;
+	this.filled = 0;
+	this.numblocks = 0;
+	this.overfill = 0;
+	this.full = false;
+	this.score = null;
+	this.startTime = null;
+	this.endTime = null;
+	this.shapes = [];
+	this.makeBlocks();
+	this.generateHole();
+
+
+
+}
+Hole.prototype.removeShapes = function () {
+	for (let i = 0; i < this.grid.length; i++) {
+		for (let j = 0; j < this.grid[i].length; j++) {
 			//Get the blocks from the board. 
-			let block = this.blocks[i][j];
+			let block = this.grid[i][j];
 			if (block) {
-				let cell = board[this.y + i][this.x + j];
+				let cell = this.game.board[this.y + i][this.x + j];
 				for (let k in cell.contains) {
 					let cell_item = cell.contains[k];
 					if (cell_item.shape) {
-						//If the cell item is a shape, delete that shape.
+						//Mark the shape for deletion.
 						cell_item.shape.delete = true;
 					}
 				}
 			}
 		}
 	}
-
-
-	//So all shapes with blocks in the shape's range will be deleted. 
-	//Reset the hole
-	this.makeBlocks();
-	this.numblocks = 0;
-	this.score = null;
-	this.generateHole();
 }
