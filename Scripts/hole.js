@@ -1,278 +1,337 @@
-var Hole = function (x, y, dimention, difficulty) {
+let bshapes = [
+	[p, '#71B3B0'], [f, '#D55A4C'], [y, '#F5994E'], [t, '#961628'], [w, '#1D6D53'], [n, '#D6BB50'], [u, '#21746C'], [v, '#2CAD7D'], [l, '#8B2134'], [z, '#D88642'], [x, '#208D99'], [i, '#4A3F4F']
+		];
+
+var Hole = function (x, y, dimention, difficulty, game) {
 	this.x = x;
 	this.y = y;
-	this.difficulty = difficulty;
+	this.game = game;
 	this.dimen = dimention;
-	this.create = performance.now();
-	this.blocks = [];
-	this.spaces = 0;
-	this.filled = 0;
-	this.numblocks = 0;
-	this.overfill = 0;
-	this.full = false;
+	this.tileSize = game.tileSize;
+	this.difficulty = difficulty;
+	this.grid = [];
 	this.score = null;
-    this.startTime = null;
-    this.endTime = null;
-    this.shapes = [];
+	this.sTime = null;
+	this.eTime = null;
+	this.shapes = [];
+	this.blocks = [];
+	this.nShapes = 0;
+	this.overfill = 0;
 
 }
 
-Hole.prototype.generate = function () {
-	this.numblocks = 0;
-	this.blocks = [];
-	//Generates a hole that can be filled with pentominos.
-	//Generate hole's blocks.
-	for (let i = 0; i <= this.dimen; i++) {
-		let row = [];
-		for (let k = 0; k <= this.dimen; k++) {
-			row.push(0);
-		}
-		this.blocks.push(row);
+Hole.prototype.makeBlocks = function () {
+	this.grid = [];
+	for (let i = 0; i < this.dimen; i++) {
+		this.grid.push(new Array(this.dimen).fill(0));
 	}
-	//Draw the shape on the board.
-	//Blocks array is empty - generate the first shape and add it randomly.
-	let shape = this.pickPattern();
-	let shapex = 1;
-	let shapey = 1;
-	for (let i = 0; i < shape.length; i++) {
-		for (let j = 0; j < shape[i].length; j++) {
-			if (shape[i][j]) {
-				this.blocks[shapey + i][shapex + j] = 1;
+}
+Hole.prototype.generateHole = function () {
+	//Will try to add this.difficulty number of shapes to the grid
+	for (let i = 0; i < this.difficulty; i++) {
+		let shape = this.getShape();
+		let width = this.get_max_col(shape);
+		let height = this.get_max_row(shape);
+		if (this.nShapes == 0) {
+			//This is the first shape in the array. 
+			let randRow = Math.floor((this.dimen / 2) - height / 2);
+			let randCol = Math.floor((this.dimen / 2) - width / 2);
+			let placed = this.placeShape(shape, this.grid, randRow, randCol);
+			if (placed) {
+				this.nShapes++;
 			}
-		}
-	}
-	this.numblocks++;
-	for (let i = this.numblocks; i < this.difficulty; i++) {
-		shape = this.pickPattern();
-		//Loop through the blocks. 
-		for (let x = 0; x < this.blocks.length; x++) {
-			for (let y = 0; y < this.blocks[x].length; y++) {
-				let cell = this.blocks[x][y];
-				if (cell != 1) {
-					//There's nothing in this space, try to draw the block.
-					let draw = true;
-					for (let j = 0; j < shape.length; j++) {
-						for (let k = 0; k < shape[j].length; k++) {
+		} else {
+			//There are shapes already in the grid
+			let places = this.getPlaces(this.grid);
+			//For each place, try and place the shape.
+			for (let j = 0, k = places.length; j < k; j++) {
+				if (this.nShapes < this.difficulty) {
+					let place = places[j];
+					let row = place[0] - height;
+					let col = place[1] - width;
 
-							if (shape[j][k]) {
-								if ((x + j) <= this.blocks.length - shape.length && (y + k) <= this.blocks[0].length - shape[0].length) {
-									if (this.blocks[x + j][y + k]) {
-										draw = false;
-										break;
-									}
-								} else {
-									draw = false;
-									break;
-								}
-							}
+					if (row >= 0 && row < this.dimen && col >= 0 && col <= this.dimen) {
+						let placed = this.placeShape(shape, this.grid, row, col);
+						if (placed) {
+							this.nShapes++;
 						}
 					}
-					if (draw) {
-						//We could draw the block here, but should we? 
-						//At least 1 non-zero shape block HAS to be touching another one.
-						let sdraw = 0;
-						for (let j = 0; j < shape.length; j++) {
-							for (let k = 0; k < shape[j].length; k++) {
-								if (shape[j][k]) {
-									//for each non-zero shape, check if the blocks around it would contain something 
-									//if it was drawn into the blocks array.
-									let trow = x + j;
-									let tcol = y + k;
-									if (trow + 1 <= this.blocks.length) {
-										if (this.blocks[trow + 1][tcol] == 1) {
-											sdraw++;
-										}
-									}
-									if (trow + -1 >= 0) {
-										if (this.blocks[trow - 1][tcol] == 1) {
-											sdraw++;
-										}
-									}
-									if (tcol - 1 >= 0) {
-										if (this.blocks[trow][tcol - 1] == 1) {
-											sdraw++;
-										}
-									}
-									if (tcol + 1 <= this.blocks.length) {
-										if (this.blocks[trow][tcol + 1] == 1) {
-											sdraw++;
-										}
-									}
-								}
-							}
-						}
-						if (sdraw >= 3	&& (this.numblocks < this.difficulty)) {
-							//We can and should draw this shape.
-							for (let j = 0; j < shape.length; j++) {
-								for (let k = 0; k < shape[j].length; k++) {
-									if (shape[j][k]) {
-										this.blocks[x + j][y + k] = 1;
-
-									}
-								}
-							}
-							this.numblocks++;
-						}
-					}
+				} else {
+					break;
 				}
 			}
 		}
 	}
-	this.spaces = this.numblocks * 5;
+}
+Hole.prototype.getPlaces = function (grid) {
+	let places = [];
+
+	for (let i = 0, x = grid.length; i < x; i++) {
+		for (let j = 0, y = grid[i].length; j < y; j++) {
+			let block = grid[i][j];
+			if (block != 0) {
+				try {
+					if (grid[i][j + 1] == 0) {
+						places.push([i, j + 1]);
+					}
+				} catch (err) {
+
+				}
+				try {
+					if (grid[i][j - 1] == 0) {
+						places.push([i, j - 1]);
+					}
+				} catch (err) {
+
+				}
+				try {
+					if (grid[i + 1][j] == 0) {
+						places.push([i + 1, j]);
+					}
+				} catch (err) {
+
+				}
+				try {
+					if (grid[i - 1][j] == 0) {
+						places.push([i - 1, j]);
+					}
+				} catch (err) {}
+			}
+		}
+	}
+	return places;
+}
+Hole.prototype.placeShape = function (shape, grid, row, col) {
+	//Going to try and place the shape in the grid at row, col.
+	let can = true;
+	for (let i = 0; i < shape.length; i++) {
+		let block = shape[i];
+		try {
+			if (grid[row + block[0]][col + block[1]] != 0) {
+				can = false;
+				return can;
+			}
+		} catch (err) {
+			can = false;
+			return can;
+		}
+	}
+	let should = false;
+	if (can) {
+		//We can place the shape, but should we? 
+		if (this.nShapes != 0) {
+			//Only check if we should if there's already a shape in the grid
+			let blockcols = 0;
+
+			for (let i = 0, j = shape.length; i < j; i++) {
+				let block = shape[i];
+				//Check above, right, bottom, left
+				let brow = row + block[0];
+				let bcol = col + block[1];
+				//Above
+				try {
+					if (grid[brow - 1][bcol] != 0) {
+						blockcols++;
+					}
+				} catch (err) {
+
+				}
+				//Right
+				try {
+					if (grid[brow][bcol + 1] != 0) {
+						blockcols++;
+					}
+				} catch (err) {
+
+				}
+				//Bottom
+				try {
+					if (grid[brow + 1][bcol] != 0) {
+						blockcols++;
+					}
+				} catch (err) {
+
+				}
+				//Left
+				try {
+					if (grid[brow][bcol - 1] != 0) {
+						blockcols++;
+					}
+				} catch (err) {
+
+				}
+
+			}
+			console.log(blockcols);
+			if (blockcols >= 3) {
+				should = true;
+			}
+		} else {
+			should = true;
+		}
+		if (should) {
+			//We can and should place the block
+			for (let i = 0, j = shape.length; i < j; i++) {
+				let block = shape[i];
+				grid[row + block[0]][col + block[1]] = 1;
+			}
+		}
+	}
+	return should;
+}
+Hole.prototype.getrandom = function (min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+Hole.prototype.get_max_col = function (shape) {
+	let col = null;
+	for (let i = 0, j = shape.length; i < j; i++) {
+		let block = shape[i];
+		if (col == null) {
+			col = block[1];
+		} else {
+			if (block[1] > col) {
+				col = block[1];
+			}
+		}
+	}
+	return col;
+}
+Hole.prototype.get_max_row = function (shape) {
+	let row = null;
+	for (let i = 0, j = shape.length; i < j; i++) {
+		let block = shape[i];
+		if (row == null) {
+			row = block[0];
+		} else {
+			if (block[1] > row) {
+				row = block[1];
+			}
+		}
+	}
+	return row;
 }
 
-Hole.prototype.pickPattern = function () {
-	var p = pieces[parseInt(Math.random() * pieces.length, 10)].slice();
-	return p;
-}
+Hole.prototype.getShape = function () {
+	let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6, 5, 4, 3];
+	let shape = null;
+	//Number between 1 and 100
+	let number = Math.floor(Math.random() * 100);
 
+	let total = 0;
+	for (let i in probs) {
+		total += probs[i];
+		if (number <= total) {
+			shape = bshapes[i][0];
+			break;
+		}
+	}
+	return shape;
+}
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
-	for (let row = 0; row < board.length; row++) {
-		for (let col = 0; col < board[row].length; col++) {
-			let cell = board[row][col];
-			if (row == this.y && col == this.x) {
-				//Found start of hole.
-				for (let i = 0; i < this.blocks.length; i++) {
-					for (let j = 0; j < this.blocks[i].length; j++) {
-						let block = this.blocks[i][j];
-						if (block) {
-							board[row + i][col + j].contains.push({
-								x: (this.x + i) * tileSize,
-								y: (this.y + j) * tileSize,
-								solid: true,
-								colour: "rgba(0, 0, 0, 0.2)",
-								border: "black",
-								type: "hole"
-							});
-						}
-					}
-				}
-                break;
+	let board = this.game.board;
+
+
+
+	for (let row = 0; row < this.grid.length; row++) {
+		for (let col = 0; col < this.grid[row].length; col++) {
+			if (this.grid[row][col] != 0) {
+				board[row + this.y][col + this.x].contains.push({
+					x: board[row + this.y][col + this.x].x,
+					y: board[row + this.y][col + this.x].y,
+					solid: true,
+					color: "rgba(54, 69, 79, 0.8)",
+					border: "black",
+					type: "hole"
+				});
 			}
 		}
 	}
 }
 Hole.prototype.checkState = function () {
-	this.filled = 0;
-	this.overfill = 0;
-	for (let i = 0; i < this.blocks.length; i++) {
-		for (let j = 0; j < this.blocks[i].length; j++) {
-			let block = this.blocks[i][j];
+
+	//Check if the hole is filled or not.
+	let filled = 0;
+	let overfill = 0;
+	for (let i = 0, j = this.grid.length; i < j; i++) {
+		for (let k = 0, l = this.grid[i].length; k < l; k++) {
+			let block = this.grid[i][k];
 			if (block) {
-				let cell = board[this.y + i][this.x + j];
-				if(cell.contains.length >= 2){
-					this.filled++;
-                    this.overfill += cell.contains.length - 2;
+				//Get spot on board.
+				let cell = this.game.board[this.y + i][this.x + k];
+				let contents = cell.contains;
+				if (contents.length > 1) {
+					//Something else in the cell
+					let incell = contents.length - 2;
+					filled++;
+					if (incell > 0) {
+						//Overflow
+						overfill += incell;
+					}
 				}
 			}
 		}
 	}
-    if(this.startTime == null && this.filled > 0){
-        //The first block has been put in the hole. 
-        this.startTime = performance.now();
-    }
-	if(this.filled == this.spaces){
-		this.endTime = performance.now(); 
-        if(this.overfill == 0){
-            //There's no overfill
-            mp++;
-        } else {
-            //There's overfill, break chain
-            if(mp != 0){
-                mp = 0;
-                pp = pp - (mp * 4);
-            }
-        }
-		console.log("Finished hole, MP counter: " + mp);
-		
-        return true;
-        
+	if (this.filled > 0 && this.sTime == null) {
+		this.sTime = performance.now();
 	}
-    return false;
+	if (this.nShapes * 5 == filled) {
+		console.log("Shape filled");
+		this.score = this.calcScore(overfill);
+		return true;
+	}
+	return false;
 }
 
 
-Hole.prototype.calcScore = function () {
-    let time = (this.endTime - this.startTime)/1000; 
-	let baseScore = this.difficulty / (time / 10000);
-	baseScore -= (this.overfill * (difficulty - 1.5));
-	baseScore += (500 * mp);
+Hole.prototype.calcScore = function (overfill) {
+	this.eTime = performance.now();
+	let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
+	let noov =  Math.pow( Math.E, ((-time)/8) + 8) + (this.nShapes * 50);
+	let score = Math.pow( Math.E, ((-time * overfill)/8) + 8) + (this.nShapes * 50);
 	
-	console.log("%c Finished hole of difficulty %i in time of %i for a score of %i", "color:orange;", this.difficulty, time, baseScore);
-	return baseScore;
-}
-Hole.prototype.reset = function(){
-    //Blocks are associated with a shape, loop through this hole's blocks and remove
-    //any shapes associated with the hole.
-    for(let i = 0; i < this.blocks.length; i++){
-        for(let j = 0; j < this.blocks[i].length; j++){
-            //Get the blocks from the board. 
-            let block = this.blocks[i][j];
-            if(block){
-                
-            
-            let cell = board[this.y + i][this.x + j];
-            
-                                for(let k in cell.contains){
-                let cell_item = cell.contains[k];
-                if(cell_item.shape){
-                    //If the cell item is a shape, delete that shape.
-                    cell_item.shape.delete = true;
-                }    
-            } 
-            }
-                    
-                
- 
-        }
-    }
+	
+	
+	console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty,overfill, time, score);
+	console.log("Score no over: ", noov);
+	return score;
 
-    
-    //So all shapes with blocks in the shape's range will be deleted. 
-    //Reset the hole
-    this.numblocks = 0;
-    this.score = null;
-    this.blocks = [];
-    this.generate();
 }
 
+Hole.prototype.regenerate = function () {
+	//Should probably not have this here.
+	this.removeShapes();
+	this.grid = null;
+	this.nShapes = 0;
+	this.blocks = [];
 
-Hole.prototype.trim = function () {
-	console.log("Blocks before: ");
-	console.log(this.blocks);
-	//Removes empty rows and columns from a hole. 
-	for (let i = this.blocks.length - 1; i >= 0; i--) {
-		let removable = true;
-		for (let j = this.blocks[i].length; j >= 0; j--) {
-			if (this.blocks[i][j] == 1) {
-				removable = false;
-			}
-		}
-		if (removable) {
-			//Remove this row.
-			this.blocks.splice(i, 1);
-		}
-	}
-	//Extra rows have been removed. 
-	//Remove excess columns.
-	for (let i = 0; i < this.blocks[0].length; i++) {
-		//For each column in the array.
-		let removable = true;
-		for (let j = 0; j < this.blocks.length; j++) {
-			//For each row.
-			let cell = this.blocks[j][i];
-			if (cell == 1) {
-				this.removable = false;
-			}
-		}
-		if (removable) {
-			//Remove column i.
-			for (let j = 0; j < this.blocks.length; j++) {
-				this.blocks[j].splice(i, 1);
+	this.overfill = 0;
+	this.full = false;
+	this.score = null;
+	this.startTime = null;
+	this.endTime = null;
+	this.shapes = [];
+	this.makeBlocks();
+	this.generateHole();
+
+
+
+}
+Hole.prototype.removeShapes = function () {
+	for (let i = 0; i < this.grid.length; i++) {
+		for (let j = 0; j < this.grid[i].length; j++) {
+			//Get the blocks from the board. 
+			let block = this.grid[i][j];
+			if (block) {
+				let cell = this.game.board[this.y + i][this.x + j];
+				for (let k in cell.contains) {
+					let cell_item = cell.contains[k];
+					if (cell_item.shape) {
+						//Mark the shape for deletion.
+						cell_item.shape.delete = true;
+					}
+				}
 			}
 		}
 	}
-	console.log("Blocks after: ");
-	console.log(this.blocks);
 }
