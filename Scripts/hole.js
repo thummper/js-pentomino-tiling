@@ -1,119 +1,25 @@
-let p = [
-	[0, 1],
-	[1, 0],
-	[1, 1],
-	[2, 0],
-	[2, 1]
-		];
-let x = [
-	[0, 1],
-	[1, 0],
-	[1, 1],
-	[1, 2],
-	[2, 1]
-		];
-let z = [
-	[0, 1],
-	[0, 2],
-	[1, 1],
-	[1, 0]
-		];
-let f = [
-	[0, 1],
-	[0, 2],
-	[1, 0],
-	[1, 1],
-	[2, 1]
-
-];
-let y = [
-	[0, 0],
-	[0, 1],
-	[0, 2],
-	[0, 3],
-	[1, 1]
-
-];
-let t = [
-	[0, 0],
-	[0, 1],
-	[0, 2],
-	[1, 1],
-	[2, 1]
-];
-let w = [
-	[0, 0],
-	[0, 1],
-	[1, 1],
-	[1, 2],
-	[2, 2]
-
-];
-let n = [
-	[0, 2],
-	[1, 1],
-	[1, 2],
-	[2, 1],
-	[3, 1]
-];
-let u = [
-	[0, 0],
-	[0, 2],
-	[1, 0],
-	[1, 1],
-	[1, 2]
-];
-let v = [
-	[0, 0],
-	[1, 0],
-	[2, 0],
-	[2, 1],
-	[2, 2]
-];
-let l = [
-	[0, 1],
-	[1, 1],
-	[2, 1],
-	[3, 1],
-	[3, 2]
-];
-let i = [
-	[0, 2],
-	[1, 2],
-	[2, 2],
-	[3, 2],
-	[4, 2]
-]
-
 let bshapes = [
 	[p, '#71B3B0'], [f, '#D55A4C'], [y, '#F5994E'], [t, '#961628'], [w, '#1D6D53'], [n, '#D6BB50'], [u, '#21746C'], [v, '#2CAD7D'], [l, '#8B2134'], [z, '#D88642'], [x, '#208D99'], [i, '#4A3F4F']
 		];
 
 var Hole = function (x, y, dimention, difficulty, game) {
-	this.game = game;
-	this.tileSize = game.tileSize;
 	this.x = x;
 	this.y = y;
-	this.difficulty = difficulty;
+	this.game = game;
 	this.dimen = dimention;
-	this.create = performance.now();
-	this.grid = null;
-	this.nShapes = 0;
-
-
-	this.blocks = [];
-	this.spaces = 0;
-	this.filled = 0;
-	this.numblocks = 0;
-	this.overfill = 0;
-	this.full = false;
+	this.tileSize = game.tileSize;
+	this.difficulty = difficulty;
+	this.grid = [];
 	this.score = null;
-	this.startTime = null;
-	this.endTime = null;
+	this.sTime = null;
+	this.eTime = null;
 	this.shapes = [];
+	this.blocks = [];
+	this.nShapes = 0;
+	this.overfill = 0;
 
 }
-//Make blocks will essentially reset the hole to a blank dimen x dimen array
+
 Hole.prototype.makeBlocks = function () {
 	this.grid = [];
 	for (let i = 0; i < this.dimen; i++) {
@@ -347,9 +253,6 @@ Hole.prototype.checkState = function () {
 	//Check if the hole is filled or not.
 	let filled = 0;
 	let overfill = 0;
-
-
-
 	for (let i = 0, j = this.grid.length; i < j; i++) {
 		for (let k = 0, l = this.grid[i].length; k < l; k++) {
 			let block = this.grid[i][k];
@@ -365,32 +268,33 @@ Hole.prototype.checkState = function () {
 						//Overflow
 						overfill += incell;
 					}
-
 				}
-
 			}
-
 		}
 	}
-
-
+	if (this.filled > 0 && this.sTime == null) {
+		this.sTime = performance.now();
+	}
 	if (this.nShapes * 5 == filled) {
 		console.log("Shape filled");
-		this.score = this.calcScore();
+		this.score = this.calcScore(overfill);
 		return true;
-
 	}
-
 	return false;
 }
 
 
-Hole.prototype.calcScore = function () {
-
-
-	console.log("%c Finished hole of difficulty %i in time of XX for a score of XX", "color:orange;", this.difficulty);
-
-	return [this.endTime, 100];
+Hole.prototype.calcScore = function (overfill) {
+	this.eTime = performance.now();
+	let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
+	let noov =  Math.pow( Math.E, ((-time)/8) + 8) + (this.nShapes * 50);
+	let score = Math.pow( Math.E, ((-time * overfill)/8) + 8) + (this.nShapes * 50);
+	
+	
+	
+	console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty,overfill, time, score);
+	console.log("Score no over: ", noov);
+	return score;
 
 }
 
@@ -400,9 +304,7 @@ Hole.prototype.regenerate = function () {
 	this.grid = null;
 	this.nShapes = 0;
 	this.blocks = [];
-	this.spaces = 0;
-	this.filled = 0;
-	this.numblocks = 0;
+
 	this.overfill = 0;
 	this.full = false;
 	this.score = null;

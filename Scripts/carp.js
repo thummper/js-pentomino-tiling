@@ -22,7 +22,14 @@ class Game{
 		this.frames = 0;
 		this.eventListeners;
 		this.canvas;
-		this.ctx; 
+		this.ctx;
+		
+		//Score stuff
+		this.ticker = 0;
+		this.combo = 0;
+		this.totalScore = 0;
+		this.scoreTracker = 0;
+		this.pastScores = [];
 	}
 	makeBoard(){
 		for(let row = 0; row < this.boardSize; row++){
@@ -71,10 +78,6 @@ class Game{
 		} else {
 			 hwp = lblocks;	
 		}
-		
-		console.log("Hole Padding. ", lblocks);
-		
-		
 		let y = 1;
 		for(let i = 0; i < hrs; i++){
 			let x = 1;
@@ -104,14 +107,31 @@ class Game{
 			let hole = this.holes[i];
 			let filled = hole.checkState();
 			if(filled){
+				this.totalScore += hole.score; 
+				this.scoreTracker += hole.score;
 				hole.regenerate();
 			}
 		}
 	}
 	
+	checkScore(){
+		console.log("Score tracker called");
+		this.pastScores.push(this.scoreTracker);
+		this.scoreTracker = 0;
+		if(this.pastScores.length > 20){
+			let difference = 20 - this.pastScores.length;
+			this.pastScores.splice(0, difference);
+		}
+		let total = 0;
+		for(let i = 0, j = this.pastScores.length; i < j; i++){
+			total += this.pastScores[i];
+		}
+		let average = total / this.pastScores.length;
+		console.log("Average Score: ", average);
+	}
+	
 	loop(){
 		this.getFPS();
-		
 		//Clear the grid and then add everything back to it.
 		this.clearCanvas();
 		this.drawHoles();
@@ -119,16 +139,19 @@ class Game{
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
-		
 		this.holder.drawSpace();
-		
 
 		if(this.dragShape != null){
 			this.dragShape.drag(this.eventListeners.mx, this.eventListeners.my);
 			this.dragShape.draw_on_mouse();
 		}
+		if(this.ticker >= 240){
+			this.ticker = 0;
+			this.checkScore();
+		}
 		
 		this.frames++;
+		this.ticker++;
 		window.requestAnimationFrame(this.loop.bind(this));
 	}
 	getFPS(){
@@ -167,13 +190,14 @@ class Game{
 		this.makeBoard();
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
+	
 	drawHoles(){
 		for(let i = 0, j = this.holes.length; i < j; i++){
 			let hole = this.holes[i];
 			hole.draw();
-
 		}
 	}
+	
 	drawShapes(){
 		let newShapes = []
 		for(let i = 0, j = this.shapes.length; i < j; i++){
