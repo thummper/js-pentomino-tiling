@@ -14,8 +14,55 @@ class Shape {
 		this.delete = false;
 		this.makeBlocks();
 	}
+	
+	refreshBlocks(){
+		for(let i = 0, j = this.blocks.length; i < j; i++){
+			for(let k = 0, l = this.blocks[i].length; k < l; k++){
+				let block = this.blocks[i][k];
+				block.x = this.x + (k * this.game.tileSize);
+				block.y = this.y + (i * this.game.tileSize);
+				
+			}
+		}
+	}
+
+	checkBounds() {
+		//We should check that we can drop the shape. 
+		console.log("X: ", this.x, " Y: ", this.y);
+		console.log("Width: ", this.game.canvas.width);
+		console.log("Stop dragging");
+		let bx = (this.x + this.pattern[0].length * this.game.tileSize) / this.game.tileSize;
+		let by = (this.y + this.pattern.length * this.game.tileSize) / this.game.tileSize;
+		if (this.x < 0) {
+			console.log("outside left");
+			//bx is negative. 
+			this.x = 0;
+			this.refreshBlocks();
+
+		}
+		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
+			console.log("outside right");
+			console.log(bx, " ", this.game.boardSize);
+			let blockd = bx - this.game.boardSize;
+			console.log(blockd);
+			this.x -= blockd * this.game.tileSize;
+			this.refreshBlocks();
+		}
+		if (this.y < 0) {
+			console.log("outside top");
+			this.y = 0;
+			this.refreshBlocks();
+		}
+		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
+			console.log("outside bottom");
+			let blockd = by - this.game.boardSize;
+			this.y -= blockd * this.game.tileSize;
+			this.refreshBlocks();
+		}
+	}
 
 	stopDragging() {
+		this.checkBounds();
 		this.draggable = true;
 		this.dragging = false;
 		for (let i = 0, j = this.blocks.length; i < j; i++) {
@@ -33,7 +80,6 @@ class Shape {
 		for (let y = 0, xx = this.pattern.length; y < xx; y++) {
 			this.blocks.push([]);
 			for (let x = 0, yy = this.pattern[y].length; x < yy; x++) {
-
 				let block = {
 					x: this.x + (x * this.tileSize),
 					y: this.y + (y * this.tileSize),
@@ -77,7 +123,6 @@ class Shape {
 				break;
 			}
 		}
-		
 		return shape;
 	}
 
@@ -104,6 +149,7 @@ class Shape {
 	}
 
 	drag(mx, my) {
+	
 		//Get the nearest blockpoint to the mouse and put the block we are dragging on it.
 		let tileSize = this.game.tileSize;
 		let xgrid, ygrid;
