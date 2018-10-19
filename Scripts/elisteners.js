@@ -26,8 +26,9 @@ class EventListeners{
 			if(this.game.dragShape != null){
 				//We are dragging a shape, drop it.
 				let shape = this.game.dragShape;
-				this.game.shapes.push(shape);
 				shape.stopDragging();
+				this.game.shapes.push(shape);
+				
 				shape.draw();
 				this.game.holder.checkSpaces();
 				this.game.holder.trySpawn();

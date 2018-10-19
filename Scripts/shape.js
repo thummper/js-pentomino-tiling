@@ -15,7 +15,39 @@ class Shape {
 		this.makeBlocks();
 	}
 
+	checkBounds() {
+		//We should check that we can drop the shape. 
+		console.log("X: ", this.x, " Y: ", this.y);
+		console.log("Width: ", this.game.canvas.width);
+		console.log("Stop dragging");
+		let bx = (this.x + this.pattern[0].length * this.game.tileSize) / this.game.tileSize;
+		let by = (this.y + this.pattern.length * this.game.tileSize) / this.game.tileSize;
+		if (this.x < 0) {
+			console.log("outside left");
+			//bx is negative. 
+			this.x = 0;
+
+		}
+		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
+			console.log("outside right");
+			console.log(bx, " ", this.game.boardSize);
+			let blockd = bx - this.game.boardSize;
+			console.log(blockd);
+			this.x -= blockd * this.game.tileSize;
+		}
+		if (this.y < 0) {
+			console.log("outside top");
+			this.y = 0;
+		}
+		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
+			console.log("outside bottom");
+			let blockd = by - this.game.boardSize;
+			this.y -= blockd * this.game.tileSize;
+		}
+	}
+
 	stopDragging() {
+		this.checkBounds();
 		this.draggable = true;
 		this.dragging = false;
 		for (let i = 0, j = this.blocks.length; i < j; i++) {
@@ -77,7 +109,7 @@ class Shape {
 				break;
 			}
 		}
-		
+
 		return shape;
 	}
 
@@ -104,6 +136,7 @@ class Shape {
 	}
 
 	drag(mx, my) {
+	
 		//Get the nearest blockpoint to the mouse and put the block we are dragging on it.
 		let tileSize = this.game.tileSize;
 		let xgrid, ygrid;

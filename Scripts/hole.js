@@ -72,8 +72,7 @@ Hole.prototype.generateHole = function () {
 	}
 }
 Hole.prototype.rotateShape = function (shape) {
-	console.log("Rotating Shape: ");
-	console.log(shape);
+
 	cols = [];
 	//Second number matches for col.
 	//Slowly remove things from shape.
@@ -93,8 +92,7 @@ Hole.prototype.rotateShape = function (shape) {
 		cols[col].push(shape[i]);
 
 	}
-	console.log("Cols: ");
-	console.log(cols);
+
 	
 	let newShape = [];
 	for (let i = 0; i < cols.length; i++) {
@@ -103,8 +101,6 @@ Hole.prototype.rotateShape = function (shape) {
 			newShape.push([i, j]);
 		}
 	}
-	console.log("New Shape: ");
-	console.log(newShape);
 	
 	return newShape;
 }
