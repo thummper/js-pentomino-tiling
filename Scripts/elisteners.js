@@ -20,7 +20,6 @@ class EventListeners{
 		event.stopPropagation();
 	}
 	mousePressed(event){
-		console.log("Mouse Click");
 		if (event.button == 0) {
 			
 			if(this.game.dragShape != null){
@@ -37,7 +36,6 @@ class EventListeners{
 				
 				//Nothing is being dragged.
 				let rect = this.canvas.getBoundingClientRect();
-				console.log(event);
 				this.mx = event.clientX - rect.left;
 				this.my = event.clientY - rect.top;
 				for(let i = this.game.shapes.length - 1; i >= 0; i--){
@@ -86,6 +84,7 @@ class EventListeners{
 		
 	}
 	mouseWheel(event){
+		event.preventDefault();
 		let direction = false;
 		if(event.deltaY < 0){
 			direction = true;

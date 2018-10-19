@@ -3,6 +3,45 @@ let pieces = [
 	[P, '#71B3B0'], [F, '#D55A4C'], [Y, '#F5994E'], [T, '#961628'], [W, '#1D6D53'], [N, '#D6BB50'], [U, '#21746C'], [V, '#2CAD7D'], [L, '#8B2134'], [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
 		];
 
+
+class Graph {
+	constructor(canvas, dataArray){
+		this.chart = echarts.init(canvas);
+		this.data = dataArray;
+		this.chartOptions = null;
+	}
+	start(){
+		this.chartOptions = {
+			grid: {
+				left: 0,
+				right: 0,
+				top: 0,
+			},
+			xAxis: {
+				data: ['1']
+			},
+			yAxis: {},
+			series: [{
+				type: 'line',
+				data: [0]
+			}]
+		};
+		
+		this.chart.setOption(this.chartOptions);
+	}
+	update(){
+		console.log("UPDATING", this.data);
+		for(i in this.data){
+			console.log(this.data[i]);
+			this.chartOptions.xAxis.data.push(this.data[i][1]);
+			this.chartOptions.series[0].data.push(this.data[i][0]);
+			this.chart.setOption(this.chartOptions);
+		}
+		this.data.splice(0, this.data.length);
+		
+	}
+}
+
 class Game{
 	constructor(){
 		//Game Variables
@@ -30,6 +69,11 @@ class Game{
 		this.totalScore = 0;
 		this.scoreTracker = 0;
 		this.pastScores = [];
+		//Average 
+		this.averageScores = [];
+		this.averageGraph = new Graph( document.getElementById('graph_canvas'), this.averageScores);
+		this.averageGraph.start();
+		
 	}
 	makeBoard(){
 		for(let row = 0; row < this.boardSize; row++){
@@ -127,7 +171,20 @@ class Game{
 			total += this.pastScores[i];
 		}
 		let average = total / this.pastScores.length;
-		console.log("Average Score: ", average);
+		let today = new Date();
+		let time = today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
+		this.averageScores.push([average, time]);
+		
+		if(this.averageScores.length > 20){
+			let difference = this.averageScores.length - 20;
+			this.averageScores.splice(0, difference);
+		}
+		this.updateGraph();
+	}
+	
+	updateGraph(){
+		console.log("Would update graph");
+		this.averageGraph.update();
 	}
 	
 	loop(){

@@ -28,33 +28,24 @@ class Shape {
 
 	checkBounds() {
 		//We should check that we can drop the shape. 
-		console.log("X: ", this.x, " Y: ", this.y);
-		console.log("Width: ", this.game.canvas.width);
-		console.log("Stop dragging");
 		let bx = (this.x + this.pattern[0].length * this.game.tileSize) / this.game.tileSize;
 		let by = (this.y + this.pattern.length * this.game.tileSize) / this.game.tileSize;
 		if (this.x < 0) {
-			console.log("outside left");
 			//bx is negative. 
 			this.x = 0;
 			this.refreshBlocks();
 
 		}
 		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
-			console.log("outside right");
-			console.log(bx, " ", this.game.boardSize);
 			let blockd = bx - this.game.boardSize;
-			console.log(blockd);
 			this.x -= blockd * this.game.tileSize;
 			this.refreshBlocks();
 		}
 		if (this.y < 0) {
-			console.log("outside top");
 			this.y = 0;
 			this.refreshBlocks();
 		}
 		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
-			console.log("outside bottom");
 			let blockd = by - this.game.boardSize;
 			this.y -= blockd * this.game.tileSize;
 			this.refreshBlocks();

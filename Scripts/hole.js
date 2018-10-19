@@ -209,7 +209,6 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 				}
 
 			}
-			console.log(blockcols);
 			if (blockcols >= 3) {
 				should = true;
 			}

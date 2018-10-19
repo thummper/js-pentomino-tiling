@@ -7,11 +7,11 @@
 }
 body, html{
 	width: 100%;
-	height: 100%;
 }
 body{
 	min-height: 100%;
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 }
@@ -25,9 +25,15 @@ body{
 	justify-content: space-around;
 	
 }
-.chart-wrapper {
+.graph-wrapper {
+	margin-top: 20px;
+	width: 60%;
+	margin: 20px auto;
+	height: 300px;
+}
+#graph_canvas {
+	width: 100%;
 
-	height: 200px;
 }
 
 .canvas-wrapper{
