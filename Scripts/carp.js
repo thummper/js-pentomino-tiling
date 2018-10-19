@@ -5,12 +5,12 @@ let pieces = [
 
 
 class Graph {
-	constructor(canvas, dataArray){
+	constructor(canvas, dataArray) {
 		this.chart = echarts.init(canvas);
 		this.data = dataArray;
 		this.chartOptions = null;
 	}
-	start(){
+	start() {
 		this.chartOptions = {
 			grid: {
 				left: 0,
@@ -26,33 +26,35 @@ class Graph {
 				data: [0]
 			}]
 		};
-		
 		this.chart.setOption(this.chartOptions);
 	}
-	update(){
+
+	update() {
+
 		console.log("UPDATING", this.data);
-		for(i in this.data){
+		for (i in this.data) {
 			console.log(this.data[i]);
 			this.chartOptions.xAxis.data.push(this.data[i][1]);
 			this.chartOptions.series[0].data.push(this.data[i][0]);
 			this.chart.setOption(this.chartOptions);
 		}
 		this.data.splice(0, this.data.length);
-		
+
 	}
+
 }
 
-class Game{
-	constructor(){
+class Game {
+	constructor() {
 		//Game Variables
 		this.tileSize = 20;
 		this.holeSize = 12;
-		this.shapes   = [];
-		this.holes    = [];
+		this.shapes = [];
+		this.holes = [];
 		this.dragShape = null;
-		
+
 		//Main game grid is boardsize * boardsize
-		this.boardSize = 32; 
+		this.boardSize = 32;
 		this.board = [];
 		this.holder;
 		//Other Variables
@@ -62,7 +64,7 @@ class Game{
 		this.eventListeners;
 		this.canvas;
 		this.ctx;
-		
+
 		//Score stuff
 		this.ticker = 0;
 		this.combo = 0;
@@ -71,14 +73,14 @@ class Game{
 		this.pastScores = [];
 		//Average 
 		this.averageScores = [];
-		this.averageGraph = new Graph( document.getElementById('graph_canvas'), this.averageScores);
+		this.averageGraph = new Graph(document.getElementById('graph_canvas'), this.averageScores);
 		this.averageGraph.start();
-		
+
 	}
-	makeBoard(){
-		for(let row = 0; row < this.boardSize; row++){
+	makeBoard() {
+		for (let row = 0; row < this.boardSize; row++) {
 			this.board[row] = [];
-			for(let col = 0; col < this.boardSize; col++){
+			for (let col = 0; col < this.boardSize; col++) {
 				this.board[row][col] = {
 					x: col * this.tileSize,
 					y: row * this.tileSize,
@@ -87,7 +89,7 @@ class Game{
 			}
 		}
 	}
-	setup(){
+	setup() {
 		//Setup Canvas
 		this.canvas = document.getElementById('carp_canvas');
 		this.ctx = this.canvas.getContext('2d');
@@ -95,12 +97,12 @@ class Game{
 		//Make the board.
 		this.makeBoard();
 
-		
+
 		//Make shape holder
 		this.holder = new Holder(this.canvas, this.ctx, this);
 		this.holder.makeSpaces();
 		//Make initial holes
-		
+
 		//We have to work out how many holes we can fit in the gap 
 		/* For now, hole size is static
 		   Min X: tileSize
@@ -110,25 +112,25 @@ class Game{
 		*/
 		let maxX = this.tileSize * (this.boardSize - 1);
 		let maxY = this.tileSize * (this.boardSize - 7);
-		let hpr  = Math.floor( (this.boardSize - 2) / this.holeSize);
-		let hrs  = Math.floor( (this.boardSize - 7) / this.holeSize);
-		
-		
+		let hpr = Math.floor((this.boardSize - 2) / this.holeSize);
+		let hrs = Math.floor((this.boardSize - 7) / this.holeSize);
+
+
 		let tblocks = hpr * this.holeSize;
 		let lblocks = this.boardSize - tblocks - 2;
 		let hwp = 0;
-		if(hpr > 2){
-			 hwp = Math.floor(lblocks/hpr);
+		if (hpr > 2) {
+			hwp = Math.floor(lblocks / hpr);
 		} else {
-			 hwp = lblocks;	
+			hwp = lblocks;
 		}
 		let y = 1;
-		for(let i = 0; i < hrs; i++){
+		for (let i = 0; i < hrs; i++) {
 			let x = 1;
 			//For each hole row
-			for(let j = 0; j < hpr; j++){
+			for (let j = 0; j < hpr; j++) {
 				//Add holes per row.
-				
+
 				let hole = new Hole(x, y, this.holeSize, 10, this);
 				hole.makeBlocks();
 				hole.generateHole();
@@ -143,51 +145,51 @@ class Game{
 		this.holder.trySpawn();
 		//Start game 
 		this.loop();
-		
+
 	}
-	
-	checkHoles(){
-		for(let i = 0, j = this.holes.length; i < j; i++){
+
+	checkHoles() {
+		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
 			let filled = hole.checkState();
-			if(filled){
-				this.totalScore += hole.score; 
+			if (filled) {
+				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
 				hole.regenerate();
 			}
 		}
 	}
-	
-	checkScore(){
+
+	checkScore() {
 		console.log("Score tracker called");
 		this.pastScores.push(this.scoreTracker);
 		this.scoreTracker = 0;
-		if(this.pastScores.length > 20){
+		if (this.pastScores.length > 20) {
 			let difference = 20 - this.pastScores.length;
 			this.pastScores.splice(0, difference);
 		}
 		let total = 0;
-		for(let i = 0, j = this.pastScores.length; i < j; i++){
+		for (let i = 0, j = this.pastScores.length; i < j; i++) {
 			total += this.pastScores[i];
 		}
 		let average = total / this.pastScores.length;
 		let today = new Date();
 		let time = today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
 		this.averageScores.push([average, time]);
-		
-		if(this.averageScores.length > 20){
+
+		if (this.averageScores.length > 20) {
 			let difference = this.averageScores.length - 20;
 			this.averageScores.splice(0, difference);
 		}
 		this.updateGraph();
 	}
-	
-	updateGraph(){
+
+	updateGraph() {
 		console.log("Would update graph");
 		this.averageGraph.update();
 	}
-	
-	loop(){
+
+	loop() {
 		this.getFPS();
 		//Clear the grid and then add everything back to it.
 		this.clearCanvas();
@@ -198,23 +200,23 @@ class Game{
 		this.drawBoard();
 		this.holder.drawSpace();
 
-		if(this.dragShape != null){
+		if (this.dragShape != null) {
 			this.dragShape.drag(this.eventListeners.mx, this.eventListeners.my);
 			this.dragShape.draw_on_mouse();
 		}
-		if(this.ticker >= 240){
+		if (this.ticker >= 240) {
 			this.ticker = 0;
 			this.checkScore();
 		}
-		
+
 		this.frames++;
 		this.ticker++;
 		window.requestAnimationFrame(this.loop.bind(this));
 	}
-	getFPS(){
-		if(this.framesTime){
+	getFPS() {
+		if (this.framesTime) {
 			let now = performance.now();
-			if(now - this.framesTime >= 1000){
+			if (now - this.framesTime >= 1000) {
 				this.FPS = this.frames;
 				this.frames = 0;
 				this.framesTime = now;
@@ -223,13 +225,13 @@ class Game{
 			this.framesTime = performance.now();
 		}
 	}
-	drawBoard(){
-		for(let row = 0; row < this.boardSize; row++){
-			for(let col = 0; col < this.boardSize; col++){
+	drawBoard() {
+		for (let row = 0; row < this.boardSize; row++) {
+			for (let col = 0; col < this.boardSize; col++) {
 				let cell = this.board[row][col];
-				
-				if(cell.contains.length > 0){
-					for(let i = cell.contains.length - 1; i >= 0; i--){
+
+				if (cell.contains.length > 0) {
+					for (let i = cell.contains.length - 1; i >= 0; i--) {
 						let block = cell.contains[i];
 						this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, block.color);
 						break; //Draw the last one only.
@@ -239,44 +241,46 @@ class Game{
 					this.drawRect(col * this.tileSize, row * this.tileSize, this.tileSize, 'white', 'rgba(0, 0, 0, 0.2)');
 				}
 			}
-		}	
+		}
 	}
-	clearCanvas(){
+
+	clearCanvas() {
 		//Reset grid and clear canvas
 		//TODO, seems really inefficient to call this function every loop.
 		this.makeBoard();
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
-	
-	drawHoles(){
-		for(let i = 0, j = this.holes.length; i < j; i++){
+
+	drawHoles() {
+		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
 			hole.draw();
 		}
 	}
-	
-	drawShapes(){
+
+	drawShapes() {
 		let newShapes = []
-		for(let i = 0, j = this.shapes.length; i < j; i++){
+		for (let i = 0, j = this.shapes.length; i < j; i++) {
 			let shape = this.shapes[i];
-			if(!shape.delete){
+			if (!shape.delete) {
 				this.shapes[i].draw();
 				newShapes.push(shape);
-			} 
+			}
 		}
 		this.shapes = newShapes;
 	}
-	drawRect(x, y, size, color, border){
+
+	drawRect(x, y, size, color, border) {
 		let cx = this.ctx;
 		cx.beginPath();
 		cx.rect(x, y, size, size);
-		if(color){
+		if (color) {
 			cx.fillStyle = color;
 		} else {
 			cx.fillStyle = 'black';
 		}
 		cx.fill();
-		if(border){
+		if (border) {
 			cx.strokeStyle = border;
 			cx.stroke();
 		}
@@ -284,15 +288,16 @@ class Game{
 	}
 }
 
-/* Start Game Onload */ 
+/* Start Game Onload */
 window.onload = function () {
 	let game = new Game();
 	game.setup();
 };
 /* Global Functions */
-function random(min, max){
-	return Math.floor( Math.random() * (max - min + 1) + min);
+function random(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
 }
-function randomColor(){
-    return 'hsla(' + (Math.random() * 360) + ', 100%, 50%, 1)';
+
+function randomColor() {
+	return 'hsla(' + (Math.random() * 360) + ', 100%, 50%, 1)';
 }
