@@ -14,6 +14,17 @@ class Shape {
 		this.delete = false;
 		this.makeBlocks();
 	}
+	
+	refreshBlocks(){
+		for(let i = 0, j = this.blocks.length; i < j; i++){
+			for(let k = 0, l = this.blocks[i].length; k < l; k++){
+				let block = this.blocks[i][k];
+				block.x = this.x + (k * this.game.tileSize);
+				block.y = this.y + (i * this.game.tileSize);
+				
+			}
+		}
+	}
 
 	checkBounds() {
 		//We should check that we can drop the shape. 
@@ -26,6 +37,7 @@ class Shape {
 			console.log("outside left");
 			//bx is negative. 
 			this.x = 0;
+			this.refreshBlocks();
 
 		}
 		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
@@ -34,15 +46,18 @@ class Shape {
 			let blockd = bx - this.game.boardSize;
 			console.log(blockd);
 			this.x -= blockd * this.game.tileSize;
+			this.refreshBlocks();
 		}
 		if (this.y < 0) {
 			console.log("outside top");
 			this.y = 0;
+			this.refreshBlocks();
 		}
 		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
 			console.log("outside bottom");
 			let blockd = by - this.game.boardSize;
 			this.y -= blockd * this.game.tileSize;
+			this.refreshBlocks();
 		}
 	}
 
@@ -65,7 +80,6 @@ class Shape {
 		for (let y = 0, xx = this.pattern.length; y < xx; y++) {
 			this.blocks.push([]);
 			for (let x = 0, yy = this.pattern[y].length; x < yy; x++) {
-
 				let block = {
 					x: this.x + (x * this.tileSize),
 					y: this.y + (y * this.tileSize),
@@ -109,7 +123,6 @@ class Shape {
 				break;
 			}
 		}
-
 		return shape;
 	}
 
