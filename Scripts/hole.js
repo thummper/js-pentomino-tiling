@@ -15,7 +15,6 @@ var Hole = function (x, y, dimention, difficulty, game) {
 	this.blocks = [];
 	this.nShapes = 0;
 	this.overfill = 0;
-
 }
 
 Hole.prototype.makeBlocks = function () {
@@ -24,10 +23,13 @@ Hole.prototype.makeBlocks = function () {
 		this.grid.push(new Array(this.dimen).fill(0));
 	}
 }
+
+
 Hole.prototype.generateHole = function () {
 	//Will try to add this.difficulty number of shapes to the grid
 	for (let i = 0; i < this.difficulty; i++) {
-		let shape = this.getShape();
+		let patterns = this.getShape();
+		let shape = patterns[0];
 		let width = this.get_max_col(shape);
 		let height = this.get_max_row(shape);
 		if (this.nShapes == 0) {
@@ -53,8 +55,8 @@ Hole.prototype.generateHole = function () {
 						if (placed) {
 							this.nShapes++;
 						} else {
-//							for (let i = 0; i < 2; i++) {
-//								let rshape = this.rotateShape(shape);
+//							for (let r = 1; r < 3; r++) {
+//								let rshape = patterns[r];
 //								if (this.placeShape(rshape, this.grid, row, col)) {
 //									this.nShapes++;
 //									break;
@@ -268,7 +270,7 @@ Hole.prototype.getShape = function () {
 		if (number <= total) {
 			//So, shape type, shape array, rotation 0
 			console.log("index: ", i);
-			shape = pieces[i][0][0];
+			shape = pieces[i][0];
 			break;
 		}
 	}
