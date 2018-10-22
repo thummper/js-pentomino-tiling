@@ -2,29 +2,17 @@ class Shape {
 
 	constructor(x, y, game) {
 		this.game = game;
-		this.orientation = 0;
-		this.tileSize = this.game.tileSize;
-		this.draggable = true;
-		this.dragging = false;
-		this.pattern = this.pickPattern();
-
+		this.tileSize = game.tileSize;
 		this.x = x;
 		this.y = y;
+
+		this.orientation = 0;
+		this.dragging = false;
+		this.pattern = this.pickPattern();
 		this.blocks;
-		this.closestGrid;
 		this.delete = false;
+		
 		this.makeBlocks();
-	}
-	
-	refreshBlocks(){
-		for(let i = 0, j = this.blocks.length; i < j; i++){
-			for(let k = 0, l = this.blocks[i].length; k < l; k++){
-				let block = this.blocks[i][k];
-				block.x = this.x + (k * this.game.tileSize);
-				block.y = this.y + (i * this.game.tileSize);
-				
-			}
-		}
 	}
 
 	checkBounds() {
@@ -34,52 +22,37 @@ class Shape {
 		if (this.x < 0) {
 			//bx is negative. 
 			this.x = 0;
-			this.refreshBlocks();
+			this.makeBlocks();
 
 		}
 		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
 			let blockd = bx - this.game.boardSize;
 			this.x -= blockd * this.game.tileSize;
-			this.refreshBlocks();
+			this.makeBlocks();
 		}
 		if (this.y < 0) {
 			this.y = 0;
-			this.refreshBlocks();
+			this.makeBlocks();
 		}
 		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
 			let blockd = by - this.game.boardSize;
 			this.y -= blockd * this.game.tileSize;
-			this.refreshBlocks();
+			this.makeBlocks();
 		}
 	}
 
-	stopDragging() {
-		this.checkBounds();
-		this.draggable = true;
-		this.dragging = false;
-		for (let i = 0, j = this.blocks.length; i < j; i++) {
-			for (let k = 0, l = this.blocks[i].length; k < l; k++) {
-				let block = this.blocks[i][k];
-				if (block.dragging) {
-					block.dragging = false;
-				}
-			}
-		}
-	}
 
 	makeBlocks() {
 		this.blocks = [];
 		//Blocks for new patterns
 		let patternBlocks = this.pattern[this.orientation];
-		
-		
-		for(let i = 0, j = patternBlocks.length; i < j; i++){
+		for (let i = 0, j = patternBlocks.length; i < j; i++) {
 			let block = patternBlocks[i];
 			let row = block[0];
 			let col = block[1];
 			let blk = {
-				x: this.x + ( col * this.tileSize),
-				y: this.y + ( row * this.tileSize),
+				x: this.x + (col * this.tileSize),
+				y: this.y + (row * this.tileSize),
 				row: row,
 				col: col,
 				dragging: false,
@@ -87,8 +60,9 @@ class Shape {
 				shape: this,
 				type: 'shape'
 			}
-			this.blocks.push(blk);	
+			this.blocks.push(blk);
 		}
+
 	}
 
 	mirror() {
@@ -100,7 +74,6 @@ class Shape {
 		let shape = null;
 		//Number between 1 and 100
 		let number = Math.floor(Math.random() * 80);
-
 		let total = 0;
 		for (let i in probs) {
 			total += probs[i];
@@ -114,16 +87,16 @@ class Shape {
 	}
 
 	draw() {
+
 		let board = this.game.board;
-		for(let row = 0, r = board.length; row < r; row++){
-			
-			for(let col = 0, c = board[row].length; col < c; col++){
-				
+		for (let row = 0, r = board.length; row < r; row++) {
+			for (let col = 0, c = board[row].length; col < c; col++) {
+
 				let cell = board[row][col];
-				if(cell.x == this.x && cell.y == this.y){
-					
+				if (cell.x == this.x && cell.y == this.y) {
+
 					//Draw shape on to grid, starting here.
-					for(let i = 0, j = this.blocks.length; i < j; i++){
+					for (let i = 0, j = this.blocks.length; i < j; i++) {
 						let block = this.blocks[i];
 						let rw = block.row;
 						let cl = block.col;
@@ -134,68 +107,67 @@ class Shape {
 		}
 	}
 
-	drag(mx, my) {
-	
-		//Get the nearest blockpoint to the mouse and put the block we are dragging on it.
-		let tileSize = this.game.tileSize;
-		let xgrid, ygrid;
-		ygrid = Math.ceil(my / tileSize) * tileSize;
-		xgrid = Math.ceil(mx / tileSize) * tileSize;
-		//midx/midy is the closest grid square to the mouse
-		this.midx = xgrid;
-		this.midy = ygrid;
 
+	//Returns width of shape in blocks.
+	getWidth() {
+		let max = 0;
+		for (let i = 0, j = this.blocks.length; i < j; i++) {
+			let col = this.blocks[i].col;
+			if (col >= max) {
+				max = col;
+			}
+		}
+		return max;
+	}
+
+	//Returns height of shape in blocks
+	getHeight() {
+		let max = 0;
+		for (let i = 0, j = this.blocks.length; i < j; i++) {
+			let row = this.blocks[i].row;
+			if (row >= max) {
+				max = row;
+			}
+		}
+		return max;
+	}
+
+	drag(mx, my) {
+		//Get nearest gridpoint to the mouse
+		console.log("Mouse Drag");
+		let tileSize = this.game.tileSize;
+		
+		this.gridx = Math.floor(mx / tileSize) * tileSize;
+		this.gridy = Math.floor(my / tileSize) * tileSize;
+		
+		console.log("Closese grid: ", this.gridx, this.gridy);
+		this.game.drawRect(this.gridx, this.gridy, this.game.tileSize, "black");
+		this.draw_on_mouse();
 	}
 
 	draw_on_mouse() {
-		let tileSize = this.game.tileSize;
-		let bx, by;
+		//Draw the middle of the shape on the mouse. 
+		let width = this.getWidth() + 1;
+		let height = this.getHeight() + 1;
+		console.log("Width ", width, " Height ", height);
+		//Middle of shape has to be 
+		let mrow = Math.floor(width / 2) * this.game.tileSize;
+		let mcol = Math.floor(height / 2) * this.game.tileSize;
 
-		for (let i = 0; i < this.blocks.length; i++) {
-			for (let j = 0; j < this.blocks[i].length; j++) {
-				let block = this.blocks[i][j];
-				if (block.dragging) {
-					bx = j;
-					by = i;
-				}
-			}
-		}
-		//So bx/by is the block col/row we clicked on, midx/midy is the closest block to the mouse 
-
-		let tx = this.midx - (tileSize * bx) - tileSize;
-		let ty = this.midy - (tileSize * by) - tileSize;
-		this.x = tx;
-		this.y = ty;
+		this.x = (this.gridx - mrow);
+		this.y = (this.gridy - mcol);
 		// tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
-		for (let i = 0; i < this.blocks.length; i++) {
-			for (let j = 0; j < this.blocks[i].length; j++) {
-				let block = this.blocks[i][j];
-				block.x = this.x + (j * tileSize);
-				block.y = this.y + (i * tileSize);
-				if (block.solid) {
-					this.game.drawRect(this.x + (j * tileSize), this.y + (i * tileSize), tileSize, block.color);
-				}
-			}
+		this.makeBlocks();
+		for(let i in this.blocks){
+			let b = this.blocks[i];
+			console.log("Drawing at: ", b.x, b.y, b.color);
+			this.game.drawRect(b.x, b.y, this.game.tileSize, b.color);
 		}
 	}
 
 	scroll(dir) {
-		//Rotate the blocks matrix by 90 deg
-		let width = this.blocks.length;
-		let height = this.blocks[0].length;
-		if (width == height) {
-			//Square matrix 
-			if (dir) {
-				this.rotateCounter();
-			} else {
-				this.rotateSquare();
-			}
-
-		} else {
-			//Non square
-			this.rotate();
-		}
-		this.draw_on_mouse();
+		this.orientation = (this.orientation += 1) % 4;
+		this.makeBlocks();
 	}
 
 	rotateSquare() {

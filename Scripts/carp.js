@@ -65,11 +65,10 @@ class Game {
 		this.canvas = document.getElementById('carp_canvas');
 		this.ctx = this.canvas.getContext('2d');
 		this.canvas.width = this.canvas.height = this.tileSize * this.boardSize;
-		//Make the board.
 		this.makeBoard();
-		//Make shape holder
 		this.holder = new Holder(this.canvas, this.ctx, this);
 		this.holder.makeSpaces();
+		
 		//Make initial holes
 		//We have to work out how many holes we can fit in the gap 
 		/* For now, hole size is static
@@ -153,7 +152,7 @@ class Game {
 
 	updateGraph() {
 		console.log(" Updating Graph ");
-		this.averageGraph.update();
+//		this.averageGraph.update();
 	}
 
 	loop() {
@@ -165,12 +164,16 @@ class Game {
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
-		this.holder.drawSpace();
-
-		if (this.dragShape != null) {
+		
+		if(this.dragShape){
 			this.dragShape.drag(this.eventListeners.mx, this.eventListeners.my);
-			this.dragShape.draw_on_mouse();
 		}
+		
+
+		
+		
+		
+		this.holder.drawSpace();
 		if (this.ticker >= 240) {
 			this.ticker = 0;
 			this.checkScore();
@@ -228,7 +231,6 @@ class Game {
 
 	drawShapes() {
 		let nShapes = [];
-		
 		for (let i = 0, j = this.shapes.length; i < j; i++) {
 			let shape = this.shapes[i];
 			if (!shape.delete) {
