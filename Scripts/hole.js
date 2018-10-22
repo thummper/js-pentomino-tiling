@@ -55,13 +55,13 @@ Hole.prototype.generateHole = function () {
 						if (placed) {
 							this.nShapes++;
 						} else {
-//							for (let r = 1; r < 3; r++) {
-//								let rshape = patterns[r];
-//								if (this.placeShape(rshape, this.grid, row, col)) {
-//									this.nShapes++;
-//									break;
-//								}
-//							}
+							for (let r = 1; r < 3; r++) {
+								let rshape = patterns[r];
+								if (this.placeShape(rshape, this.grid, row, col)) {
+									this.nShapes++;
+									break;
+								}
+							}
 						}
 					}
 				} else {
