@@ -1,48 +1,17 @@
-//Global pieces array
+//Global pieces array [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
 let pieces = [
-	[P, '#71B3B0'], [F, '#D55A4C'], [Y, '#F5994E'], [T, '#961628'], [W, '#1D6D53'], [N, '#D6BB50'], [U, '#21746C'], [V, '#2CAD7D'], [L, '#8B2134'], [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
-		];
+	[P, '#71B3B0'],
+	[F, '#D55A4C'],
+	[Y, '#F5994E'],
+	[T, '#961628'],
+	[W, '#1D6D53'],
+	[N, '#D6BB50'],
+	[U, '#21746C'],
+	[V, '#2CAD7D'],
+	[L, '#8B2134']
+];
 
 
-class Graph {
-	constructor(canvas, dataArray) {
-		this.chart = echarts.init(canvas);
-		this.data = dataArray;
-		this.chartOptions = null;
-	}
-	start() {
-		this.chartOptions = {
-			grid: {
-				left: 0,
-				right: 0,
-				top: 0,
-			},
-			xAxis: {
-				data: ['1']
-			},
-			yAxis: {},
-			series: [{
-				type: 'line',
-				data: [0]
-			}]
-		};
-		this.chart.setOption(this.chartOptions);
-	}
-
-	update() {
-
-		console.log("UPDATING", this.data);
-		for (i in this.data) {
-			console.log(this.data[i]);
-			this.chartOptions.xAxis.data.push(this.data[i][1]);
-			this.chartOptions.series[0].data.push(this.data[i][0]);
-			this.chart.setOption(this.chartOptions);
-		}
-		this.data.splice(0, this.data.length);
-
-	}
-
-}
 
 class Game {
 	constructor() {
@@ -77,6 +46,7 @@ class Game {
 		this.averageGraph.start();
 
 	}
+	
 	makeBoard() {
 		for (let row = 0; row < this.boardSize; row++) {
 			this.board[row] = [];
@@ -89,6 +59,7 @@ class Game {
 			}
 		}
 	}
+	
 	setup() {
 		//Setup Canvas
 		this.canvas = document.getElementById('carp_canvas');
@@ -96,13 +67,10 @@ class Game {
 		this.canvas.width = this.canvas.height = this.tileSize * this.boardSize;
 		//Make the board.
 		this.makeBoard();
-
-
 		//Make shape holder
 		this.holder = new Holder(this.canvas, this.ctx, this);
 		this.holder.makeSpaces();
 		//Make initial holes
-
 		//We have to work out how many holes we can fit in the gap 
 		/* For now, hole size is static
 		   Min X: tileSize
@@ -161,7 +129,6 @@ class Game {
 	}
 
 	checkScore() {
-		console.log("Score tracker called");
 		this.pastScores.push(this.scoreTracker);
 		this.scoreTracker = 0;
 		if (this.pastScores.length > 20) {
@@ -185,7 +152,7 @@ class Game {
 	}
 
 	updateGraph() {
-		console.log("Would update graph");
+		console.log(" Updating Graph ");
 		this.averageGraph.update();
 	}
 
@@ -213,6 +180,7 @@ class Game {
 		this.ticker++;
 		window.requestAnimationFrame(this.loop.bind(this));
 	}
+	
 	getFPS() {
 		if (this.framesTime) {
 			let now = performance.now();
@@ -225,6 +193,7 @@ class Game {
 			this.framesTime = performance.now();
 		}
 	}
+	
 	drawBoard() {
 		for (let row = 0; row < this.boardSize; row++) {
 			for (let col = 0; col < this.boardSize; col++) {
@@ -244,9 +213,8 @@ class Game {
 		}
 	}
 
+	
 	clearCanvas() {
-		//Reset grid and clear canvas
-		//TODO, seems really inefficient to call this function every loop.
 		this.makeBoard();
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
@@ -259,15 +227,16 @@ class Game {
 	}
 
 	drawShapes() {
-		let newShapes = []
+		let nShapes = [];
+		
 		for (let i = 0, j = this.shapes.length; i < j; i++) {
 			let shape = this.shapes[i];
 			if (!shape.delete) {
 				this.shapes[i].draw();
-				newShapes.push(shape);
+				nShapes.push(shape);
 			}
 		}
-		this.shapes = newShapes;
+		this.shapes = nShapes;
 	}
 
 	drawRect(x, y, size, color, border) {
@@ -287,6 +256,49 @@ class Game {
 		cx.closePath();
 	}
 }
+
+
+class Graph {
+	constructor(canvas, dataArray) {
+		this.chart = echarts.init(canvas);
+		this.data = dataArray;
+		this.chartOptions = null;
+	}
+	start() {
+		this.chartOptions = {
+			grid: {
+				left: 0,
+				right: 0,
+				top: 0,
+			},
+			xAxis: {
+				data: ['1']
+			},
+			yAxis: {},
+			series: [{
+				type: 'line',
+				data: [0]
+			}]
+		};
+		this.chart.setOption(this.chartOptions);
+	}
+
+	update() {
+
+		console.log("UPDATING", this.data);
+		for (i in this.data) {
+			console.log(this.data[i]);
+			this.chartOptions.xAxis.data.push(this.data[i][1]);
+			this.chartOptions.series[0].data.push(this.data[i][0]);
+			this.chart.setOption(this.chartOptions);
+		}
+		this.data.splice(0, this.data.length);
+
+	}
+
+}
+
+
 
 /* Start Game Onload */
 window.onload = function () {

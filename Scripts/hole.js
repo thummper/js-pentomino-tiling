@@ -1,6 +1,4 @@
-let bshapes = [
-	[p, '#71B3B0'], [f, '#D55A4C'], [y, '#F5994E'], [t, '#961628'], [w, '#1D6D53'], [n, '#D6BB50'], [u, '#21746C'], [v, '#2CAD7D'], [l, '#8B2134'], [z, '#D88642'], [x, '#208D99'], [i, '#4A3F4F']
-		];
+
 
 var Hole = function (x, y, dimention, difficulty, game) {
 	this.x = x;
@@ -258,16 +256,19 @@ Hole.prototype.get_max_row = function (shape) {
 }
 
 Hole.prototype.getShape = function () {
-	let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6, 5, 4, 3];
+	console.log(pieces);
+	let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
 	let shape = null;
 	//Number between 1 and 100
-	let number = Math.floor(Math.random() * 100);
+	let number = Math.floor(Math.random() * 80);
 
 	let total = 0;
 	for (let i in probs) {
 		total += probs[i];
 		if (number <= total) {
-			shape = bshapes[i][0];
+			//So, shape type, shape array, rotation 0
+			console.log("index: ", i);
+			shape = pieces[i][0][0];
 			break;
 		}
 	}
@@ -322,7 +323,7 @@ Hole.prototype.checkState = function () {
 			}
 		}	
 	}
-	console.log("Filled: ", filled);
+	
 	if (this.sTime == null && filled > 0) {
 		this.sTime = performance.now();
 	}
@@ -351,7 +352,6 @@ Hole.prototype.regenerate = function () {
 	this.grid = null;
 	this.nShapes = 0;
 	this.blocks = [];
-
 	this.overfill = 0;
 	this.full = false;
 	this.score = null;

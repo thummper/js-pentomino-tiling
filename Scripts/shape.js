@@ -2,6 +2,7 @@ class Shape {
 
 	constructor(x, y, game) {
 		this.game = game;
+		this.orientation = 0;
 		this.tileSize = this.game.tileSize;
 		this.draggable = true;
 		this.dragging = false;
@@ -68,42 +69,37 @@ class Shape {
 
 	makeBlocks() {
 		this.blocks = [];
-		for (let y = 0, xx = this.pattern.length; y < xx; y++) {
-			this.blocks.push([]);
-			for (let x = 0, yy = this.pattern[y].length; x < yy; x++) {
-				let block = {
-					x: this.x + (x * this.tileSize),
-					y: this.y + (y * this.tileSize),
-					solid: false,
-					dragging: false,
-					color: this.color,
-					shape: this,
-					type: 'empty'
-				}
-				if (this.pattern[x][y]) {
-					//Non-zero in pattern
-					block.solid = true;
-					block.type = 'shape_solid';
-				} else {
-					//Zero in pattern
-					block.color = 'transparent';
-				}
-				this.blocks[y][x] = block;
+		//Blocks for new patterns
+		let patternBlocks = this.pattern[this.orientation];
+		
+		
+		for(let i = 0, j = patternBlocks.length; i < j; i++){
+			let block = patternBlocks[i];
+			let row = block[0];
+			let col = block[1];
+			let blk = {
+				x: this.x + ( col * this.tileSize),
+				y: this.y + ( row * this.tileSize),
+				row: row,
+				col: col,
+				dragging: false,
+				color: this.color,
+				shape: this,
+				type: 'shape'
 			}
+			this.blocks.push(blk);	
 		}
 	}
 
 	mirror() {
-		this.blocks.map(function (arr) {
-			return arr.reverse();
-		});
+		this.orientation = (this.orientation + 2) % 4;
 	}
 
 	pickPattern() {
-		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6, 5, 4, 3];
+		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
 		let shape = null;
 		//Number between 1 and 100
-		let number = Math.floor(Math.random() * 100);
+		let number = Math.floor(Math.random() * 80);
 
 		let total = 0;
 		for (let i in probs) {
@@ -119,24 +115,23 @@ class Shape {
 
 	draw() {
 		let board = this.game.board;
-		for (let col = 0; col < board.length; col++) {
-			for (let row = 0; row < board[col].length; row++) {
-				let cell = board[col][row];
-				if (cell.x == this.x && cell.y == this.y) {
-					//Found the correct grid position
-					for (let i = 0; i < this.blocks.length; i++) {
-						for (let j = 0; j < this.blocks[i].length; j++) {
-							let block = this.blocks[i][j];
-							if (block.solid) {
-								//Add to grid.
-								board[col + i][row + j].contains.push(block);
-							}
-						}
+		for(let row = 0, r = board.length; row < r; row++){
+			
+			for(let col = 0, c = board[row].length; col < c; col++){
+				
+				let cell = board[row][col];
+				if(cell.x == this.x && cell.y == this.y){
+					
+					//Draw shape on to grid, starting here.
+					for(let i = 0, j = this.blocks.length; i < j; i++){
+						let block = this.blocks[i];
+						let rw = block.row;
+						let cl = block.col;
+						board[row + rw][col + cl].contains.push(block);
 					}
 				}
 			}
 		}
-		//Blocks have been added to the grid.
 	}
 
 	drag(mx, my) {
