@@ -30,14 +30,15 @@ class EventListeners {
 	mousePressed(event) {
 		//Left click
 		if (event.button == 0) {
-			console.log("Mouse Clicked");
 			if (this.game.dragShape != null) {
 				//We are dragging a shape, drop it.
 				let shape = this.game.dragShape;
-				shape.checkBounds();;
+				
+				shape.checkBounds();
 				this.game.shapes.push(shape);
 				shape.draw();
-
+				
+				//Perhaps this is firing before the grid is made? 
 				this.game.holder.checkSpaces();
 				this.game.holder.trySpawn();
 				this.game.dragShape = null;
@@ -50,14 +51,14 @@ class EventListeners {
 
 				for (let i = this.game.shapes.length - 1; i >= 0; i--) {
 					let shape = this.game.shapes[i];
-					console.log(shape);
+					
 					if (!shape.dragging) {
 						let blocks = shape.blocks;
 						for (let j = 0, k = blocks.length; j < k; j++) {
 							let block = blocks[j];
-							console.log(block);
+					
 							if (block.type == 'shape') {
-								console.log("Type is shape");
+							
 								if (this.mouseIn(block)) {
 									//Pick up the shape.
 									block.dragging = true;
@@ -68,6 +69,7 @@ class EventListeners {
 							}
 						}
 					}
+					
 				}
 			}
 		} else {

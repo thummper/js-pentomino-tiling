@@ -287,7 +287,7 @@ class Graph {
 
 	update() {
 
-		console.log("UPDATING", this.data);
+	
 		for (i in this.data) {
 			console.log(this.data[i]);
 			this.chartOptions.xAxis.data.push(this.data[i][1]);

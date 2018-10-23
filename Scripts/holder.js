@@ -27,9 +27,9 @@ class Holder {
 
 			let x = 1;
 			for (let i = 0; i < 4; i++) {
-				
-					x += padding;
-				
+
+				x += padding;
+
 				this.spaces.push({
 					x: x * this.tileSize,
 					y: this.y,
@@ -53,25 +53,25 @@ class Holder {
 	}
 
 	checkSpaces() {
-
 		let board = this.game.board;
 		for (let i = 0, j = this.spaces.length; i < j; i++) {
 			let space = this.spaces[i];
-			space.piece = false;
+			if (space.piece == true) {
+				space.piece = false;
+				let col = Math.round(space.x / this.tileSize);
+				let row = Math.round(space.y / this.tileSize);
 
-			let col = Math.round(space.x / this.tileSize);
-			let row = Math.round(space.y / this.tileSize);
-
-			for (let r = row; r < row + space.width; r++) {
-				let boardRow = board[row];
-				for (let c = col; c < col + space.width; c++) {
-					let cell = boardRow[c];
-					if (cell.contains.length > 0) {
-						let contents = cell.contains;
-						for (let c = 0; c < contents.length; c++) {
-							if (contents[c].type == 'shape') {
-								space.piece = true;
-								break;
+				for (let r = row; r < row + this.height; r++) {
+					for (let c = col; c < col + this.width; c++) {
+						let cell = this.game.board[r][c];
+						if (cell.contains.length > 0) {
+							console.log("Holder: ", i, " contents: ", cell.contains);
+							for (let b = 0; b < cell.contains.length; b++) {
+								if (cell.contains[b].type == 'shape') {
+									space.piece = true;
+									console.log("Holder: ", i, " contains a shape");
+									continue;
+								}
 							}
 						}
 					}
@@ -83,7 +83,7 @@ class Holder {
 	trySpawn() {
 		for (let i = 0, j = this.spaces.length; i < j; i++) {
 			let space = this.spaces[i];
-			if (!space.piece) {
+			if (space.piece == false) {
 				space.piece = true;
 				let shape = new Shape(space.x, space.y, this.game);
 				this.game.shapes.push(shape);

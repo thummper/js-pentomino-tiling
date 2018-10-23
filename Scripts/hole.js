@@ -277,9 +277,7 @@ Hole.prototype.getShape = function () {
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
 	let board = this.game.board;
-
-
-
+	
 	for (let row = 0; row < this.grid.length; row++) {
 		for (let col = 0; col < this.grid[row].length; col++) {
 			if (this.grid[row][col] != 0) {
@@ -294,6 +292,7 @@ Hole.prototype.draw = function () {
 			}
 		}
 	}
+	
 }
 Hole.prototype.checkState = function () {
 	//Check if the hole is filled or not.
@@ -337,6 +336,7 @@ Hole.prototype.checkState = function () {
 
 
 Hole.prototype.calcScore = function (overfill) {
+	
 	this.eTime = performance.now();
 	let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
 	let noov = Math.pow(Math.E, ((-time) / 8) + 8) + (this.nShapes * 50);
@@ -344,6 +344,7 @@ Hole.prototype.calcScore = function (overfill) {
 	console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty, overfill, time, score);
 	console.log("Score no over: ", noov);
 	return score;
+	
 }
 
 Hole.prototype.regenerate = function () {
@@ -361,9 +362,8 @@ Hole.prototype.regenerate = function () {
 	this.makeBlocks();
 	this.generateHole();
 
-
-
 }
+
 Hole.prototype.removeShapes = function () {
 	for (let i = 0; i < this.grid.length; i++) {
 		for (let j = 0; j < this.grid[i].length; j++) {

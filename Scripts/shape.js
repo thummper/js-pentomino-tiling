@@ -16,6 +16,7 @@ class Shape {
 	}
 
 	checkBounds() {
+		this.dragging = false;
 		//We should check that we can drop the shape. 
 		let bx = (this.x + this.pattern[0].length * this.game.tileSize) / this.game.tileSize;
 		let by = (this.y + this.pattern.length * this.game.tileSize) / this.game.tileSize;
@@ -134,13 +135,10 @@ class Shape {
 
 	drag(mx, my) {
 		//Get nearest gridpoint to the mouse
-		console.log("Mouse Drag");
 		let tileSize = this.game.tileSize;
 		
 		this.gridx = Math.floor(mx / tileSize) * tileSize;
 		this.gridy = Math.floor(my / tileSize) * tileSize;
-		
-		console.log("Closese grid: ", this.gridx, this.gridy);
 		this.game.drawRect(this.gridx, this.gridy, this.game.tileSize, "black");
 		this.draw_on_mouse();
 	}
@@ -149,7 +147,6 @@ class Shape {
 		//Draw the middle of the shape on the mouse. 
 		let width = this.getWidth() + 1;
 		let height = this.getHeight() + 1;
-		console.log("Width ", width, " Height ", height);
 		//Middle of shape has to be 
 		let mrow = Math.floor(width / 2) * this.game.tileSize;
 		let mcol = Math.floor(height / 2) * this.game.tileSize;
@@ -160,7 +157,6 @@ class Shape {
 		this.makeBlocks();
 		for(let i in this.blocks){
 			let b = this.blocks[i];
-			console.log("Drawing at: ", b.x, b.y, b.color);
 			this.game.drawRect(b.x, b.y, this.game.tileSize, b.color);
 		}
 	}
