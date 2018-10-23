@@ -1,5 +1,3 @@
-
-
 var Hole = function (x, y, dimention, difficulty, game) {
 	this.x = x;
 	this.y = y;
@@ -14,6 +12,7 @@ var Hole = function (x, y, dimention, difficulty, game) {
 	this.shapes = [];
 	this.blocks = [];
 	this.nShapes = 0;
+	this.nBlocks = 0;
 	this.overfill = 0;
 }
 
@@ -33,14 +32,14 @@ Hole.prototype.generateHole = function () {
 		let width = this.get_max_col(shape);
 		let height = this.get_max_row(shape);
 		if (this.nShapes == 0) {
+			
 			//This is the first shape in the array. 
 			let randRow = Math.floor((this.dimen / 2) - height / 2);
 			let randCol = Math.floor((this.dimen / 2) - width / 2);
 			let placed = this.placeShape(shape, this.grid, randRow, randCol);
-			if (placed) {
-				this.nShapes++;
-			}
+			
 		} else {
+			
 			//There are shapes already in the grid
 			let places = this.getPlaces(this.grid);
 			//For each place, try and place the shape.
@@ -70,46 +69,13 @@ Hole.prototype.generateHole = function () {
 			}
 		}
 	}
+	console.log("Generated hole with ", this.nBlocks, " blocks and ", this.nShapes, " shapes");
 }
-Hole.prototype.rotateShape = function (shape) {
-
-	cols = [];
-	//Second number matches for col.
-	//Slowly remove things from shape.
-
-	for (let i = 0; i < shape.length; i++) {
-		let col = shape[i][1];
-		if (cols[col] == null) {
-			if (col > 0) {
-				for (let i = 0; i < col; i++) {
-					cols[i] = [];
-				}
-
-			}
-
-			cols[col] = [];
-		}
-		cols[col].push(shape[i]);
-
-	}
-
-
-	let newShape = [];
-	for (let i = 0; i < cols.length; i++) {
-		let column = cols[i];
-		for (let j = 0; j < column.length; j++) {
-			newShape.push([i, j]);
-		}
-	}
-
-	return newShape;
-}
-
-
 
 Hole.prototype.getPlaces = function (grid) {
+	
 	let places = [];
-
+	
 	for (let i = 0, x = grid.length; i < x; i++) {
 		for (let j = 0, y = grid[i].length; j < y; j++) {
 			let block = grid[i][j];
@@ -145,6 +111,7 @@ Hole.prototype.getPlaces = function (grid) {
 	}
 	return places;
 }
+
 Hole.prototype.placeShape = function (shape, grid, row, col) {
 	//Going to try and place the shape in the grid at row, col.
 	let can = true;
@@ -209,7 +176,7 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 				}
 
 			}
-			if (blockcols >= 3) {
+			if (blockcols >= 4) {
 				should = true;
 			}
 		} else {
@@ -220,7 +187,9 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 			for (let i = 0, j = shape.length; i < j; i++) {
 				let block = shape[i];
 				grid[row + block[0]][col + block[1]] = 1;
+				this.nBlocks++;
 			}
+			this.nShapes = Math.round(this.nBlocks / 5);
 		}
 	}
 	return should;
@@ -277,7 +246,7 @@ Hole.prototype.getShape = function () {
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
 	let board = this.game.board;
-	
+
 	for (let row = 0; row < this.grid.length; row++) {
 		for (let col = 0; col < this.grid[row].length; col++) {
 			if (this.grid[row][col] != 0) {
@@ -292,37 +261,37 @@ Hole.prototype.draw = function () {
 			}
 		}
 	}
-	
+
 }
 Hole.prototype.checkState = function () {
 	//Check if the hole is filled or not.
 	let filled = 0;
 	let overfill = 0;
-	
-	
-	for(let i = 0, j = this.grid.length; i < j; i++){
-		for(let k = 0, l = this.grid[i].length; k < l; k++){
-			let cell = this.game.board[ this.y + i][ this.x + k];
-			if(cell){
+
+
+	for (let i = 0, j = this.grid.length; i < j; i++) {
+		for (let k = 0, l = this.grid[i].length; k < l; k++) {
+			let cell = this.game.board[this.y + i][this.x + k];
+			if (cell) {
 				let contents = cell.contains;
-				let size = contents.length; 
-				if(size == 1){
+				let size = contents.length;
+				if (size == 1) {
 					//Only one thing in this cell. 
-					if(contents[0].type == 'shape_solid'){
+					if (contents[0].type == 'shape_solid') {
 						overfill++;
 					}
-				} else if(size >= 2) {
-					if(contents[1].type == 'shape_solid'){
+				} else if (size >= 2) {
+					if (contents[1].type == 'shape_solid') {
 						filled++;
 					}
-					if(size > 2){
+					if (size > 2) {
 						overfill += (size - 2);
 					}
 				}
 			}
-		}	
+		}
 	}
-	
+
 	if (this.sTime == null && filled > 0) {
 		this.sTime = performance.now();
 	}
@@ -336,7 +305,7 @@ Hole.prototype.checkState = function () {
 
 
 Hole.prototype.calcScore = function (overfill) {
-	
+
 	this.eTime = performance.now();
 	let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
 	let noov = Math.pow(Math.E, ((-time) / 8) + 8) + (this.nShapes * 50);
@@ -344,7 +313,7 @@ Hole.prototype.calcScore = function (overfill) {
 	console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty, overfill, time, score);
 	console.log("Score no over: ", noov);
 	return score;
-	
+
 }
 
 Hole.prototype.regenerate = function () {
