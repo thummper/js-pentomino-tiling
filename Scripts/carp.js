@@ -152,7 +152,7 @@ class Game {
 
 	updateGraph() {
 		console.log(" Updating Graph ");
-//		this.averageGraph.update();
+		this.averageGraph.update();
 	}
 
 	loop() {
@@ -286,9 +286,7 @@ class Graph {
 	}
 
 	update() {
-
-	
-		for (i in this.data) {
+		for (let i in this.data) {
 			console.log(this.data[i]);
 			this.chartOptions.xAxis.data.push(this.data[i][1]);
 			this.chartOptions.series[0].data.push(this.data[i][0]);

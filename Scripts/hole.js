@@ -231,7 +231,6 @@ Hole.prototype.getShape = function () {
 	let shape = null;
 	//Number between 1 and 100
 	let number = Math.floor(Math.random() * 80);
-
 	let total = 0;
 	for (let i in probs) {
 		total += probs[i];
@@ -243,6 +242,7 @@ Hole.prototype.getShape = function () {
 	}
 	return shape;
 }
+
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
 	let board = this.game.board;
