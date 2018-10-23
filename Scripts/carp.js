@@ -98,7 +98,7 @@ class Game {
 			for (let j = 0; j < hpr; j++) {
 				//Add holes per row.
 
-				let hole = new Hole(x, y, this.holeSize, 1, this);
+				let hole = new Hole(x, y, this.holeSize, 20, this);
 				hole.makeBlocks();
 				hole.generateHole();
 				this.holes.push(hole);

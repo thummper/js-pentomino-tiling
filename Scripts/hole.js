@@ -72,11 +72,15 @@ class Hole {
 		for (let i = 0, j = shape.length; i < j; i++) {
 			let block = shape[i];
 			let r = block[0];
-			let c = block[1];		
-			if (this.isIndex(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
+			let c = block[1];
+
+			console.log("Is [ ", row + r, " ", col + c, "] index?");
+			console.log(this.indexTest(grid, row + r, col + c));
+
+			if (this.indexTest(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
 				canPlace = false;
 				return canPlace;
-			} 
+			}
 		}
 		let shouldPlace = true;
 		if (canPlace) {
@@ -101,38 +105,57 @@ class Hole {
 		return canPlace && shouldPlace;
 	}
 
-	isIndex(array, ind1, ind2) {
-		if (ind2) {
-			if(typeof array[ind1] !== 'undefined'){
-				return typeof array[ind1][ind2] === 'undefined';	
+
+	//Returns true if index, false else
+	indexTest(array, ind1, ind2) {
+		if (ind1 < 0) {
+			return false;
+		}
+		if (ind2 && ind2 < 0) {
+			return false;
+		}
+		if (typeof array[ind1] === 'undefined') {
+			return false;
+		} else {
+			//ind1 is defined.
+			if (ind2) {
+				if (typeof array[ind1][ind2] === 'undefined') {
+					return false;
+				} else {
+					return true;
+				}
 			} else {
-				return typeof array[ind1] === 'undefined';	
+				return true;
 			}
-		} 
-		return typeof array[ind1] === 'undefined';
+		}
+
+
+
+		return true;
 	}
+
 
 	getPlaces(grid) {
 		let places = [];
-
 		for (let i = 0, x = grid.length; i < x; i++) {
 			for (let j = 0, y = grid[i].length; j < y; j++) {
 				let block = grid[i][j];
 				if (block != 0) {
 					//Check above, left, right, bottom of block for places for new shapes.
 
-					if ( !this.isIndex(grid, i, j + 1) && grid[i][j + 1] == 0) {
+					if (this.indexTest(grid, i, j + 1) && grid[i][j + 1] == 0) {
 						places.push([i, j + 1]);
 					}
-					if ( !this.isIndex(grid, i, j - 1) && grid[i][j - 1] == 0) {
+					if (this.indexTest(grid, i, j - 1) && grid[i][j - 1] == 0) {
 						places.push([i, j - 1]);
 					}
-					if ( !this.isIndex(grid, i - 1, j) && grid[i - 1][j] == 0) {
+					if (this.indexTest(grid, i - 1, j) && grid[i - 1][j] == 0) {
 						places.push([i - 1, j]);
 					}
-					if ( !this.isIndex(grid, i + 1, j) && grid[i + 1][j] == 0) {
+					if (this.indexTest(grid, i + 1, j) && grid[i + 1][j] == 0) {
 						places.push([i + 1, j]);
 					}
+
 				}
 			}
 		}
@@ -150,6 +173,7 @@ class Hole {
 		}
 		return max;
 	}
+
 	getHeight(shape) {
 		let max = 0;
 		for (let i = 0, j = shape.length; i < j; i++) {
@@ -161,6 +185,7 @@ class Hole {
 		}
 		return max;
 	}
+
 
 	getShape() {
 		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
@@ -178,7 +203,7 @@ class Hole {
 	}
 
 	draw() {
-		
+
 		let board = this.game.board;
 
 		for (let row = 0, r = this.grid.length; row < r; row++) {
@@ -199,7 +224,8 @@ class Hole {
 	}
 
 	checkState() {
-		let filled = 0, overfill = 0;
+		let filled = 0,
+			overfill = 0;
 		for (let i = 0, ii = this.grid.length; i < ii; i++) {
 			for (let j = 0, jj = this.grid[i].length; j < jj; j++) {
 
@@ -231,7 +257,7 @@ class Hole {
 
 		}
 		this.filled = filled;
-		
+
 		if (this.sTime == null && this.filled > 0) {
 			this.sTime = performance.now();
 		}
