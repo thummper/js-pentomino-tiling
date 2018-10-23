@@ -14,6 +14,7 @@ var Hole = function (x, y, dimention, difficulty, game) {
 	this.nShapes = 0;
 	this.nBlocks = 0;
 	this.overfill = 0;
+	this.filled = 0;
 }
 
 Hole.prototype.makeBlocks = function () {
@@ -127,9 +128,6 @@ Hole.prototype.placeShape = function (shape, grid, row, col) {
 			return can;
 		}
 	}
-
-
-
 	let should = false;
 	if (can) {
 		//We can place the shape, but should we? 
@@ -211,6 +209,7 @@ Hole.prototype.get_max_col = function (shape) {
 	}
 	return col;
 }
+
 Hole.prototype.get_max_row = function (shape) {
 	let row = null;
 	for (let i = 0, j = shape.length; i < j; i++) {
@@ -246,7 +245,7 @@ Hole.prototype.getShape = function () {
 Hole.prototype.draw = function () {
 	//Draw the hole onto the grid.
 	let board = this.game.board;
-
+	
 	for (let row = 0; row < this.grid.length; row++) {
 		for (let col = 0; col < this.grid[row].length; col++) {
 			if (this.grid[row][col] != 0) {
@@ -277,11 +276,11 @@ Hole.prototype.checkState = function () {
 				let size = contents.length;
 				if (size == 1) {
 					//Only one thing in this cell. 
-					if (contents[0].type == 'shape_solid') {
+					if (contents[0].type == 'shape') {
 						overfill++;
 					}
 				} else if (size >= 2) {
-					if (contents[1].type == 'shape_solid') {
+					if (contents[1].type == 'shape') {
 						filled++;
 					}
 					if (size > 2) {
@@ -292,11 +291,23 @@ Hole.prototype.checkState = function () {
 		}
 	}
 
+	if(filled > this.filled){
+		let diff = filled - this.filled;
+		console.log("Difference: ", diff);
+		this.game.scoreTracker += (diff * 40);
+	}
+	this.filled = filled;
+
 	if (this.sTime == null && filled > 0) {
 		this.sTime = performance.now();
 	}
 	if (this.nShapes * 5 == filled) {
 		console.log("Shape filled");
+		if(overfill == 0){
+			this.game.combo++;
+		} else {
+			this.game.combo = 0;
+		}
 		this.score = this.calcScore(overfill);
 		return true;
 	}
@@ -308,8 +319,8 @@ Hole.prototype.calcScore = function (overfill) {
 
 	this.eTime = performance.now();
 	let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
-	let noov = Math.pow(Math.E, ((-time) / 8) + 8) + (this.nShapes * 50);
-	let score = Math.pow(Math.E, ((-time * overfill) / 8) + 8) + (this.nShapes * 50);
+	let noov = Math.pow(Math.E, ((-time) / 8) + 8) + (this.nShapes * 50 * (this.game.combo * 1000));
+	let score = Math.pow(Math.E, ((-time * overfill) / 8) + 8) + (this.nShapes * 50 * (this.game.combo * 1000));
 	console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty, overfill, time, score);
 	console.log("Score no over: ", noov);
 	return score;

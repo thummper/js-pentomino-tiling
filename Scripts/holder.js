@@ -4,9 +4,8 @@ class Holder {
 		this.canvas = canvas;
 		this.ctx = ctx;
 		this.tileSize = game.tileSize;
-
-		this.padding = 1;
-		this.y = canvas.height - ((5 + this.padding) * this.tileSize);
+		//Minus width and 1 for padding
+		this.y = canvas.height - (6 * this.tileSize);
 		this.piece = true;
 		this.width = this.height = 5;
 		this.spaces = [];
@@ -21,9 +20,9 @@ class Holder {
 			//Just draw 4 spaces
 			let blocks_total = 4 * this.width;
 			let blocks_left = this.game.boardSize - 1 - blocks_total;
-			console.log
+		
 			let padding = Math.floor(blocks_left / 4);
-			console.log("Padding, ", padding);
+
 
 			let x = 1;
 			for (let i = 0; i < 4; i++) {
@@ -65,11 +64,9 @@ class Holder {
 					for (let c = col; c < col + this.width; c++) {
 						let cell = this.game.board[r][c];
 						if (cell.contains.length > 0) {
-							console.log("Holder: ", i, " contents: ", cell.contains);
 							for (let b = 0; b < cell.contains.length; b++) {
 								if (cell.contains[b].type == 'shape') {
 									space.piece = true;
-									console.log("Holder: ", i, " contains a shape");
 									continue;
 								}
 							}
