@@ -74,10 +74,9 @@ class Hole {
 			let r = block[0];
 			let c = block[1];
 
-			console.log("Is [ ", row + r, " ", col + c, "] index?");
 			console.log(this.indexTest(grid, row + r, col + c));
-
 			if (this.indexTest(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
+				console.log("Cant place this shape");
 				canPlace = false;
 				return canPlace;
 			}
@@ -95,7 +94,6 @@ class Hole {
 				let block = shape[i];
 				let r = block[0];
 				let c = block[1];
-
 				grid[row + r][col + c] = 1;
 				this.nBlocks++;
 			}
