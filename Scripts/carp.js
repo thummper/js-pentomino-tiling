@@ -173,7 +173,7 @@ class Game {
 		
 		
 		
-		this.holder.drawSpace();
+		this.holder.drawSpaces();
 		if (this.ticker >= 240) {
 			this.ticker = 0;
 			this.checkScore();

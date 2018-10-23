@@ -258,7 +258,6 @@ Hole.prototype.get_max_row = function (shape) {
 }
 
 Hole.prototype.getShape = function () {
-	console.log(pieces);
 	let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
 	let shape = null;
 	//Number between 1 and 100
@@ -269,7 +268,6 @@ Hole.prototype.getShape = function () {
 		total += probs[i];
 		if (number <= total) {
 			//So, shape type, shape array, rotation 0
-			console.log("index: ", i);
 			shape = pieces[i][0];
 			break;
 		}
