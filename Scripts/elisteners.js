@@ -1,113 +1,119 @@
-class EventListeners{
-	constructor(canvas, game){
+class EventListeners {
+	
+	constructor(canvas, game) {
 		this.canvas = canvas;
 		this.game = game;
 		this.addListeners();
 		this.mx;
 		this.my;
 	}
-	addListeners(){
+	
+	addListeners() {
 		let cnv = this.canvas;
 		cnv.addEventListener('contextmenu', this.contextMenu.bind(this));
 		cnv.addEventListener('mousedown', this.mousePressed.bind(this));
 		cnv.addEventListener('mousemove', this.mouseMoved.bind(this));
 		cnv.addEventListener('keydown', this.keyPressed.bind(this));
-		cnv.addEventListener('wheel', this.mouseWheel.bind(this));		
-		
+		cnv.addEventListener('wheel', this.mouseWheel.bind(this));
+
 	}
-	contextMenu(event){
+	
+	contextMenu(event) {
 		event.preventDefault();
 		event.stopPropagation();
 	}
-	mousePressed(event){
-		console.log("Mouse Click");
+
+	mouseIn(block) {
+		return (this.mx > block.x && this.mx < block.x + this.game.tileSize && this.my > block.y && this.my < block.y + this.game.tileSize);
+	}
+
+	mousePressed(event) {
+		//Left click
 		if (event.button == 0) {
-			
-			if(this.game.dragShape != null){
+			if (this.game.dragShape != null) {
 				//We are dragging a shape, drop it.
 				let shape = this.game.dragShape;
-				shape.stopDragging();
-				this.game.shapes.push(shape);
 				
+				shape.checkBounds();
+				this.game.shapes.push(shape);
 				shape.draw();
+				
+				//Perhaps this is firing before the grid is made? 
 				this.game.holder.checkSpaces();
 				this.game.holder.trySpawn();
 				this.game.dragShape = null;
 			} else {
+				//Nothing is currently being dragged.
 				
-				//Nothing is being dragged.
 				let rect = this.canvas.getBoundingClientRect();
-				console.log(event);
 				this.mx = event.clientX - rect.left;
 				this.my = event.clientY - rect.top;
-				for(let i = this.game.shapes.length - 1; i >= 0; i--){
+
+				for (let i = this.game.shapes.length - 1; i >= 0; i--) {
 					let shape = this.game.shapes[i];
-					let blocks = shape.blocks;
-					for(let j = 0, k = blocks.length; j < k; j++){
-						let blk = blocks[j];
-						
-						for(let l = 0, m = blk.length; l < m; l++){
-							let block = blk[l];
+					
+					if (!shape.dragging) {
+						let blocks = shape.blocks;
+						for (let j = 0, k = blocks.length; j < k; j++) {
+							let block = blocks[j];
+					
+							if (block.type == 'shape') {
 							
-							if(shape.draggable && !shape.dragging && block.solid && (this.mx > block.x && this.mx < block.x + this.game.tileSize) && (this.my > block.y && this.my < block.y + this.game.tileSize)){
-								block.dragging = true;
-								shape.dragging = true;
-								shape.draggable = false;
-								this.game.dragShape = shape;
-								this.game.shapes.splice(i, 1);
+								if (this.mouseIn(block)) {
+									//Pick up the shape.
+									block.dragging = true;
+									shape.dragging = true;
+									this.game.dragShape = shape;
+									this.game.shapes.splice(i, 1);
+								}
 							}
-							
-							
-							
 						}
-						
-						
-		
-						
 					}
 					
-					
-
 				}
 			}
 		} else {
 			//Right button
-			if(this.game.dragShape != null){
+			if (this.game.dragShape != null) {
 				this.game.dragShape.mirror();
 			}
-			
-		}
-		//Check holders 
+		} 
 	}
-	mouseMoved(event){
+	
+	mouseMoved(event) {
 		let rect = this.canvas.getBoundingClientRect();
 		this.mx = event.clientX - rect.left;
-    	this.my = event.clientY - rect.top;
+		this.my = event.clientY - rect.top;
 		
+
+
 	}
-	mouseWheel(event){
+	
+	mouseWheel(event) {
+		event.preventDefault();
 		let direction = false;
-		if(event.deltaY < 0){
+		if (event.deltaY < 0) {
 			direction = true;
 		}
 		this.scroll(direction);
 	}
-	scroll(direction){
+	
+	scroll(direction) {
 		//Will scroll based on boolean value
-		if(this.game.dragShape != null){
+		if (this.game.dragShape != null) {
 			this.game.dragShape.scroll();
 		}
 	}
-	keyPressed(event){
+	keyPressed(event) {
 		let kc = event.keyCode;
-		if(kc == 65){
+		if (kc == 65) {
 			//Scroll 
 			this.scroll(true);
 		}
-		if(kc == 90){
+		if (kc == 90) {
 			//Scroll
 			this.scroll(false);
 		}
-		
 	}
+	
 }
