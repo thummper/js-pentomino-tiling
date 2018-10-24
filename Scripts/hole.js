@@ -75,7 +75,7 @@ class Hole {
 			let c = block[1];
 
 			console.log(this.indexTest(grid, row + r, col + c));
-			if (this.indexTest(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
+			if (!this.indexTest(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
 				console.log("Cant place this shape");
 				canPlace = false;
 				return canPlace;
@@ -96,6 +96,7 @@ class Hole {
 				let c = block[1];
 				grid[row + r][col + c] = 1;
 				this.nBlocks++;
+				
 			}
 			//Place shape
 			this.nShapes = Math.floor(this.nBlocks / 5);
@@ -126,9 +127,6 @@ class Hole {
 				return true;
 			}
 		}
-
-
-
 		return true;
 	}
 
