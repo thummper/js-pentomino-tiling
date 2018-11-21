@@ -13,7 +13,7 @@ class Hole {
 		this.eTime = null;
 		this.blocks = [];
 		this.nShapes = 0;
-		this.nBlocks = 0;
+		this.nBlocks = 100;
 		this.filled = 0;
 	}
 
@@ -23,6 +23,7 @@ class Hole {
 			this.grid.push(new Array(this.dimen).fill(0));
 		}
 	}
+
 
 	generateHole() {
 
@@ -37,18 +38,21 @@ class Hole {
 				let middleRow = Math.floor((this.dimen / 2) - (height / 2));
 				let middleCol = Math.floor((this.dimen / 2) - (width / 2));
 				let placed = this.placeShape(shape, this.grid, middleRow, middleCol);
+
 			} else {
+
 				//There are already shapes in the array
 				let places = this.getPlaces(this.grid);
 				for (let p = 0, pp = places.length; p < pp; p++) {
-
 					if (this.nShapes < this.difficulty) {
 						//Less shapes than difficulty, try to place
 						let place = places[p];
 						let row = place[0] - height;
 						let col = place[1] - width;
+
 						let placed = this.placeShape(shape, this.grid, row, col);
 						if (!placed) {
+
 							for (let o = 1; o < 3; o++) {
 								shape = patterns[o];
 								let placeRotate = this.placeShape(shape, this.grid, row, col);
@@ -56,77 +60,94 @@ class Hole {
 									break;
 								}
 							}
+
 						}
-					} else {
-						break;
 					}
 				}
 			}
 		}
-		console.log("Generated hole with ", this.nBlocks, " blocks and ", this.nShapes, " shapes");
+		
+		
+
+		
+		
+		this.nBlocks = 0;
+		for(let i = 0; i < this.grid.length; i++){
+		
+			
+			for(let j = 0; j < this.grid[i].length; j++){
+				
+				
+				
+				if(this.grid[i][j] == 1){
+					
+					this.nBlocks++;
+				}
+				
+			}
+			
+		}
+
+
 	}
 
 	//Will try to place a shape in the grid, if possible, return true
 	placeShape(shape, grid, row, col) {
+
 		let canPlace = true;
-		for (let i = 0, j = shape.length; i < j; i++) {
+		for (let i = 0; i < shape.length; i++) {
 			let block = shape[i];
-			let r = block[0];
-			let c = block[1];
-
-			console.log(this.indexTest(grid, row + r, col + c));
-			if (!this.indexTest(grid, row + r, col + c) && grid[row + r][col + c] != 0) {
-				console.log("Cant place this shape");
-				canPlace = false;
-				return canPlace;
+			let blockr = block[0];
+			let blockc = block[1];
+			if (grid[row + blockr] !== undefined) {
+				if (grid[row + blockr][col + blockc] !== undefined) {
+					if (grid[row + blockr][col + blockc] == 1) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+			if (grid[row + blockr][col + blockc] == 1) {
+				return false;
 			}
 		}
-		let shouldPlace = true;
-		if (canPlace) {
-
-			if (this.nShapes != 0) {
-				//Check above, right, bottom, left of shape for adjacent shapes.
-			}
+		
+		
+		let shouldPlace = true; 
+		if(this.nShapes != 0){
+			//Check above, right, bottom, left of shape for adjacent shapes.
 		}
-
 		if (canPlace && shouldPlace) {
+			this.nShapes++;
 			for (let i = 0, j = shape.length; i < j; i++) {
 				let block = shape[i];
 				let r = block[0];
 				let c = block[1];
 				grid[row + r][col + c] = 1;
-				this.nBlocks++;
-				
 			}
-			//Place shape
-			this.nShapes = Math.floor(this.nBlocks / 5);
 		}
-		return canPlace && shouldPlace;
-	}
+}
 
 
 	//Returns true if index, false else
 	indexTest(array, ind1, ind2) {
-		if (ind1 < 0) {
-			return false;
-		}
-		if (ind2 && ind2 < 0) {
+		if (ind1 < 0 || ind2 < 0) {
 			return false;
 		}
 		if (typeof array[ind1] === 'undefined') {
 			return false;
-		} else {
-			//ind1 is defined.
-			if (ind2) {
-				if (typeof array[ind1][ind2] === 'undefined') {
-					return false;
-				} else {
-					return true;
-				}
-			} else {
-				return true;
-			}
 		}
+		//ind1 is defined.
+		if (typeof array[ind1][ind2] === 'undefined') {
+			return false;
+		} else {
+			return true;
+		}
+
+
 		return true;
 	}
 
@@ -220,45 +241,45 @@ class Hole {
 	}
 
 	checkState() {
-		let filled = 0,
-			overfill = 0;
+		let filled = 0;
+		let overfill = 0;
+
 		for (let i = 0, ii = this.grid.length; i < ii; i++) {
+
 			for (let j = 0, jj = this.grid[i].length; j < jj; j++) {
 
 				let cell = this.game.board[this.y + i][this.x + j];
+
 				if (cell) {
 					let size = cell.contains.length;
-					if (size == 1) {
-						if (cell.contains[0].type == 'shape') {
-							overfill++;
-						}
-					} else if (size >= 2) {
+
+					if (size == 2) {
+						//Hole is 0, block is 1
 						if (cell.contains[1].type == 'shape') {
-							filled++;
+							filled++
 						}
-						if (size > 2) {
-							overfill += size - 2;
-						}
+					} else if (size >= 3) {
+						filled++;
+						overfill += size - 3;
 					}
 				}
 			}
 		}
-		console.log("filled: ", filled);
-
+		
 		if (filled > this.filled) {
 			let diff = filled - this.filled;
 			let score = diff * 50;
 			this.game.scoreTracker += (score);
 			this.game.totalScore += (score);
-
 		}
 		this.filled = filled;
 
 		if (this.sTime == null && this.filled > 0) {
 			this.sTime = performance.now();
 		}
+		
 		if (this.nBlocks == filled) {
-			console.log(" Shape Filled ");
+		
 			if (overfill == 0) {
 				this.game.combo++;
 			} else {
