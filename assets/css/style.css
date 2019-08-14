@@ -1,0 +1,31 @@
+* {
+  border: 0;
+  margin: 0;
+  font-family: "Arial";
+  font-size: 16px; }
+
+html {
+  height: 100%; }
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; }
+
+.gameWrapper {
+  width: 100%; }
+  .gameWrapper .game {
+    width: 100%;
+    height: 100vh;
+    position: relative; }
+  .gameWrapper .canvasWrapper, .gameWrapper .menuWrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute; }
+  .gameWrapper canvas {
+    box-sizing: border-box;
+    padding: 8px;
+    width: 100%;
+    height: 100%; }

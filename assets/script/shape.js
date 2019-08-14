@@ -1,9 +1,12 @@
 class Shape {
 
-	constructor(x, y, game) {
-		this.game = game;
-		this.tileSize = game.tileSize;
-		this.x = x;
+	constructor(x, y, tileSize, canvas) {
+
+		// Note that the x shape is passed is in cell form (i.e x cells from the left, not in pixels)
+		console.log("New Shape. X: ", x, " Y: ", y);
+		this.tileSize = tileSize;
+		this.canvas = canvas;
+		this.x = x * tileSize;
 		this.y = y;
 
 		this.orientation = 0;
@@ -15,29 +18,29 @@ class Shape {
 		this.makeBlocks();
 	}
 
-	checkBounds() {
+	checkBounds(boardSize) {
 		this.dragging = false;
 		//We should check that we can drop the shape. 
-		let bx = (this.x + this.pattern[0].length * this.game.tileSize) / this.game.tileSize;
-		let by = (this.y + this.pattern.length * this.game.tileSize) / this.game.tileSize;
+		let bx = (this.x + this.pattern[0].length * this.tileSize) / this.tileSize;
+		let by = (this.y + this.pattern.length * this.tileSize) / this.tileSize;
 		if (this.x < 0) {
 			//bx is negative. 
 			this.x = 0;
 			this.makeBlocks();
 
 		}
-		if ((this.x + this.pattern[0].length * this.game.tileSize) > this.game.canvas.width) {
-			let blockd = bx - this.game.boardSize;
-			this.x -= blockd * this.game.tileSize;
+		if ((this.x + this.pattern[0].length * this.tileSize) > this.canvas.width) {
+			let blockd = bx - boardSize;
+			this.x -= blockd * this.tileSize;
 			this.makeBlocks();
 		}
 		if (this.y < 0) {
 			this.y = 0;
 			this.makeBlocks();
 		}
-		if (this.y + this.pattern.length * this.game.tileSize > this.game.canvas.height) {
-			let blockd = by - this.game.boardSize;
-			this.y -= blockd * this.game.tileSize;
+		if (this.y + this.pattern.length * this.tileSize > this.canvas.height) {
+			let blockd = by - boardSize;
+			this.y -= blockd * this.tileSize;
 			this.makeBlocks();
 		}
 	}
@@ -87,11 +90,10 @@ class Shape {
 		return shape;
 	}
 
-	draw() {
-
-		let board = this.game.board;
-		for (let row = 0, r = board.length; row < r; row++) {
-			for (let col = 0, c = board[row].length; col < c; col++) {
+	draw(board, bW, bH) {
+		
+		for (let row = 0, r = bH; row < r; row++) {
+			for (let col = 0, c = bW; col < c; col++) {
 
 				let cell = board[row][col];
 				if (cell.x == this.x && cell.y == this.y) {
@@ -133,23 +135,30 @@ class Shape {
 		return max;
 	}
 
-	drag(mx, my) {
+	drag(mx, my, ctx) {
+		// Drag the shape to nearest gridpoint and draw.
+
+
 		//Get nearest gridpoint to the mouse
-		let tileSize = this.game.tileSize;
+		let tileSize = this.tileSize;
 		
 		this.gridx = Math.floor(mx / tileSize) * tileSize;
 		this.gridy = Math.floor(my / tileSize) * tileSize;
-		this.game.drawRect(this.gridx, this.gridy, this.game.tileSize, "black");
-		this.draw_on_mouse();
+		// BAD 
+
+
+		drawCell(ctx, this.gridx, this.gridy, tileSize, "black");
+		this.draw_on_mouse(ctx);
 	}
 
-	draw_on_mouse() {
+
+	draw_on_mouse(ctx) {
 		//Draw the middle of the shape on the mouse. 
 		let width = this.getWidth() + 1;
 		let height = this.getHeight() + 1;
 		//Middle of shape has to be 
-		let mrow = Math.floor(width / 2) * this.game.tileSize;
-		let mcol = Math.floor(height / 2) * this.game.tileSize;
+		let mrow = Math.floor(width / 2) * this.tileSize;
+		let mcol = Math.floor(height / 2) * this.tileSize;
 
 		this.x = (this.gridx - mrow);
 		this.y = (this.gridy - mcol);
@@ -157,7 +166,8 @@ class Shape {
 		this.makeBlocks();
 		for(let i in this.blocks){
 			let b = this.blocks[i];
-			this.game.drawRect(b.x, b.y, this.game.tileSize, b.color);
+			drawCell(ctx, b.x, b.y, this.tileSize, b.color);
+			
 		}
 	}
 
@@ -166,35 +176,6 @@ class Shape {
 		this.makeBlocks();
 	}
 
-	rotateSquare() {
-		//Rotate a square array 90 degrees clockwise
-		let a = this.blocks;
-		var n = a.length;
-		for (var i = 0; i < n / 2; i++) {
-			for (var j = i; j < n - i - 1; j++) {
-				var tmp = a[i][j];
-				a[i][j] = a[n - j - 1][i];
-				a[n - j - 1][i] = a[n - i - 1][n - j - 1];
-				a[n - i - 1][n - j - 1] = a[j][n - i - 1];
-				a[j][n - i - 1] = tmp;
-			}
-		}
-		this.draw_on_mouse();
-	}
 
-	rotateCounter() {
-		let a = this.blocks;
-		var n = a.length;
-		for (var i = 0; i < n / 2; i++) {
-			for (var j = i; j < n - i - 1; j++) {
-				var tmp = a[i][j];
-				a[i][j] = a[j][n - i - 1];
-				a[j][n - i - 1] = a[n - i - 1][n - j - 1];
-				a[n - i - 1][n - j - 1] = a[n - j - 1][i];
-				a[n - j - 1][i] = tmp;
-			}
-		}
-		return a;
-	}
 
 }
