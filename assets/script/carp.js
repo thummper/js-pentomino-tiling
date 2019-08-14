@@ -35,11 +35,12 @@ class Game {
 	
 		this.canvas;
 		this.ctx;
-		this.mx;
-		this.my;
+		this.mx = 0;
+		this.my = 0;
 
 		this.xPadding;
 		this.yPadding;
+		this.spawnShapes = false;
 
 		//Score stuff
 		this.ticker = 0;
@@ -64,6 +65,7 @@ class Game {
 			let rect = this.canvas.getBoundingClientRect();
 			this.mx = event.clientX - rect.left;
 			this.my = event.clientY - rect.top;
+			
 		}.bind(this));
 
 		window.addEventListener("contextmenu", function (event) {
@@ -74,39 +76,32 @@ class Game {
 		window.addEventListener("mousedown", function (event) {
 			//Left click
 			if (event.button == 0) {
-				if (this.dragShape != null) {
-					//We are dragging a shape, drop it.
-					let shape = this.dragShape;
-					shape.checkBounds(this.boardSize);
-					this.shapes.push(shape);
-					shape.draw();
-
-					//Perhaps this is firing before the grid is made? 
-					this.holder.checkSpaces(this.board);
-					this.holder.trySpawn();
-					this.dragShape = null;
-				} else {
-					//Nothing is currently being dragged.
-					for (let i = this.shapes.length - 1; i >= 0; i--) {
+				if(this.dragShape == null){
+					// If there are 2 shapes in a block, we pick u the bottom and the other is deleted?
+					for(let i = this.shapes.length - 1; i >= 0; i--){
 						let shape = this.shapes[i];
-
-						if (!shape.dragging) {
+						if(!shape.dragging){
 							let blocks = shape.blocks;
-							for (let j = 0, k = blocks.length; j < k; j++) {
-								let block = blocks[j];
-								if (block.type == 'shape') {
-									if (this.mouseIn(block)) {
-										//Pick up the shape.
+							for(let block of blocks){
+								if(block.type == "shape"){
+									if(this.mouseIn(block)){
 										block.dragging = true;
 										shape.dragging = true;
 										this.dragShape = shape;
 										this.shapes.splice(i, 1);
+										return;
+										
 									}
 								}
 							}
 						}
-
 					}
+				} else {
+					// Dragging something.
+					let shape = this.dragShape;
+					shape.checkBounds(this.boardWidth, this.boardHeight);
+					this.shapes.push(shape);
+					this.dragShape = null;
 				}
 			} else {
 				//Right button
@@ -114,6 +109,7 @@ class Game {
 					this.dragShape.mirror();
 				}
 			}
+			this.trySpawn = true;
 		}.bind(this));
 
 		window.addEventListener("keydown", function (event) {
@@ -239,6 +235,7 @@ class Game {
 		for (let i = 0; i < nRow; i++) {
 			for (let j = 0; j < nCols; j++) {
 				let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
+			
 				hole.generateHole();
 				this.holes.push(hole);
 				x += this.holeSize + 1;
@@ -312,7 +309,6 @@ class Game {
 	}
 
 	updateGraph() {
-
 		this.averageGraph.update();
 	}
 
@@ -325,6 +321,13 @@ class Game {
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
+		if(this.trySpawn){
+			this.holder.checkSpaces(this.board);
+			let newShapes = this.holder.trySpawn();
+			this.shapes = this.shapes.concat(newShapes);
+			this.trySpawn = false;
+		}
+
 
 		if (this.dragShape) {
 			this.dragShape.drag(this.mx, this.my, this.ctx);
@@ -370,7 +373,10 @@ class Game {
 					this.drawRect(cell.x, cell.y, this.tileSize, 'white', 'rgba(0, 0, 0, 0.2)');
 				}
 
+
+			
 				if (this.mouseIn(cell)) {
+					
 					this.drawRect(cell.x, cell.y, this.tileSize, 'orange', 'rgba(0, 0, 0, 0.2)');
 				}
 
@@ -388,8 +394,11 @@ class Game {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
+
+
 	drawHoles() {
-		for (let i = 0, j = this.holes.length; i < j; i++) {
+		this.checkHoles();
+		for (let i = 0; i < this.holes.length; i++) {
 			let hole = this.holes[i];
 			hole.draw(this.board);
 		}

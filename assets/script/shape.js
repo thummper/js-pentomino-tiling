@@ -6,7 +6,7 @@ class Shape {
 		console.log("New Shape. X: ", x, " Y: ", y);
 		this.tileSize = tileSize;
 		this.canvas = canvas;
-		this.x = x * tileSize;
+		this.x = x;
 		this.y = y;
 
 		this.orientation = 0;
@@ -18,31 +18,27 @@ class Shape {
 		this.makeBlocks();
 	}
 
-	checkBounds(boardSize) {
+	checkBounds(boardWidth, boardHeight) {
+		// Bound the shape to the game grid.
 		this.dragging = false;
-		//We should check that we can drop the shape. 
-		let bx = (this.x + this.pattern[0].length * this.tileSize) / this.tileSize;
-		let by = (this.y + this.pattern.length * this.tileSize) / this.tileSize;
-		if (this.x < 0) {
-			//bx is negative. 
-			this.x = 0;
-			this.makeBlocks();
 
+		let shapeWidth  =  this.getWidth();
+		let shapeHeight = this.getHeight(); 
+
+		if(this.x < 0){
+			this.x = 0;
 		}
-		if ((this.x + this.pattern[0].length * this.tileSize) > this.canvas.width) {
-			let blockd = bx - boardSize;
-			this.x -= blockd * this.tileSize;
-			this.makeBlocks();
+		if(this.x + shapeWidth > boardWidth){
+			this.x = boardWidth - shapeWidth;
 		}
-		if (this.y < 0) {
+		if(this.y < 0){
 			this.y = 0;
-			this.makeBlocks();
 		}
-		if (this.y + this.pattern.length * this.tileSize > this.canvas.height) {
-			let blockd = by - boardSize;
-			this.y -= blockd * this.tileSize;
-			this.makeBlocks();
+		if(this.y + shapeHeight > boardHeight){
+			this.y = boardHeight - shapeHeight;
 		}
+		this.makeBlocks();
+
 	}
 
 
@@ -55,8 +51,8 @@ class Shape {
 			let row = block[0];
 			let col = block[1];
 			let blk = {
-				x: this.x + (col * this.tileSize),
-				y: this.y + (row * this.tileSize),
+				x: (this.x + col) * this.tileSize,
+				y: (this.y + row) * this.tileSize,
 				row: row,
 				col: col,
 				dragging: false,
@@ -91,13 +87,13 @@ class Shape {
 	}
 
 	draw(board, bW, bH) {
+		// Shape needs to be bound inside the grid.  
 		
 		for (let row = 0, r = bH; row < r; row++) {
 			for (let col = 0, c = bW; col < c; col++) {
 
-				let cell = board[row][col];
-				if (cell.x == this.x && cell.y == this.y) {
-
+			
+				if (col == this.x && row == this.y) {
 					//Draw shape on to grid, starting here.
 					for (let i = 0, j = this.blocks.length; i < j; i++) {
 						let block = this.blocks[i];
@@ -141,32 +137,28 @@ class Shape {
 
 		//Get nearest gridpoint to the mouse
 		let tileSize = this.tileSize;
-		
-		this.gridx = Math.floor(mx / tileSize) * tileSize;
-		this.gridy = Math.floor(my / tileSize) * tileSize;
-		// BAD 
+		this.gridx = Math.floor(mx / tileSize);
+		this.gridy = Math.floor(my / tileSize);
 
-
-		drawCell(ctx, this.gridx, this.gridy, tileSize, "black");
-		this.draw_on_mouse(ctx);
+		drawCell(ctx, this.gridx * tileSize, this.gridy * tileSize, tileSize, "black");
+		this.drawOnMouse(ctx);
 	}
 
 
-	draw_on_mouse(ctx) {
+	drawOnMouse(ctx) {
 		//Draw the middle of the shape on the mouse. 
 		let width = this.getWidth() + 1;
 		let height = this.getHeight() + 1;
 		//Middle of shape has to be 
-		let mrow = Math.floor(width / 2) * this.tileSize;
-		let mcol = Math.floor(height / 2) * this.tileSize;
-
-		this.x = (this.gridx - mrow);
-		this.y = (this.gridy - mcol);
+		let mCol = Math.floor(width / 2) ;
+		let mRow = Math.floor(height / 2);
+		this.x = this.gridx - mCol;
+		this.y = this.gridy - mRow;
 		// tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
 		this.makeBlocks();
-		for(let i in this.blocks){
-			let b = this.blocks[i];
-			drawCell(ctx, b.x, b.y, this.tileSize, b.color);
+		for(let i = 0; i < this.blocks.length; i++){
+			let blk = this.blocks[i];
+			drawCell(ctx, blk.x, blk.y, this.tileSize, blk.color);
 			
 		}
 	}

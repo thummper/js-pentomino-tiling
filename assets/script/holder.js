@@ -1,6 +1,6 @@
 class Holder {
 	constructor(canvas, ctx, tileSize, holes, boardWidth, boardHeight) {
-	
+
 		this.tileSize = tileSize;
 		this.nHoles = holes;
 		this.canvas = canvas;
@@ -9,7 +9,7 @@ class Holder {
 		this.boardHeight = boardHeight;
 		this.boardWidth = boardWidth;
 		//Minus width and 1 for padding
-		this.y = (boardHeight - 6) * this.tileSize;
+		this.y = (boardHeight - 6);
 		this.width = 5;
 		this.height = 5;
 		this.padding = 2; //2 block padding on left side.
@@ -20,10 +20,11 @@ class Holder {
 	}
 
 	makeSpaces() {
+		this.spaces = [];
 		let nHoles = this.nHoles;
 		let x = this.padding;
-		for(let i = 0; i < nHoles; i++){
-			console.log("X: ", x);
+		for (let i = 0; i < nHoles; i++) {
+		
 			this.spaces.push({
 				x: x,
 				y: this.y,
@@ -40,51 +41,43 @@ class Holder {
 
 	drawSpaces() {
 		// Space x/y is in blocks, not actual pixels 
-		for (let i = 0, j = this.spaces.length; i < j; i++) {
+		for (let i = 0; i < this.spaces.length; i++) {
 			let space = this.spaces[i];
-			this.ctx.save();
+			this.ctx.beginPath();
 			this.ctx.fillStyle = space.bg;
-			this.ctx.rect((space.x * this.tileSize), space.y, (space.w * this.tileSize), (space.w * this.tileSize));
+			this.ctx.rect((space.x * this.tileSize), (space.y * this.tileSize), (space.w * this.tileSize), (space.w * this.tileSize));
 			this.ctx.fill();
-			this.ctx.restore();
+			this.ctx.closePath();
 		}
 	}
 
 
-	empty(){
-		for(let space of this.spaces){
-			if(space.piece !== false){
+	empty() {
+		for (let space of this.spaces) {
+			if (space.piece !== false) {
 				space.piece.delete = true;
 			}
 		}
 	}
 
-	checkSpaces(board) {
-
-		for(let space of this.spaces){
-		
-			console.log("SPACE: ", space);
-			if(space.piece !== false){
-				space.piece = false;
-				console.log("Y: ", space.y);
-
-				let y = Math.floor(space.y / this.tileSize);
-				let x = Math.floor(space.x / this.tileSize);
-
-				for(let row = y; row < y + this.height; row++){
-					for(let col = x; col < x + this.width; col++){
-						let cell = board[row][col];
-						for(let item of cell.contains){
-							if(item.type == "shape"){
-								space.piece = item.shape;
-								break;
-							}
+	checkSpaces(board) { 
+		let spaces = this.spaces;
+		for(let i = 0; i < spaces.length; i++){
+			let space = spaces[i];
+			space.piece = false;
+			let x = space.x;
+			let y = space.y;
+			for(let r = y; r < y + this.height; r++){
+				for(let c = x; c < x + this.width; c++){
+					let cell = board[r][c];
+					for(let item = 0; item < cell.contains.length; item++){
+						let cellItem = cell.contains[item];
+						if(cellItem.type == "shape"){
+							space.piece = cellItem.shape;
 						}
 					}
 				}
 			}
-			console.log("SPACE CONTAINS: ", space.piece);
-			
 		}
 	}
 

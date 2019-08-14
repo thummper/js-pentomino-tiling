@@ -14,153 +14,144 @@ class Hole {
 		this.eTime = null;
 		this.blocks = [];
 		this.nShapes = 0;
-		this.nBlocks = 100;
+		this.nBlocks = 0;
 		this.filled = 0;
 	}
 
-	makeBlocks() {
+	makeGrid() {
 		this.grid = [];
-		for (let i = 0; i < this.dimen; i++) {
-			this.grid.push(new Array(this.dimen).fill(0));
+		for (let i = 0; i < this.holeSize; i++) {
+			this.grid.push(new Array(this.holeSize).fill(0));
 		}
+
 	}
 
 	generateHole() {
-		this.makeBlocks();
 
+		this.makeGrid();
+
+		// Add a shape to the hole for each level of difficulty.
 		for (let i = 0; i < this.difficulty; i++) {
-			let patterns = this.getShape();
-			let shape = patterns[0];
-			let width = this.getWidth(shape);
-			let height = this.getHeight(shape);
-
+			let shapePatterns = this.getShape();
+			let shape = shapePatterns[0];
+			let w = this.getWidth(shape);
+			let h = this.getHeight(shape);
 			if (this.nShapes == 0) {
-				//There are no shapes in the array
-				let middleRow = Math.floor((this.holeSize / 2) - (height / 2));
-				let middleCol = Math.floor((this.holeSize / 2) - (width / 2));
-				let placed = this.placeShape(shape, this.grid, middleRow, middleCol);
+				// This is the first shape to be put in the grid.
+				let mRow = Math.floor((this.holeSize / 2) - (h / 2));
+				let mCol = Math.floor((this.holeSize / 2) - (w / 2));
+
+				this.placeShape(shape, this.grid, mRow, mCol);
 
 			} else {
-
-				//There are already shapes in the array
+				// There are already other shapes in the grid.
 				let places = this.getPlaces(this.grid);
-				for (let p = 0, pp = places.length; p < pp; p++) {
-					if (this.nShapes < this.difficulty) {
-						//Less shapes than difficulty, try to place
-						let place = places[p];
-						let row = place[0] - height;
-						let col = place[1] - width;
+				for (let p = 0; p < places.length; p++) {
+					let place = places[p];
+					let placed = false;
+					for (let o = 0; o < shapePatterns.length; o++) {
+						let shapePattern = shapePatterns[o];
 
-						let placed = this.placeShape(shape, this.grid, row, col);
-						if (!placed) {
-
-							for (let o = 1; o < 3; o++) {
-								shape = patterns[o];
-								let placeRotate = this.placeShape(shape, this.grid, row, col);
-								if (placeRotate) {
-									break;
-								}
-							}
+						let height = this.getHeight(shapePattern);
+						let width = this.getWidth(shapePattern);
+						let row = Math.floor(place[0] - height / 2);
+						let col = Math.floor(place[1] - width / 2);
+						placed = this.placeShape(shapePattern, this.grid, row, col);
+						if (placed) {
+							break;
 						}
 					}
 				}
 			}
 		}
-
-		this.nBlocks = 0;
-		for (let i = 0; i < this.grid.length; i++) {
-			for (let j = 0; j < this.grid[i].length; j++) {
-				if (this.grid[i][j] == 1) {
-					this.nBlocks++;
-				}
-			}
-		}
+		console.log("Blocks; ", this.nBlocks);
 	}
 
-	//Will try to place a shape in the grid, if possible, return true
+
 	placeShape(shape, grid, row, col) {
 
 		let canPlace = true;
+		// Loop through all shape blocks, see if we can place them in the grid.
 		for (let i = 0; i < shape.length; i++) {
-			let block = shape[i];
-			let blockr = block[0];
-			let blockc = block[1];
-			if (grid[row + blockr] !== undefined) {
-				if (grid[row + blockr][col + blockc] !== undefined) {
-					if (grid[row + blockr][col + blockc] == 1) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-			} else {
+			let shapeBlock = shape[i];
+			let blockRow = shapeBlock[0];
+			let blockCol = shapeBlock[1];
+			if (typeof grid[row + blockRow] === 'undefined') {
+				// The row exists
+
+				canPlace = false;
 				return false;
 			}
-			if (grid[row + blockr][col + blockc] == 1) {
+			if (typeof grid[row + blockRow][col + blockCol] === 'undefined') {
+
+				canPlace = false;
 				return false;
 			}
 		}
-
-
 		let shouldPlace = true;
-		if (this.nShapes != 0) {
-			//Check above, right, bottom, left of shape for adjacent shapes.
+		if (this.nShapes > this.difficulty) {
+			shouldPlace = false;
 		}
+		// TODO: Should place? 
 		if (canPlace && shouldPlace) {
+			// Place the shape in the grid.
 			this.nShapes++;
-			for (let i = 0, j = shape.length; i < j; i++) {
-				let block = shape[i];
-				let r = block[0];
-				let c = block[1];
-				grid[row + r][col + c] = 1;
+			for (let i = 0; i < shape.length; i++) {
+				let shapeBlock = shape[i];
+				let blockRow = shapeBlock[0];
+				let blockCol = shapeBlock[1];
+				grid[row + blockRow][col + blockCol] = 1;
+				this.nBlocks++;
 			}
 		}
+		return true;
 	}
 
 
 	//Returns true if index, false else
-	indexTest(array, ind1, ind2) {
-		if (ind1 < 0 || ind2 < 0) {
+
+	testPlace(grid, row, col) {
+		if (row < 0 || col < 0) {
 			return false;
 		}
-		if (typeof array[ind1] === 'undefined') {
+		if (typeof grid[row] === 'undefined') {
 			return false;
 		}
-		//ind1 is defined.
-		if (typeof array[ind1][ind2] === 'undefined') {
+		if (typeof grid[row][col] === 'undefined') {
 			return false;
-		} else {
+		}
+		if (grid[row][col] === 0) {
 			return true;
 		}
-
 	}
 
-
 	getPlaces(grid) {
-		let places = [];
-		for (let i = 0, x = grid.length; i < x; i++) {
-			for (let j = 0, y = grid[i].length; j < y; j++) {
-				let block = grid[i][j];
-				if (block != 0) {
-					//Check above, left, right, bottom of block for places for new shapes.
+		let potentialPlaces = [];
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
+				if (grid[i][j] == 1) {
+					// We only want to place new shapes around previous ones, so if there is a shape here add all surrounding places to potential.
 
-					if (this.indexTest(grid, i, j + 1) && grid[i][j + 1] == 0) {
-						places.push([i, j + 1]);
+					//Above
+					if (this.testPlace(grid, i + 1, j)) {
+						potentialPlaces.push([i + 1, j]);
 					}
-					if (this.indexTest(grid, i, j - 1) && grid[i][j - 1] == 0) {
-						places.push([i, j - 1]);
+					//Below
+					if (this.testPlace(grid, i - 1, j)) {
+						potentialPlaces.push([i - 1, j]);
 					}
-					if (this.indexTest(grid, i - 1, j) && grid[i - 1][j] == 0) {
-						places.push([i - 1, j]);
+					//Left
+					if (this.testPlace(grid, i, j - 1)) {
+						potentialPlaces.push([i, j - 1]);
 					}
-					if (this.indexTest(grid, i + 1, j) && grid[i + 1][j] == 0) {
-						places.push([i + 1, j]);
+					//Right
+					if (this.testPlace(grid, i, j + 1)) {
+						potentialPlaces.push([i, j + 1]);
 					}
-
 				}
 			}
 		}
-		return places;
+		return potentialPlaces;
 	}
 
 	getWidth(shape) {
@@ -204,18 +195,21 @@ class Hole {
 	}
 
 	draw(board) {
-		// Hole has an x, y and dimention.
-		for (let r = this.y; r < this.y + this.holeSize; r++) {
-			for (let c = this.x; c < this.x + this.holeSize; c++) {
-				let cell = board[r][c];
-				board[r][c].contains.push({
-					x: cell.x,
-					y: cell.y,
-					solid: true,
-					color: "rgba(54, 69, 79, 0.8)",
-					border: "black",
-					type: "hole"
-				});
+		// Try and place the hole in the grid.
+		for (let i = 0; i < this.grid.length; i++) {
+			for(let j = 0; j < this.grid[i].length; j++) {
+				let cell = board[this.y + i][this.x + j];
+				if (this.grid[i][j] == 1) {
+					let hole = {
+						x: cell.x,
+						y: cell.y,
+						solid: true,
+						color: "rgba(54, 69, 79, 0.8)",
+						border: "black",
+						type: "hole"
+					};
+					cell.contains.push(hole);
+				}
 			}
 		}
 	}
@@ -224,16 +218,16 @@ class Hole {
 		let filled = 0;
 		let overfill = 0;
 		// We are looping through the grid spaces on the game board and checking if they are full
-		for(let i = this.y; i < this.y + this.holeSize; i++){
-			for(let j = this.x; j < this.x + this.holeSize; j++){
+		for (let i = this.y; i < this.y + this.holeSize; i++) {
+			for (let j = this.x; j < this.x + this.holeSize; j++) {
 				let cell = board[i][j];
-				if(cell.contains.length == 2){
+				if (cell.contains.length == 2) {
 
-					if(cell.contains[1].type == "shape"){
+					if (cell.contains[1].type == "shape") {
 						filled++;
 					}
 
-				} else if (cell.contains.length >= 3){
+				} else if (cell.contains.length >= 3) {
 					filled++;
 					overfill += cell.contains.length - 3;
 
