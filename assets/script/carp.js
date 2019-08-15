@@ -276,7 +276,7 @@ class Game {
 				} else {
 					this.combo = 0;
 				}
-				hole.regenerate();
+				hole.regenerate(this.board);
 			}
 		}
 	}

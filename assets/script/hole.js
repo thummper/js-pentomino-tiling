@@ -78,16 +78,20 @@ class Hole {
 			let blockCol = shapeBlock[1];
 			if (typeof grid[row + blockRow] === 'undefined') {
 				// The row exists
-
 				canPlace = false;
 				return false;
 			}
 			if (typeof grid[row + blockRow][col + blockCol] === 'undefined') {
-
+				canPlace = false;
+				return false;
+			}
+			if(grid[row + blockRow][col + blockCol] == 1){
 				canPlace = false;
 				return false;
 			}
 		}
+
+
 		let shouldPlace = true;
 		if (this.nShapes > this.difficulty) {
 			shouldPlace = false;
@@ -100,6 +104,11 @@ class Hole {
 				let shapeBlock = shape[i];
 				let blockRow = shapeBlock[0];
 				let blockCol = shapeBlock[1];
+				if(grid[row+blockRow][col+blockCol] == 1){
+					console.log("Why are you placing here?");
+				}
+
+
 				grid[row + blockRow][col + blockCol] = 1;
 				this.nBlocks++;
 			}
@@ -217,55 +226,81 @@ class Hole {
 	checkState(board, combo) {
 		let filled = 0;
 		let overfill = 0;
+		let overflow = 0;
 		// We are looping through the grid spaces on the game board and checking if they are full
+
+
+
 		for (let i = this.y; i < this.y + this.holeSize; i++) {
 			for (let j = this.x; j < this.x + this.holeSize; j++) {
+
+				let fill = 0;
+				let off   = 0;
+				let ovf  = 0;
+
+
 				let cell = board[i][j];
-				if (cell.contains.length == 2) {
-
-					if (cell.contains[1].type == "shape") {
-						filled++;
+				let contents = cell.contains;
+				if(contents.length && contents[0].type == "hole"){
+					for(let c = 1; c < contents.length; c++){
+						let item = contents[c];
+						if(item.type == "shape"){
+							if(fill == 0){
+								fill++;
+							} else {
+								off++;
+							}
+						}
 					}
-
-				} else if (cell.contains.length >= 3) {
-					filled++;
-					overfill += cell.contains.length - 3;
-
+				} else if(contents.length){
+					for(let c = 0; c < contents.length; c++){
+						let item = contents[c];
+						if(item.type == "shape"){
+							ovf++;
+						}
+					}
 				}
-			}
+				filled   += fill;
+				overfill += off;
+				overflow += ovf;
+			}	
 		}
-
-
+		//console.log("F: ", filled, " OV: ", overfill, " OF: ", overflow);
+		
 
 
 		this.filled = filled;
+		this.overfill = overfill + overflow;
 
 		if (this.sTime == null && this.filled > 0) {
 			this.sTime = performance.now();
 		}
-		return false; //AAAAHHH
+		
 		if (this.nBlocks == filled) {
-
 			this.score = this.calcScore(overfill, combo);
-			this.overfill = overfill;
-			return false; //TODO: Holes are currently absolutely totaled (SPAM COMPLETING)
+			return true;
 		}
 		return false;
 	}
 
 
 	calcScore(overfill, combo) {
-		this.eTime = performance.now();
-		let time = (this.eTime - this.sTime) / 1000; //Time in seconds.
-		let noov = Math.pow(Math.E, ((-time) / 8) + 8) + (this.nShapes * 50 * (combo * 1000));
-		let score = Math.pow(Math.E, ((-time * overfill) / 8) + 8) + (this.nShapes * 50 * (combo * 1000));
-		console.log("%c Finished hole of difficulty %i with overfill %i in time of %i for a score of %i", "color:orange;", this.difficulty, overfill, time, score);
-		console.log("Score no over: ", noov);
-		return score;
+		let time = performance.now();
+		let totalTime = (time - this.sTime)/1000;
+		let timeScore = totalTime * 0.3;
+
+		let comboBonus = 20 * combo;
+		let baseScore = this.nBlocks * this.difficulty;
+		let penalty   = this.overfill * this.difficulty;
+
+		let totalScore = baseScore - penalty - timeScore + comboBonus;
+		console.log("Filled hole in: ", totalTime, " Score: ", totalScore);
+		console.log("Base: ", baseScore, " Penalty: ", penalty, " TimeS: ", timeScore);
+		return totalScore;
 	}
 
-	regenerate() {
-		this.removeShapes();
+	regenerate(board) {
+		this.removeShapes(board);
 		this.grid = null;
 		this.nShapes = 0;
 		this.nBlocks = 0;
@@ -274,17 +309,17 @@ class Hole {
 		this.score = null;
 		this.startTime = null;
 		this.endTime = null;
-		this.makeBlocks();
+
 		this.generateHole();
 	}
 
-	removeShapes() {
+	removeShapes(board) {
 		for (let i = 0; i < this.grid.length; i++) {
 			for (let j = 0; j < this.grid[i].length; j++) {
 				//Get the blocks from the board. 
 				let block = this.grid[i][j];
 				if (block) {
-					let cell = this.game.board[this.y + i][this.x + j];
+					let cell = board[this.y + i][this.x + j];
 					for (let k in cell.contains) {
 						let cell_item = cell.contains[k];
 						if (cell_item.shape) {
