@@ -70,20 +70,19 @@ class Shape {
 	}
 
 	pickPattern() {
-		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
-		let shape = null;
-		//Number between 1 and 100
-		let number = Math.floor(Math.random() * 80);
-		let total = 0;
-		for (let i in probs) {
-			total += probs[i];
-			if (number <= total) {
-				shape = pieces[i][0];
-				this.color = pieces[i][1];
-				break;
+		let random = Math.random() * 100;
+
+		let counter = 0;
+		for(let i = 0; i < pieces.length; i++){
+			let piece = pieces[i];
+			counter += piece[2];
+
+			if(random <= counter){
+				this.color = piece[1];
+				return piece[0];
 			}
 		}
-		return shape;
+	
 	}
 
 	draw(board, bW, bH) {

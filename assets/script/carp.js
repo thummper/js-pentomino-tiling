@@ -1,14 +1,15 @@
 //Global pieces array [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
 let pieces = [
-	[P, '#71B3B0'],
-	[F, '#D55A4C'],
-	[Y, '#F5994E'],
-	[T, '#961628'],
-	[W, '#1D6D53'],
-	[N, '#D6BB50'],
-	[U, '#21746C'],
-	[V, '#2CAD7D'],
-	[L, '#8B2134']
+	[P, '#71B3B0', 13],
+	[F, '#D55A4C', 13],
+	[Y, '#F5994E', 12],
+	[T, '#961628', 12],
+	[W, '#1D6D53', 11],
+	[N, '#D6BB50', 10],
+	[U, '#21746C', 9],
+	[V, '#2CAD7D', 9],
+	[L, '#8B2134', 8],
+	[Z, '#c23616', 6]
 ];
 
 
@@ -17,7 +18,7 @@ class Game {
 	constructor() {
 		//Game Variables
 		this.tileSize = 24;
-		this.holeSize = 12;
+		this.holeSize = 11;
 		this.shapes = [];
 		this.holes = [];
 		this.dragShape = null;
@@ -177,8 +178,6 @@ class Game {
 	makeBoard() {
 		this.board = [];
 
-		let boardPX = this.boardSize * this.tileSize;
-
 		for (let row = 0; row < this.boardHeight; row++) {
 			this.board[row] = [];
 			for (let col = 0; col < this.boardWidth; col++) {
@@ -206,8 +205,6 @@ class Game {
 		this.holder = holder;
 		let newShapes = this.holder.trySpawn();
 		this.shapes = this.shapes.concat(newShapes);
-
-
 	}
 
 	makeShapeHoles() {
@@ -224,7 +221,7 @@ class Game {
 		let minY = 1;
 		let maxY = this.boardHeight - 6; // By using this var, the board size will always have to be square.
 
-		let nRow = Math.floor((maxY - minY) / (this.holeSize + 2));
+		let nRow = Math.floor((maxY - minY) / (this.holeSize + 1));
 		let nCols = Math.floor((maxX - minX) / (this.holeSize + 1));
 
 
@@ -243,6 +240,7 @@ class Game {
 			y += this.holeSize + 3;
 			x = minX;
 		}
+		console.log("nHoles", this.holes.length);
 
 	}
 
