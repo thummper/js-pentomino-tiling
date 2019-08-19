@@ -271,7 +271,8 @@ class Game {
 			if (filled) {
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
-				if (hole.overfilled == 0) {
+				console.log("Hole Overfill: ", hole.overfill);
+				if (hole.overfill == 0) {
 					this.combo++;
 				} else {
 					this.combo = 0;

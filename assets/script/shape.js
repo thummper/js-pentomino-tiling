@@ -176,7 +176,8 @@ class Shape {
 	}
 
 	scroll(dir) {
-		this.orientation = (this.orientation += 1) % 4;
+		
+		this.orientation = (this.orientation += 1) % this.pattern.normal.length;
 		this.makeBlocks();
 	}
 

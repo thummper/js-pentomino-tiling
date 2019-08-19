@@ -296,6 +296,7 @@ class Hole {
 		let penalty   = this.overfill * this.difficulty;
 
 		let totalScore = baseScore - penalty - timeScore + comboBonus;
+		console.log("Combo: ", combo);
 		console.log("Filled hole in: ", totalTime, " Score: ", totalScore);
 		console.log("Base: ", baseScore, " Penalty: ", penalty, " TimeS: ", timeScore);
 		return totalScore;
