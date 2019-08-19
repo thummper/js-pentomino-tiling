@@ -12,6 +12,7 @@ class Shape {
 		this.orientation = 0;
 		this.dragging = false;
 		this.pattern = this.pickPattern();
+		this.flipped = 0;
 		this.blocks;
 		this.delete = false;
 		
@@ -45,7 +46,16 @@ class Shape {
 	makeBlocks() {
 		this.blocks = [];
 		//Blocks for new patterns
-		let patternBlocks = this.pattern[this.orientation];
+	
+
+		let patternBlocks;
+		if(this.flipped){
+			patternBlocks = this.pattern.flipped[this.orientation];
+		} else {
+			patternBlocks = this.pattern.normal[this.orientation];
+		}
+
+	
 		for (let i = 0, j = patternBlocks.length; i < j; i++) {
 			let block = patternBlocks[i];
 			let row = block[0];
@@ -66,17 +76,20 @@ class Shape {
 	}
 
 	mirror() {
-		this.orientation = (this.orientation + 2) % 4;
+		if(this.flipped){
+			this.flipped = 0;
+		} else {
+			this.flipped = 1;
+		}
+		
 	}
 
 	pickPattern() {
 		let random = Math.random() * 100;
-
 		let counter = 0;
 		for(let i = 0; i < pieces.length; i++){
 			let piece = pieces[i];
 			counter += piece[2];
-
 			if(random <= counter){
 				this.color = piece[1];
 				return piece[0];

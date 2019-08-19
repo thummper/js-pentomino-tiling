@@ -33,6 +33,7 @@ class Hole {
 		// Add a shape to the hole for each level of difficulty.
 		for (let i = 0; i < this.difficulty; i++) {
 			let shapePatterns = this.getShape();
+			
 			let shape = shapePatterns[0];
 			let w = this.getWidth(shape);
 			let h = this.getHeight(shape);
@@ -196,7 +197,8 @@ class Hole {
 		for (let i in probs) {
 			total += probs[i];
 			if (number <= total) {
-				shape = pieces[i][0];
+				console.log(pieces[i]);
+				shape = pieces[i][0].normal;
 				break;
 			}
 		}
