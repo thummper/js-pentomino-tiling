@@ -1,0 +1,15 @@
+{
+  "name": "pentomino-org",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "node-sass assets/scss -o assets/css",
+    "watch": "npm run compile && node-sass -w assets/scss -o assets/css"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-sass": "^4.12.0"
+  }
+}

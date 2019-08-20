@@ -2,23 +2,33 @@
 <html>
 
 <head>
-	<link rel="stylesheet" href="style.css">
-	<script src="scripts/pieces.js"></script>
-	<script src="scripts/echarts.min.js"></script>
-	<script src="scripts/shape.js"></script>
-	<script src="scripts/hole.js"></script>
-	<script src="scripts/holder.js"></script>
-	<script src="scripts/elisteners.js"></script>
-	<script src="scripts/carp.js"></script>
+	<link rel="stylesheet" href="assets/css/style.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.min.js"></script>
+	<script src="assets/script/graph.js">     </script>
+	<script src="assets/script/pieces.js">    </script>
+	<script src="assets/script/shape.js">     </script>
+	<script src="assets/script/hole.js">      </script>
+	<script src="assets/script/holder.js">    </script>
+	<script src="assets/script/elisteners.js"></script>
+	<script src="assets/script/carp.js">      </script>
 </head>
 
 <body>
-	<div class="canvas-wrapper">
-		<canvas id="carp_canvas"></canvas>
+	<div class="gameWrapper">
+		<div class="game">
+			<div class="canvasWrapper">
+				<canvas id="carpCanvas"></canvas>
+			</div>
+			<div class="menuWrapper">
+
+			</div>
+		</div>
+		<div class="stats">
+			<div id="comboGraph"></div>
+			<div id="averageScoreGraph"></div>
+		</div>
 	</div>
-	<div class="graph-wrapper">
-		<canvas width='640' height='300' id="graph_canvas"></canvas>
-	</div>
+
 </body>
 
 </html>
