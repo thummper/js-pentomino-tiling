@@ -23,20 +23,28 @@ class Shape {
 		// Bound the shape to the game grid.
 		this.dragging = false;
 
+
+		console.log("shape pos. x: ", this.x, " y: ", this.y);
+
+
 		let shapeWidth  =  this.getWidth();
 		let shapeHeight = this.getHeight(); 
+
+		console.log("Width: ", shapeWidth, " Height: ", shapeHeight);
+		console.log("BoardW: ", boardWidth, " BoardH: ", boardHeight);
 
 		if(this.x < 0){
 			this.x = 0;
 		}
-		if(this.x + shapeWidth > boardWidth){
-			this.x = boardWidth - shapeWidth;
+		if(this.x + shapeWidth >= boardWidth){
+			console.log("Shape over x");
+			this.x = boardWidth - shapeWidth - 1;
 		}
 		if(this.y < 0){
 			this.y = 0;
 		}
-		if(this.y + shapeHeight > boardHeight){
-			this.y = boardHeight - shapeHeight;
+		if(this.y + shapeHeight >= boardHeight){
+			this.y = boardHeight - shapeHeight - 1;
 		}
 		this.makeBlocks();
 

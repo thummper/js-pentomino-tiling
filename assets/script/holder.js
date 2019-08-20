@@ -22,6 +22,7 @@ class Holder {
 	makeSpaces() {
 		this.spaces = [];
 		let nHoles = this.nHoles;
+		console.log("Making: ", nHoles, " holes. BoardWidth: ", this.boardWidth);
 		let x = this.padding;
 		for (let i = 0; i < nHoles; i++) {
 		

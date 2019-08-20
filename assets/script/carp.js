@@ -53,6 +53,7 @@ class Game {
 		this.averageScores = [];
 		//this.averageGraph = new Graph(document.getElementById('graph_canvas'), this.averageScores);
 		//this.averageGraph.start();
+		let looping = null;
 
 	}
 
@@ -148,7 +149,10 @@ class Game {
 
 
 	resizeCanvas() {
+		// cancelAnimationFrame(this.looping);
+		// this.looping = null;
 		console.log("Resizing Canvas");
+		this.shapes = [];
 		this.canvas.width = this.canvas.offsetWidth;
 		this.canvas.height = this.canvas.offsetHeight;
 
@@ -165,14 +169,15 @@ class Game {
 		// 	this.boardSize = hCells;
 		// }
 
-		if (this.holder) {
-			this.holder.empty(this.board);
-		}
-
+		// if (this.holder) {
+		// 	this.holder.empty(this.board);
+		// }
+		this.holder = null;
 
 		this.makeBoard();
 		this.makeHolder();
 		this.makeShapeHoles();
+		// this.loop();
 	}
 
 	makeBoard() {
@@ -195,8 +200,9 @@ class Game {
 	makeHolder() {
 		// Work out how many holders we can fit onto the board, and make them (with a max of 4).
 		this.holder = null;
-		let boardWidth = this.boardSize;
+		let boardWidth = this.boardWidth;
 		let nHoles = Math.floor(boardWidth / 7);
+		console.log("Holes: ", nHoles, " boardW: ", boardWidth);
 		// Hole is 5 blocks + 2 blocks padding on left side.
 
 
@@ -341,7 +347,7 @@ class Game {
 
 		this.frames++;
 		this.ticker++;
-		window.requestAnimationFrame(this.loop.bind(this));
+		this.looping = window.requestAnimationFrame(this.loop.bind(this));
 	}
 
 	getFPS() {
