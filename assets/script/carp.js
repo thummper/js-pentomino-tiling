@@ -33,7 +33,9 @@ class Game {
 		this.framesTime;
 		this.FPS = 0;
 		this.frames = 0;
-	
+		this.lastFrame = 0;
+		this.frameTime = 0;
+
 		this.canvas;
 		this.ctx;
 		this.mx = 0;
@@ -50,10 +52,37 @@ class Game {
 		this.scoreTracker = 0;
 		this.pastScores = [];
 		//Average 
+
+		this.holeScores = [];
 		this.averageScores = [];
-		//this.averageGraph = new Graph(document.getElementById('graph_canvas'), this.averageScores);
-		//this.averageGraph.start();
-		let looping = null;
+		this.comboScore = [];
+
+
+		this.graphElms = [
+			{
+			element: document.getElementById("comboGraph"),
+			title: "Combo Over Time",
+			data: this.comboScore,
+			series: [{
+				data: [],
+				type: 'bar'
+
+			}],
+
+		},
+		{
+			element: document.getElementById("averageScoreGraph"),
+			title: "Average Hole Score",
+			data: this.averageScores,
+			series: [{
+				data: [],
+				type: 'line'
+			}]
+		}
+	
+	];
+		this.graphs = [];
+
 
 	}
 
@@ -67,7 +96,7 @@ class Game {
 			let rect = this.canvas.getBoundingClientRect();
 			this.mx = event.clientX - rect.left;
 			this.my = event.clientY - rect.top;
-			
+
 		}.bind(this));
 
 		window.addEventListener("contextmenu", function (event) {
@@ -78,21 +107,21 @@ class Game {
 		window.addEventListener("mousedown", function (event) {
 			//Left click
 			if (event.button == 0) {
-				if(this.dragShape == null){
+				if (this.dragShape == null) {
 					// If there are 2 shapes in a block, we pick u the bottom and the other is deleted?
-					for(let i = this.shapes.length - 1; i >= 0; i--){
+					for (let i = this.shapes.length - 1; i >= 0; i--) {
 						let shape = this.shapes[i];
-						if(!shape.dragging){
+						if (!shape.dragging) {
 							let blocks = shape.blocks;
-							for(let block of blocks){
-								if(block.type == "shape"){
-									if(this.mouseIn(block)){
+							for (let block of blocks) {
+								if (block.type == "shape") {
+									if (this.mouseIn(block)) {
 										block.dragging = true;
 										shape.dragging = true;
 										this.dragShape = shape;
 										this.shapes.splice(i, 1);
 										return;
-										
+
 									}
 								}
 							}
@@ -202,7 +231,6 @@ class Game {
 		this.holder = null;
 		let boardWidth = this.boardWidth;
 		let nHoles = Math.floor(boardWidth / 7);
-		console.log("Holes: ", nHoles, " boardW: ", boardWidth);
 		// Hole is 5 blocks + 2 blocks padding on left side.
 
 
@@ -238,7 +266,7 @@ class Game {
 		for (let i = 0; i < nRow; i++) {
 			for (let j = 0; j < nCols; j++) {
 				let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
-			
+
 				hole.generateHole();
 				this.holes.push(hole);
 				x += this.holeSize + 1;
@@ -246,8 +274,6 @@ class Game {
 			y += this.holeSize + 3;
 			x = minX;
 		}
-		console.log("nHoles", this.holes.length);
-
 	}
 
 
@@ -262,9 +288,52 @@ class Game {
 		this.resizeCanvas();
 
 		//Add event listeners
-	
+
 
 		//Start game 
+
+		for (let i = 0; i < this.graphElms.length; i++) {
+			let graphInfo = this.graphElms[i];
+			console.log("GINFO: ", graphInfo);
+
+			let options = {
+				grid: {
+					left: '3%',
+					right: '4%',
+					bottom: '3%',
+					containLabel: true
+				},
+				title: {},
+				xAxis: {
+					type: 'category',
+					data: []
+				},
+				yAxis: {
+					type: 'value'
+	
+				},
+				series: {
+	
+				}
+			};
+			options.title.text = graphInfo.title;
+			
+			if (graphInfo.xAxis) {
+				options.xAxis.type = graphInfo.xAxis;
+			}
+			if (graphInfo.yAxis) {
+				options.yAxis.type = graphInfo.yAxis;
+			}
+			options.series = graphInfo.series;
+			console.log("data: ", graphInfo.data);
+
+
+			let graph = new Graph(graphInfo.element, options, graphInfo.data);
+			
+			graph.init();
+			this.graphs.push(graph);
+		}
+
 		this.loop();
 
 	}
@@ -275,6 +344,7 @@ class Game {
 			// TODO: checkstate is broken
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
+				this.holeScores.push(hole.score);
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
 				console.log("Hole Overfill: ", hole.overfill);
@@ -286,36 +356,85 @@ class Game {
 				hole.regenerate(this.board);
 			}
 		}
+
+
+
+
+
+
+	}
+
+	getTimeStamp() {
+		let date = new Date();
+		let time = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+		return time;
 	}
 
 
 
-	checkScore() {
-		this.pastScores.push(this.scoreTracker);
-		this.scoreTracker = 0;
-		if (this.pastScores.length > 20) {
-			let difference = 20 - this.pastScores.length;
-			this.pastScores.splice(0, difference);
-		}
-		let total = 0;
-		for (let i = 0, j = this.pastScores.length; i < j; i++) {
-			total += this.pastScores[i];
-		}
-		let average = total / this.pastScores.length;
-		let today = new Date();
-		let time = today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
-		this.averageScores.push([average, time]);
+	average() {
+		let time = this.getTimeStamp();
+		this.comboScore.push([this.combo, time]);
 
-		if (this.averageScores.length > 20) {
-			let difference = this.averageScores.length - 20;
-			this.averageScores.splice(0, difference);
+		if(this.comboScore.length >= 20){
+			let diff = this.comboScore.length - 20;
+			this.comboScore.splice(0, diff);
 		}
-		this.updateGraph();
+
+
+
+		let totalScores = 0;
+
+		if (this.holeScores.length) {
+			let holeScores = this.holeScores;
+
+			for (let i = 0; i < holeScores.length; i++) {
+				totalScores += holeScores[i];
+			}
+			totalScores = totalScores / holeScores.length;
+
+			if (this.holeScores.length > 20) {
+				let diff = holeScores.length - 10;
+				this.holeScores.splice(0, diff);
+			}
+
+
+
+			let time = this.getTimeStamp();
+
+			this.averageScores.push([
+				totalScores,
+				time
+			]);
+
+		}
+
+
+
+		// this.pastScores.push(this.scoreTracker);
+		// this.scoreTracker = 0;
+		// if (this.pastScores.length > 20) {
+		// 	let difference = 20 - this.pastScores.length;
+		// 	this.pastScores.splice(0, difference);
+		// }
+		// let total = 0;
+		// for (let i = 0, j = this.pastScores.length; i < j; i++) {
+		// 	total += this.pastScores[i];
+		// }
+		// let average = total / this.pastScores.length;
+		// let today = new Date();
+		// let time = today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
+		// this.averageScores.push([average, time]);
+
+		// if (this.averageScores.length > 20) {
+		// 	let difference = this.averageScores.length - 20;
+		// 	this.averageScores.splice(0, difference);
+		// }
+		// this.updateGraph();
 	}
 
-	updateGraph() {
-		this.averageGraph.update();
-	}
+
+
 
 	loop() {
 		this.getFPS();
@@ -326,7 +445,7 @@ class Game {
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
-		if(this.trySpawn){
+		if (this.trySpawn) {
 			this.holder.checkSpaces(this.board);
 			let newShapes = this.holder.trySpawn();
 			this.shapes = this.shapes.concat(newShapes);
@@ -340,19 +459,37 @@ class Game {
 
 
 		this.holder.drawSpaces();
-		if (this.ticker >= 240) {
-			this.ticker = 0;
-			//this.checkScore();
-		}
+
 
 		this.frames++;
-		this.ticker++;
-		this.looping = window.requestAnimationFrame(this.loop.bind(this));
+		this.ticker += this.frameTime;
+		if (this.ticker / 1000 >= 5) {
+			// 5 Second Timer.
+			this.ticker = 0;
+			this.average();
+			this.updateGraphs();
+		}
+		window.requestAnimationFrame(this.loop.bind(this));
+	}
+
+
+	updateGraphs() {
+		let graphs = this.graphs;
+		for (let i = 0; i < graphs.length; i++) {
+			let g = graphs[i];
+			g.update();
+		}
 	}
 
 	getFPS() {
+		let now = performance.now();
+		let lastTime = this.lastFrame;
+		let timeTaken = now - lastTime;
+		this.frameTime = timeTaken;
+
+		this.lastFrame = now;
+
 		if (this.framesTime) {
-			let now = performance.now();
 			if (now - this.framesTime >= 1000) {
 				this.FPS = this.frames;
 				this.frames = 0;
@@ -379,9 +516,9 @@ class Game {
 				}
 
 
-			
+
 				if (this.mouseIn(cell)) {
-					
+
 					this.drawRect(cell.x, cell.y, this.tileSize, 'orange', 'rgba(0, 0, 0, 0.2)');
 				}
 
@@ -440,43 +577,7 @@ class Game {
 }
 
 
-class Graph {
-	constructor(canvas, dataArray) {
-		this.chart = echarts.init(canvas);
-		this.data = dataArray;
-		this.chartOptions = null;
-	}
-	start() {
-		this.chartOptions = {
-			grid: {
-				left: 0,
-				right: 0,
-				top: 0,
-			},
-			xAxis: {
-				data: ['1']
-			},
-			yAxis: {},
-			series: [{
-				type: 'line',
-				data: [0]
-			}]
-		};
-		this.chart.setOption(this.chartOptions);
-	}
 
-	update() {
-		for (let i in this.data) {
-			console.log(this.data[i]);
-			this.chartOptions.xAxis.data.push(this.data[i][1]);
-			this.chartOptions.series[0].data.push(this.data[i][0]);
-			this.chart.setOption(this.chartOptions);
-		}
-		this.data.splice(0, this.data.length);
-
-	}
-
-}
 
 
 

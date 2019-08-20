@@ -65,7 +65,6 @@ class Hole {
 				}
 			}
 		}
-		console.log("Blocks; ", this.nBlocks);
 	}
 
 
@@ -197,7 +196,6 @@ class Hole {
 		for (let i in probs) {
 			total += probs[i];
 			if (number <= total) {
-				console.log(pieces[i]);
 				shape = pieces[i][0].normal;
 				break;
 			}
@@ -296,9 +294,7 @@ class Hole {
 		let penalty   = this.overfill * this.difficulty;
 
 		let totalScore = baseScore - penalty - timeScore + comboBonus;
-		console.log("Combo: ", combo);
-		console.log("Filled hole in: ", totalTime, " Score: ", totalScore);
-		console.log("Base: ", baseScore, " Penalty: ", penalty, " TimeS: ", timeScore);
+
 		return totalScore;
 	}
 

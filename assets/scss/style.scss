@@ -37,4 +37,16 @@ body {
     }
 }
 
+.stats {
+    display: flex;
+    justify-content: space-around;
+    height: 100vh;
+    div{
+        width: 50%;
+        height: 50%;
+        padding: 4px;
+        box-sizing: border-box;
+    }
+}
+
 
