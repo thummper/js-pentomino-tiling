@@ -1,15 +1,15 @@
 //Global pieces array [Z, '#D88642'], [X, '#208D99'], [I, '#4A3F4F']
 let pieces = [
-	[P, '#71B3B0', 13],
-	[F, '#D55A4C', 13],
-	[Y, '#F5994E', 12],
-	[T, '#961628', 12],
-	[W, '#1D6D53', 11],
-	[N, '#D6BB50', 10],
-	[U, '#21746C', 9],
-	[V, '#2CAD7D', 9],
+	[P, '#71B3B0', 22],
+	[F, '#D55A4C', 14],
+	[Y, '#F5994E', 14],
 	[L, '#8B2134', 8],
-	[Z, '#c23616', 6]
+	[N, '#D6BB50', 8],
+	[T, '#961628', 7],
+	[W, '#1D6D53', 4],
+	[U, '#21746C', 4],
+	[V, '#2CAD7D', 4],
+	[Z, '#c23616', 4]
 ];
 
 
@@ -57,30 +57,41 @@ class Game {
 		this.averageScores = [];
 		this.comboScore = [];
 
-
-		this.graphElms = [
+		console.log("COMBOSCORE: ", this.comboScore);
+		this.graphInfo = [
 			{
-			element: document.getElementById("comboGraph"),
-			title: "Combo Over Time",
-			data: this.comboScore,
-			series: [{
-				data: [],
-				type: 'bar'
-
-			}],
-
-		},
-		{
-			element: document.getElementById("averageScoreGraph"),
-			title: "Average Hole Score",
-			data: this.averageScores,
-			series: [{
-				data: [],
-				type: 'line'
-			}]
-		}
-	
-	];
+				element: document.getElementById("comboGraph"),
+				title  : "Average Score & Combo",
+				yAxis  : [
+					{
+						type: 'value',
+					},
+					{
+						type: 'value',
+						min: 0,
+						max: 100
+					}
+				],
+				xAxis  : [
+					{
+						
+						type: 'category',
+						d: this.comboScore,
+					}
+				],
+				series : [
+					{
+						type: 'bar',
+						d: this.comboScore,
+						yAxisIndex: 1
+					},
+					{
+						type: 'line',
+						d: this.averageScores
+					}
+				]
+			}
+		]
 		this.graphs = [];
 
 
@@ -292,45 +303,21 @@ class Game {
 
 		//Start game 
 
-		for (let i = 0; i < this.graphElms.length; i++) {
-			let graphInfo = this.graphElms[i];
-			console.log("GINFO: ", graphInfo);
-
-			let options = {
+		for (let i = 0; i < this.graphInfo.length; i++) {
+			let baseOptions = {
 				grid: {
 					left: '3%',
 					right: '4%',
 					bottom: '3%',
 					containLabel: true
 				},
-				title: {},
-				xAxis: {
-					type: 'category',
-					data: []
-				},
-				yAxis: {
-					type: 'value'
-	
-				},
-				series: {
-	
-				}
+				title : {},
+				xAxis : [],
+				yAxis : [],
+				series: [],
 			};
-			options.title.text = graphInfo.title;
 			
-			if (graphInfo.xAxis) {
-				options.xAxis.type = graphInfo.xAxis;
-			}
-			if (graphInfo.yAxis) {
-				options.yAxis.type = graphInfo.yAxis;
-			}
-			options.series = graphInfo.series;
-			console.log("data: ", graphInfo.data);
-
-
-			let graph = new Graph(graphInfo.element, options, graphInfo.data);
-			
-			graph.init();
+			let graph = new Graph(baseOptions, this.graphInfo[i]);
 			this.graphs.push(graph);
 		}
 
@@ -347,7 +334,7 @@ class Game {
 				this.holeScores.push(hole.score);
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
-				console.log("Hole Overfill: ", hole.overfill);
+
 				if (hole.overfill == 0) {
 					this.combo++;
 				} else {
@@ -373,18 +360,12 @@ class Game {
 
 
 	average() {
+		// Something is wrong? 
 		let time = this.getTimeStamp();
 		this.comboScore.push([this.combo, time]);
 
-		if(this.comboScore.length >= 20){
-			let diff = this.comboScore.length - 20;
-			this.comboScore.splice(0, diff);
-		}
-
-
 
 		let totalScores = 0;
-
 		if (this.holeScores.length) {
 			let holeScores = this.holeScores;
 
@@ -392,45 +373,22 @@ class Game {
 				totalScores += holeScores[i];
 			}
 			totalScores = totalScores / holeScores.length;
-
-			if (this.holeScores.length > 20) {
-				let diff = holeScores.length - 10;
-				this.holeScores.splice(0, diff);
-			}
-
-
-
-			let time = this.getTimeStamp();
-
+			console.log("AV Score: ", totalScores);
 			this.averageScores.push([
 				totalScores,
 				time
 			]);
-
+		} else {
+			this.averageScores.push([0, time]);
 		}
 
 
 
-		// this.pastScores.push(this.scoreTracker);
-		// this.scoreTracker = 0;
-		// if (this.pastScores.length > 20) {
-		// 	let difference = 20 - this.pastScores.length;
-		// 	this.pastScores.splice(0, difference);
-		// }
-		// let total = 0;
-		// for (let i = 0, j = this.pastScores.length; i < j; i++) {
-		// 	total += this.pastScores[i];
-		// }
-		// let average = total / this.pastScores.length;
-		// let today = new Date();
-		// let time = today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
-		// this.averageScores.push([average, time]);
-
-		// if (this.averageScores.length > 20) {
-		// 	let difference = this.averageScores.length - 20;
-		// 	this.averageScores.splice(0, difference);
-		// }
-		// this.updateGraph();
+		if (this.comboScore.length >= 20) {
+			let diff = this.comboScore.length - 20;
+			this.comboScore.splice(0, diff);
+			this.averageScores.splice(0, diff);
+		}
 	}
 
 
@@ -589,6 +547,18 @@ window.onload = function () {
 	game.setup();
 };
 /* Global Functions */
+function pickShape() {
+	let randomInt = Math.random() * 89;
+	let counter = 0;
+	for(let i = 0; i < pieces.length; i++){
+		let p = pieces[i];
+		let oCounter = counter; 
+		counter += p[2];
+		if(randomInt >= oCounter && randomInt <= counter){
+			return p;
+		}
+	}
+}
 function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }

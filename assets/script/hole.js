@@ -189,18 +189,8 @@ class Hole {
 
 
 	getShape() {
-		let probs = [13, 13, 12, 11, 10, 10, 6, 6, 6];
-		let shape = null;
-		let number = Math.floor(Math.random() * 80);
-		let total = 0;
-		for (let i in probs) {
-			total += probs[i];
-			if (number <= total) {
-				shape = pieces[i][0].normal;
-				break;
-			}
-		}
-		return shape;
+		let shape = pickShape();
+		return shape[0].normal;
 	}
 
 	draw(board) {
@@ -294,7 +284,15 @@ class Hole {
 		let penalty   = this.overfill * this.difficulty;
 
 		let totalScore = baseScore - penalty - timeScore + comboBonus;
-
+		console.log("Hole Filled");
+		console.log("Base Score: ", baseScore);
+		console.log("Combo Bonus: ", comboBonus);
+		console.log("Overfill: ", this.overfill);
+		console.log("Penalty: ", penalty);
+		console.log("Time: ", totalTime);
+		console.log("Time Score: ", timeScore);
+		console.log("Total Score: ", totalScore);
+		console.log("---------------------------");
 		return totalScore;
 	}
 

@@ -10,7 +10,9 @@ class Shape {
 
 		this.orientation = 0;
 		this.dragging = false;
-		this.pattern = this.pickPattern();
+		this.shape = pickShape();
+		this.color = this.shape[1];
+		this.pattern = this.shape[0];
 		this.flipped = 0;
 		this.blocks;
 		this.delete = false;
@@ -53,6 +55,7 @@ class Shape {
 		if(this.flipped){
 			patternBlocks = this.pattern.flipped[this.orientation];
 		} else {
+			console.log("Erroring here? ", this.pattern);
 			patternBlocks = this.pattern.normal[this.orientation];
 		}
 
@@ -85,19 +88,7 @@ class Shape {
 		
 	}
 
-	pickPattern() {
-		let random = Math.random() * 100;
-		let counter = 0;
-		for(let i = 0; i < pieces.length; i++){
-			let piece = pieces[i];
-			counter += piece[2];
-			if(random <= counter){
-				this.color = piece[1];
-				return piece[0];
-			}
-		}
-	
-	}
+
 
 	draw(board, bW, bH) {
 		// Shape needs to be bound inside the grid.  

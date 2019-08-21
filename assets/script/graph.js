@@ -1,32 +1,72 @@
 class Graph{
-    constructor(element, options, data){
-        this.element = element;
-        this.options = options;
-        this.chart = null;
-        this.data = data;
-
+    constructor(baseOptions, graphOptions){
+        this.baseOptions  = baseOptions;
+        this.graphOptions = graphOptions;
+        console.log("OPS: ", graphOptions);
+        this.chart        = null
+        this.init();
     }
 
     init(){
-        this.chart = echarts.init(this.element);
-        this.chart.setOption(this.options);
-      
-    }
-    update(){
-        console.log("Updating: ", this.options);
-        let data = this.data;
-        let labels = [];
-        let series = [];
-        //TODO. Looping through this is bad.
-        for(let i = 0; i < this.data.length; i++){
-            let dataset = data[i];
-            series.push(dataset[0]);
-            labels.push(dataset[1]);
-        }
-        
-        this.options.series[0].data = series;
-        this.options.xAxis.data = labels;
+        let element = this.graphOptions.element;
+        console.log("Element: ", element);
+        let chart   = echarts.init(element);
 
+        let options = this.getOptions();
+        chart.setOption(options);
+
+        this.chart = chart;
+    }
+
+    getFigs(data){
+        let figures = [];
+        for(let i = 0; i < data.length; i++){
+            let d = data[i];
+            figures.push(d[0]);
+        }
+        return figures;
+    }
+
+    getLabels(data){
+        let figures = [];
+        for(let i = 0; i < data.length; i++){
+            let d = data[i];
+            figures.push(d[1]);
+        }
+        return figures;
+    }
+
+    getOptions(){
+        let base       = this.baseOptions;
+        let additional = this.graphOptions;
+        base.title.text = additional.title;
+        base.yAxis      = additional.yAxis;
+        base.xAxis      = additional.xAxis;
+        base.series     = additional.series;
+       
+
+        
+        for(let i = 0; i < additional.xAxis.length; i++){
+            let x = additional.xAxis[i];
+            let data = x.d;
+            // Need to break data down into figures.
+            data = this.getLabels(data);
+            base.xAxis[i].data = data;
+        }
+
+        for(let i = 0; i < additional.series.length; i++){
+            let x = additional.series[i];
+
+            let data = x.d;
+            // Need to break data down into figures.
+            data = this.getFigs(data);
+            base.series[i].data = data;
+        }
+        console.log("Graph Options: ", base);
+        return base;
+    }
+
+    update(){
         this.init();
     }
 
