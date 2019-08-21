@@ -403,6 +403,18 @@ class Game {
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
+		
+		for(let hole of this.holes){
+			if(hole.sTime != null){
+				let now = performance.now();
+				let time = (now - hole.sTime)/1000;
+			
+				this.ctx.fillStyle = "black";
+				this.ctx.fillText(time, hole.x * this.tileSize, hole.y * this.tileSize);
+			}
+		}
+
+
 		if (this.trySpawn) {
 			this.holder.checkSpaces(this.board);
 			let newShapes = this.holder.trySpawn();

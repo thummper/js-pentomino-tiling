@@ -304,8 +304,8 @@ class Hole {
 		this.overfill = 0;
 		this.blocks = [];
 		this.score = null;
-		this.startTime = null;
-		this.endTime = null;
+		this.sTime = null;
+		this.eTime = null;
 
 		this.generateHole();
 	}

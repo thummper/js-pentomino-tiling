@@ -55,7 +55,6 @@ class Shape {
 		if(this.flipped){
 			patternBlocks = this.pattern.flipped[this.orientation];
 		} else {
-			console.log("Erroring here? ", this.pattern);
 			patternBlocks = this.pattern.normal[this.orientation];
 		}
 
