@@ -97,6 +97,48 @@ class Game {
 
 	}
 
+	handleMouse(){
+
+		if(this.leftClick){
+			this.leftClick = false;
+			if (this.dragShape == null) {
+				// If there are 2 shapes in a block, we pick u the bottom and the other is deleted?
+				for (let i = this.shapes.length - 1; i >= 0; i--) {
+					let shape = this.shapes[i];
+					if (!shape.dragging) {
+						let blocks = shape.blocks;
+						for (let block of blocks) {
+							if (block.type == "shape") {
+								if (this.mouseIn(block)) {
+									block.dragging = true;
+									shape.dragging = true;
+									this.dragShape = shape;
+									this.shapes.splice(i, 1);
+									return;
+								}
+							}
+						}
+					}
+				}
+			} else {
+				// Dragging something.
+				let shape = this.dragShape;
+				shape.checkBounds(this.boardWidth, this.boardHeight);
+				shape.checkPlace(this.board, this.holder);
+
+				if(shape.canPlace){
+					this.shapes.push(shape);
+					this.dragShape = null;
+
+				}
+
+			}
+		}
+
+
+
+	}
+
 
 	addListeners() {
 		window.addEventListener("resize", function () {
@@ -118,33 +160,7 @@ class Game {
 		window.addEventListener("mousedown", function (event) {
 			//Left click
 			if (event.button == 0) {
-				if (this.dragShape == null) {
-					// If there are 2 shapes in a block, we pick u the bottom and the other is deleted?
-					for (let i = this.shapes.length - 1; i >= 0; i--) {
-						let shape = this.shapes[i];
-						if (!shape.dragging) {
-							let blocks = shape.blocks;
-							for (let block of blocks) {
-								if (block.type == "shape") {
-									if (this.mouseIn(block)) {
-										block.dragging = true;
-										shape.dragging = true;
-										this.dragShape = shape;
-										this.shapes.splice(i, 1);
-										return;
-
-									}
-								}
-							}
-						}
-					}
-				} else {
-					// Dragging something.
-					let shape = this.dragShape;
-					shape.checkBounds(this.boardWidth, this.boardHeight);
-					this.shapes.push(shape);
-					this.dragShape = null;
-				}
+				this.leftClick = true;
 			} else {
 				//Right button
 				if (this.dragShape != null) {
@@ -425,10 +441,16 @@ class Game {
 
 		if (this.dragShape) {
 			this.dragShape.drag(this.mx, this.my, this.ctx);
+			this.dragShape.checkBounds(this.boardWidth, this.boardHeight);
+			this.dragShape.checkPlace(this.board, this.holder);
 		}
 
 
 		this.holder.drawSpaces();
+
+
+		// We need to handle mouse events in the loop, some click events depend on the state of the game board that may or may not be populated when the event fires
+		this.handleMouse();
 
 
 		this.frames++;
@@ -553,7 +575,6 @@ class Game {
 
 /* Start Game Onload */
 window.onload = function () {
-
 	console.log("Window Load");
 	let game = new Game();
 	game.setup();

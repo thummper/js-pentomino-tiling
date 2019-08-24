@@ -2,14 +2,14 @@ class Graph{
     constructor(baseOptions, graphOptions){
         this.baseOptions  = baseOptions;
         this.graphOptions = graphOptions;
-        console.log("OPS: ", graphOptions);
+       
         this.chart        = null
         this.init();
     }
 
     init(){
         let element = this.graphOptions.element;
-        console.log("Element: ", element);
+        
         let chart   = echarts.init(element);
 
         let options = this.getOptions();
@@ -62,7 +62,7 @@ class Graph{
             data = this.getFigs(data);
             base.series[i].data = data;
         }
-        console.log("Graph Options: ", base);
+     
         return base;
     }
 

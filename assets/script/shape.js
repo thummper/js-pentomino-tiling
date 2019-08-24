@@ -12,12 +12,48 @@ class Shape {
 		this.dragging = false;
 		this.shape = pickShape();
 		this.color = this.shape[1];
+		this.hoverColor = this.color;
 		this.pattern = this.shape[0];
 		this.flipped = 0;
 		this.blocks;
 		this.delete = false;
+
+		this.canPlace = true;
 		
 		this.makeBlocks();
+	}
+
+	checkPlace(board, holder){
+		console.log("Checking place");
+		// In order to place a shape, at least one block belonging to it has to be in a hole cell or a holder cell.
+		let holeCounter = 0;
+		let holderCounter = 0;
+
+
+		for(let i = 0; i < this.blocks.length; i++){
+			let block = this.blocks[i];
+			let row = block.x / this.tileSize;
+			let col = block.y / this.tileSize;
+			let cell = board[col][row];
+			if(cell.contains.length && cell.contains[0].type == "hole"){
+				holeCounter++;
+			}
+	
+		}
+		console.log("HoleCounter: ", holeCounter, " HolderCounter: ", holderCounter);
+
+
+		if(holeCounter == 0 && holderCounter == 0){
+			this.color = "red";
+			this.canPlace = false;
+		} else {
+			this.color = this.shape[1];
+			this.canPlace = true;
+		}
+
+	
+
+
 	}
 
 	checkBounds(boardWidth, boardHeight) {
