@@ -210,7 +210,18 @@ class Shape {
 	}
 
 	scroll(dir) {
-		this.orientation = (this.orientation += 1) % this.pattern.normal.length;
+	
+		let pattern = this.pattern.normal;
+		console.log(pattern);
+		if(dir){
+			if(this.orientation == 0){
+				this.orientation = pattern.length;
+			}
+			this.orientation = (this.orientation -= 1) % pattern.length;
+		} else {
+			this.orientation = (this.orientation += 1) % pattern.length;
+		}
+		console.log(this.orientation);
 		this.makeBlocks();
 		this.getSize();
 	}

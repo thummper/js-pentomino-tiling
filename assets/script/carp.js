@@ -17,8 +17,8 @@ let pieces = [
 class Game {
 	constructor() {
 		//Game Variables
-		this.tileSize = 24;
-		this.holeSize = 11;
+		this.tileSize = 23;
+		this.holeSize = 13;
 		this.shapes = [];
 		this.holes = [];
 		this.dragShape = null;
@@ -52,9 +52,6 @@ class Game {
 		this.holesFilled = 0;
 		this.maxHoles = 4;
 		this.maxHolders = 4;
-
-
-
 
 		//Score stuff
 		this.ticker = 0;
@@ -222,7 +219,7 @@ class Game {
 	scroll(direction) {
 		//Will scroll based on boolean value
 		if (this.dragShape != null) {
-			this.dragShape.scroll();
+			this.dragShape.scroll(direction);
 		}
 	}
 
@@ -250,7 +247,6 @@ class Game {
 
 	makeBoard() {
 		this.board = [];
-
 		for (let row = 0; row < this.boardHeight; row++) {
 			this.board[row] = [];
 			for (let col = 0; col < this.boardWidth; col++) {
@@ -261,7 +257,6 @@ class Game {
 				};
 			}
 		}
-
 	}
 
 
@@ -270,6 +265,9 @@ class Game {
 		this.holder = null;
 		let boardWidth = this.boardWidth;
 		let nHoles = Math.floor(boardWidth / 7);
+		if(nHoles > this.maxHolders){
+			nHoles = this.maxHolders;
+		}
 		// Hole is 5 blocks + 2 blocks padding on left side.
 
 
@@ -297,18 +295,34 @@ class Game {
 		let nRow = Math.floor((maxY - minY) / (this.holeSize + 1));
 		let nCols = Math.floor((maxX - minX) / (this.holeSize + 1));
 
+		console.log("NROWS: ", nRow, " NCOLS: ", nCols);
+
 
 
 		// Now make holes
 		let x = minX;
 		let y = minY;
-		for (let i = 0; i < nRow; i++) {
-			for (let j = 0; j < nCols; j++) {
-				let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
+		let maxHoles = this.maxHoles;
 
-				hole.generateHole();
-				this.holes.push(hole);
-				x += this.holeSize + 1;
+		//TODO: Evenly distribute n holes across n cols / rows.
+
+		let holesPerRow = maxHoles / nRow;
+		// This many holes per row
+		console.log("HPR: ", holesPerRow);
+
+
+		for (let i = 0; i < nRow; i++) {
+			let hpr = holesPerRow;
+			for (let j = 0; j < nCols; j++) {
+
+				if(maxHoles > 0 && hpr > 0){
+					maxHoles--;
+					hpr--;
+					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
+					hole.generateHole();
+					this.holes.push(hole);
+					x += this.holeSize + 1;
+				}
 			}
 			y += this.holeSize + 3;
 			x = minX;
@@ -446,6 +460,7 @@ class Game {
 			drawRect(this.ctx, shape.x * this.tileSize, shape.y * this.tileSize, shape.width * this.tileSize, shape.height * this.tileSize);
 		
 		}
+		drawArc(this.ctx, this.mx, this.my, 10);
 
 
 
@@ -525,14 +540,6 @@ class Game {
 					//Nothing in the cell. 
 					this.drawRect(cell.x, cell.y, this.tileSize, 'white', 'rgba(0, 0, 0, 0.2)');
 				}
-
-
-
-				if (this.mouseIn(cell)) {
-
-					this.drawRect(cell.x, cell.y, this.tileSize, 'orange', 'rgba(0, 0, 0, 0.2)');
-				}
-
 			}
 		}
 	}
@@ -631,6 +638,14 @@ function drawRect(ctx, x, y, w, h){
 	ctx.rect(x, y, w, h);
 	ctx.strokeStyle = "black";
 	ctx.stroke();
+	ctx.closePath();
+}
+
+function drawArc(ctx, x, y, d){
+	ctx.beginPath();
+	ctx.arc(x, y, d, 0, 2 * Math.PI);
+	ctx.fillStyle = "orange";
+	ctx.fill();
 	ctx.closePath();
 }
 
