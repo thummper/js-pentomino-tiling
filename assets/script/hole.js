@@ -13,9 +13,30 @@ class Hole {
 		this.sTime = null;
 		this.eTime = null;
 		this.blocks = [];
+
+		this.shapes = []; 
+		// We need to store the shapes that have been added to this hole and the order they were added.
+
+
 		this.nShapes = 0;
 		this.nBlocks = 0;
 		this.filled = 0;
+	}
+
+	checkBounds(shape){
+		if((shape.x >= this.x && shape.x < this.x + this.holeSize) && (shape.y >= this.y && shape.y < this.y + this.holeSize)){
+			return this;
+		} else {
+			return false;
+		}
+	}
+
+	placed(shape){
+		if(shape == null){
+			// Increment Decay
+		} else {
+			
+		}
 	}
 
 	makeGrid() {
@@ -205,7 +226,8 @@ class Hole {
 						solid: true,
 						color: "rgba(54, 69, 79, 0.8)",
 						border: "black",
-						type: "hole"
+						type: "hole",
+						hole: this // Not sure if this is turbo bad or not
 					};
 					cell.contains.push(hole);
 				}

@@ -29,6 +29,7 @@ class Game {
 		this.boardHeight = 0;
 		this.board = [];
 		this.holder;
+
 		//Other Variables
 		this.framesTime;
 		this.FPS = 0;
@@ -45,19 +46,28 @@ class Game {
 		this.yPadding;
 		this.spawnShapes = false;
 
+		//Hole & Levels
+		this.level = 0;
+		this.holeLevel = 10;
+		this.holesFilled = 0;
+		this.maxHoles = 4;
+		this.maxHolders = 4;
+
+
+
+
 		//Score stuff
 		this.ticker = 0;
 		this.combo = 0;
 		this.totalScore = 0;
 		this.scoreTracker = 0;
 		this.pastScores = [];
-		//Average 
 
+		//Average 
 		this.holeScores = [];
 		this.averageScores = [];
 		this.comboScore = [];
 
-		console.log("COMBOSCORE: ", this.comboScore);
 		this.graphInfo = [
 			{
 				element: document.getElementById("comboGraph"),
@@ -94,7 +104,34 @@ class Game {
 		]
 		this.graphs = [];
 
+	}
 
+
+	getHoverShape(){
+		let shapes = this.shapes; 
+		for(let i = 0; i < shapes.length; i++){
+			// Mouse In takes a cell, make a temp one.
+			let shape  = shapes[i];
+			let x = shape.x * this.tileSize;
+			let y = shape.y * this.tileSize;
+			let width  = shape.width * this.tileSize;
+			let height = shape.height * this.tileSize;
+			if(this.mouseInGeneral(x, y, width, height)){
+				console.log("Mouse in: ", shape);
+				// Mouse is in general area of shape.
+				let blocks = shape.blocks;
+				for(let j = 0; j < blocks.length; j++){
+					let block = blocks[j];
+					if(this.mouseIn(block)){
+						block.dragging = true;
+						shape.dragging = true;
+						this.dragShape = shape;
+						this.shapes.splice(i, 1);
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	handleMouse(){
@@ -102,40 +139,30 @@ class Game {
 		if(this.leftClick){
 			this.leftClick = false;
 			if (this.dragShape == null) {
-				// If there are 2 shapes in a block, we pick u the bottom and the other is deleted?
-				for (let i = this.shapes.length - 1; i >= 0; i--) {
-					let shape = this.shapes[i];
-					if (!shape.dragging) {
-						let blocks = shape.blocks;
-						for (let block of blocks) {
-							if (block.type == "shape") {
-								if (this.mouseIn(block)) {
-									block.dragging = true;
-									shape.dragging = true;
-									this.dragShape = shape;
-									this.shapes.splice(i, 1);
-									return;
-								}
-							}
-						}
-					}
-				}
+				// Find the shape we are hovering and pick it up.
+				this.getHoverShape();
 			} else {
 				// Dragging something.
 				let shape = this.dragShape;
 				shape.checkBounds(this.boardWidth, this.boardHeight);
 				shape.checkPlace(this.board, this.holder);
-
 				if(shape.canPlace){
+					// We ARE placing a shape here, so either a hole gets the shape, or it doesnt and should increment it's decay counters
+					for(let i = 0; i < this.holes.length; i++){
+						let hole = this.holes[i];
+						if(hole.checkBounds(shape)){
+							hole.placed(shape);
+						} else {
+							hole.placed(null);
+						}
+						
+					}
 					this.shapes.push(shape);
 					this.dragShape = null;
-
 				}
 
 			}
 		}
-
-
 
 	}
 
@@ -190,10 +217,6 @@ class Game {
 			}
 			this.scroll(direction);
 		}.bind(this));
-
-
-
-
 	}
 
 	scroll(direction) {
@@ -205,8 +228,7 @@ class Game {
 
 
 	resizeCanvas() {
-		// cancelAnimationFrame(this.looping);
-		// this.looping = null;
+		// Remake everything canvas related.
 		console.log("Resizing Canvas");
 		this.shapes = [];
 		this.canvas.width = this.canvas.offsetWidth;
@@ -218,22 +240,12 @@ class Game {
 		this.boardWidth = wCells;
 		this.boardHeight = hCells;
 
-
-		// if(wCells < hCells){
-		// 	this.boardSize = wCells;
-		// } else {
-		// 	this.boardSize = hCells;
-		// }
-
-		// if (this.holder) {
-		// 	this.holder.empty(this.board);
-		// }
 		this.holder = null;
 
 		this.makeBoard();
 		this.makeHolder();
 		this.makeShapeHoles();
-		// this.loop();
+
 	}
 
 	makeBoard() {
@@ -430,6 +442,13 @@ class Game {
 			}
 		}
 
+		for(let shape of this.shapes){
+			drawRect(this.ctx, shape.x * this.tileSize, shape.y * this.tileSize, shape.width * this.tileSize, shape.height * this.tileSize);
+		
+		}
+
+
+
 
 		if (this.trySpawn) {
 			this.holder.checkSpaces(this.board);
@@ -518,6 +537,13 @@ class Game {
 		}
 	}
 
+	//TODO: Make these functions not bad.
+	mouseInGeneral(x, y, width, height){
+		//Should be given in pixels.
+		return(this.mx > x && this.mx < x + width && this.my > y && this.my < y + height);
+	}
+
+
 	mouseIn(cell) {
 		return (this.mx > cell.x && this.mx < cell.x + this.tileSize && this.my > cell.y && this.my < cell.y + this.tileSize);
 	}
@@ -598,6 +624,14 @@ function random(min, max) {
 
 function randomColor() {
 	return 'hsla(' + (Math.random() * 360) + ', 100%, 50%, 1)';
+}
+
+function drawRect(ctx, x, y, w, h){
+	ctx.beginPath();
+	ctx.rect(x, y, w, h);
+	ctx.strokeStyle = "black";
+	ctx.stroke();
+	ctx.closePath();
 }
 
 function drawCell(ctx, x, y, size, color = null, border = null) {

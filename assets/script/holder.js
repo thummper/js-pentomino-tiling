@@ -90,8 +90,8 @@ class Holder {
 				let shape = new Shape(space.x, space.y, this.tileSize, this.canvas);
 				space.piece = shape;
 				// Work out where to place
-				let shapeW = shape.getWidth();
-				let shapeH = shape.getHeight();
+				let shapeW = shape.width;
+				let shapeH = shape.height;
 				let wPadding = Math.floor((this.width  - shapeW) / 2);
 				let hPadding = Math.floor((this.height - shapeH) / 2);
 				shape.x += wPadding;

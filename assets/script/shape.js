@@ -8,42 +8,49 @@ class Shape {
 		this.x = x;
 		this.y = y;
 
+
 		this.orientation = 0;
 		this.dragging = false;
-		this.shape = pickShape();
-		this.color = this.shape[1];
-		this.hoverColor = this.color;
-		this.pattern = this.shape[0];
-		this.flipped = 0;
-		this.blocks;
 		this.delete = false;
-
 		this.canPlace = true;
-		
+		this.flipped = 0;
+		this.width = 0;
+		this.height = 0;
+		this.blocks = [];
+		this.getShape();
 		this.makeBlocks();
+		this.getSize();
+
 	}
 
-	checkPlace(board, holder){
+	getShape(){
+		this.shape = pickShape();
+		this.pattern = this.shape[0];
+		this.color = this.shape[1];
+		this.hoverColor = this.color;
+
+	}
+
+	checkPlace(board, holder) {
 		console.log("Checking place");
 		// In order to place a shape, at least one block belonging to it has to be in a hole cell or a holder cell.
 		let holeCounter = 0;
 		let holderCounter = 0;
 
+		// Given that we can only place a shape in one hole at a time.
 
-		for(let i = 0; i < this.blocks.length; i++){
+		for (let i = 0; i < this.blocks.length; i++) {
 			let block = this.blocks[i];
 			let row = block.x / this.tileSize;
 			let col = block.y / this.tileSize;
 			let cell = board[col][row];
-			if(cell.contains.length && cell.contains[0].type == "hole"){
+			if (cell.contains.length && cell.contains[0].type == "hole") {
 				holeCounter++;
 			}
-	
 		}
-		console.log("HoleCounter: ", holeCounter, " HolderCounter: ", holderCounter);
 
 
-		if(holeCounter == 0 && holderCounter == 0){
+		if (holeCounter == 0 && holderCounter == 0) {
 			this.color = "red";
 			this.canPlace = false;
 		} else {
@@ -51,50 +58,43 @@ class Shape {
 			this.canPlace = true;
 		}
 
-	
-
 
 	}
 
 	checkBounds(boardWidth, boardHeight) {
-		// Bound the shape to the game grid.
+		// Bind the shape within the game grid.
 		this.dragging = false;
 
-		let shapeWidth  =  this.getWidth();
-		let shapeHeight = this.getHeight(); 
+		let shapeWidth = this.width;
+		let shapeHeight = this.height;
 
-
-		if(this.x < 0){
+		if (this.x < 0) {
 			this.x = 0;
 		}
-		if(this.x + shapeWidth >= boardWidth){
-			console.log("Shape over x");
+		if (this.x + shapeWidth >= boardWidth) {
 			this.x = boardWidth - shapeWidth - 1;
 		}
-		if(this.y < 0){
+		if (this.y < 0) {
 			this.y = 0;
 		}
-		if(this.y + shapeHeight >= boardHeight){
+		if (this.y + shapeHeight >= boardHeight) {
 			this.y = boardHeight - shapeHeight - 1;
 		}
 		this.makeBlocks();
-
 	}
 
 
 	makeBlocks() {
 		this.blocks = [];
 		//Blocks for new patterns
-	
-
 		let patternBlocks;
-		if(this.flipped){
+		if (this.flipped) {
 			patternBlocks = this.pattern.flipped[this.orientation];
 		} else {
 			patternBlocks = this.pattern.normal[this.orientation];
 		}
 
-	
+
 		for (let i = 0, j = patternBlocks.length; i < j; i++) {
 			let block = patternBlocks[i];
 			let row = block[0];
@@ -106,7 +106,7 @@ class Shape {
 				col: col,
 				dragging: false,
 				color: this.color,
-				shape: this,
+				shape: this, // Not sure if this is ok.
 				type: 'shape'
 			}
 			this.blocks.push(blk);
@@ -115,23 +115,23 @@ class Shape {
 	}
 
 	mirror() {
-		if(this.flipped){
+		if (this.flipped) {
 			this.flipped = 0;
 		} else {
 			this.flipped = 1;
 		}
-		
+
 	}
 
 
 
 	draw(board, bW, bH) {
 		// Shape needs to be bound inside the grid.  
-		
+
 		for (let row = 0, r = bH; row < r; row++) {
 			for (let col = 0, c = bW; col < c; col++) {
 
-			
+
 				if (col == this.x && row == this.y) {
 					//Draw shape on to grid, starting here.
 					for (let i = 0, j = this.blocks.length; i < j; i++) {
@@ -146,34 +146,41 @@ class Shape {
 	}
 
 
-	//Returns width of shape in blocks.
-	getWidth() {
-		let max = 0;
-		for (let i = 0, j = this.blocks.length; i < j; i++) {
-			let col = this.blocks[i].col;
-			if (col >= max) {
-				max = col;
-			}
+	getPattern(){
+		let patternBlocks;
+		if (this.flipped) {
+			patternBlocks = this.pattern.flipped[this.orientation];
+		} else {
+			patternBlocks = this.pattern.normal[this.orientation];
 		}
-		return max;
+		return patternBlocks;
 	}
 
-	//Returns height of shape in blocks
-	getHeight() {
-		let max = 0;
-		for (let i = 0, j = this.blocks.length; i < j; i++) {
-			let row = this.blocks[i].row;
-			if (row >= max) {
-				max = row;
+	//Returns width of shape in blocks.
+	getSize() {
+		let pattern = this.getPattern();
+		let highestRow = 0;
+		let highestCol = 0;
+		for(let block of pattern){
+			let row = block[0] + 1;
+			let col = block[1] + 1;
+
+			if(row >= highestRow){
+				highestRow = row;
 			}
+			if(col >= highestCol){
+				highestCol = col;
+			}
+
 		}
-		return max;
+		this.width = highestCol;
+		this.height = highestRow;
 	}
+
+
 
 	drag(mx, my, ctx) {
 		// Drag the shape to nearest gridpoint and draw.
-
-
 		//Get nearest gridpoint to the mouse
 		let tileSize = this.tileSize;
 		this.gridx = Math.floor(mx / tileSize);
@@ -186,26 +193,26 @@ class Shape {
 
 	drawOnMouse(ctx) {
 		//Draw the middle of the shape on the mouse. 
-		let width = this.getWidth() + 1;
-		let height = this.getHeight() + 1;
+		let width = this.width;
+		let height = this.height;
 		//Middle of shape has to be 
-		let mCol = Math.floor(width / 2) ;
+		let mCol = Math.floor(width / 2);
 		let mRow = Math.floor(height / 2);
 		this.x = this.gridx - mCol;
 		this.y = this.gridy - mRow;
 		// tx/ty is the position the shape has to be in for the dragged block to be in midx/midy.
 		this.makeBlocks();
-		for(let i = 0; i < this.blocks.length; i++){
+		for (let i = 0; i < this.blocks.length; i++) {
 			let blk = this.blocks[i];
 			drawCell(ctx, blk.x, blk.y, this.tileSize, blk.color);
-			
+
 		}
 	}
 
 	scroll(dir) {
-		
 		this.orientation = (this.orientation += 1) % this.pattern.normal.length;
 		this.makeBlocks();
+		this.getSize();
 	}
 
 
