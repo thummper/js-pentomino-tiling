@@ -279,34 +279,28 @@ class Game {
 	}
 
 	makeShapeHoles() {
-		/* 
-		Make the holes that should be filled with shapes.
-		*/
-
-		// Seems like this would be easier to do in terms of cells rather than abs x/y
 
 		this.holes = [];
 
 		let minX = 1;
 		let maxX = this.boardWidth - 1;
 		let minY = 1;
-		let maxY = this.boardHeight - 6; // By using this var, the board size will always have to be square.
+		let maxY = this.boardHeight - 6;
 
 		let nRow = Math.floor((maxY - minY) / (this.holeSize + 1));
 		let nCols = Math.floor((maxX - minX) / (this.holeSize + 1));
 
-		console.log("NROWS: ", nRow, " NCOLS: ", nCols);
+		// AHH 
 
 
 
-		// Now make holes
-		let x = minX;
-		let y = minY;
+
 		let maxHoles = this.maxHoles;
-
-		//TODO: Evenly distribute n holes across n cols / rows.
-
 		let holesPerRow = maxHoles / nRow;
+		let xPadding = Math.floor((this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
+		console.log("XPadding: ", xPadding);
+		let x = Math.floor(minX + xPadding);
+		let y = minY;
 		// This many holes per row
 		console.log("HPR: ", holesPerRow);
 
@@ -325,7 +319,7 @@ class Game {
 				}
 			}
 			y += this.holeSize + 3;
-			x = minX;
+			x = minX + xPadding;
 		}
 	}
 
