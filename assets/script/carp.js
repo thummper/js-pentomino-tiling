@@ -59,6 +59,7 @@ class Game {
 		this.totalScore = 0;
 		this.scoreTracker = 0;
 		this.pastScores = [];
+		this.floatingText = []; //Holds any floating text on the screen.
 
 		//Average 
 		this.holeScores = [];
@@ -361,20 +362,37 @@ class Game {
 
 	}
 
+	makeFloating(content, x, y){
+		console.log("Making floating, ", content, " ", x, " ", y);
+		let ft = new FloatingText(content, x, y);
+		this.floatingText.push(ft);
+	}
+
 	checkHoles() {
 		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
 			// TODO: checkstate is broken
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
+				// Hole is filled. 
+
 				this.holeScores.push(hole.score);
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
 
-				if (hole.overfill == 0) {
-					this.combo++;
+				if(hole.overfill == 0){
+					this.makeFloating("Masterpiece", hole.x * this.tileSize, hole.y * this.tileSize);
+
 				} else {
 					this.combo = 0;
+					console.log("OVERFILL: ", hole.overfill);
+					if(hole.overfill < 4){
+						this.makeFloating("Craftsmanship", hole.x * this.tileSize, hole.y * this.tileSize);
+					} else if(hole.overfill < 8){
+						this.makeFloating("Fine Work", hole.x * this.tileSize, hole.y * this.tileSize);
+					} else if(hole.overfill < 16){
+						this.makeFloating("Poor Work", hole.x * this.tileSize, hole.y * this.tileSize);
+					}
 				}
 				hole.regenerate(this.board);
 			}
@@ -427,6 +445,20 @@ class Game {
 		}
 	}
 
+	drawFloating(){
+		let nft = [];
+		for(let i = 0; i < this.floatingText.length; i++){
+			let ft = this.floatingText[i];
+			ft.draw(this.ctx);
+			ft.update();
+			if(ft.opacity > 0){
+				nft.push(ft);
+			}
+		}
+		this.floatingText = nft;
+	
+	}
+
 
 
 
@@ -439,6 +471,7 @@ class Game {
 		this.checkHoles();
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
+		this.drawFloating();
 		
 		for(let hole of this.holes){
 			if(hole.sTime != null){
