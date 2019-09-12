@@ -21,6 +21,10 @@ class Hole {
 		this.nShapes = 0;
 		this.nBlocks = 0;
 		this.filled = 0;
+
+		this.baseDelay = 15;
+		this.delay = 15;
+
 	}
 
 	checkBounds(shape){
@@ -35,9 +39,36 @@ class Hole {
 		// TODO: Delay
 		if(shape == null){
 			// Increment Decay
+			this.delay--;
 		} else {
+			this.delay = this.baseDelay;
 			
 		}
+		if(this.delay <= 3){
+			// Trigger warning to player. 
+		
+
+		}
+		if(this.delay <= 0){
+			// Either ruin the hole or remove the last shape from the hole. 
+			if(this.shape.length == 0){
+				this.ruinHole();
+			} else {
+				this.removeLast();
+			}
+		}
+
+
+	}
+
+	ruinHole(){
+		// Add an extra hole block to the shape somewhere. 
+
+	}
+
+	removeLast(){
+		// Flag last shape added for deletion.
+		this.shapes[this.shapes.length - 1].delete = true;
 	}
 
 	makeGrid() {
@@ -233,6 +264,7 @@ class Hole {
 	}
 
 	checkState(board, combo) {
+		//TODO, this is somehow broken
 		let filled = 0;
 		let overfill = 0;
 		let overflow = 0;

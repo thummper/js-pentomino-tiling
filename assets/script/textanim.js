@@ -2,8 +2,8 @@ class FloatingText{
     constructor(content, x, y){
         this.x = x;
         this.y = y;
-        this.dx = random(0.1, 0.3);
-        this.dy = random(0.1, 0.4);
+        this.dx = random(0.2, 0.3, 1);
+        this.dy = random(0.2, 0.4, 1);
         this.lifeTime = 200; //Frame lifetime.
         this.opacity = 1.0;
         this.content = content;

@@ -285,7 +285,7 @@ class Game {
 
 		let minX = 0;
 		let maxX = this.boardWidth - 1; // (Board width is length of array so minus 1)
-		let minY = 0;
+		let minY = 1;
 		let maxY = this.boardHeight - 6;
 
 		let nRow  = Math.floor((maxY - minY) / (this.holeSize));
@@ -302,13 +302,8 @@ class Game {
 			holesPerRow = nCols / nRow;
 		}
 		
-
-
 		let xPadding = Math.floor(( this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
 		let maxHoles = this.maxHoles;
-
-
-
 
 		let x = Math.floor(minX + xPadding);
 		let y = minY;
@@ -332,19 +327,12 @@ class Game {
 	}
 
 
-
-
-
 	setup() {
 		//Setup Canvas
 		this.canvas = document.getElementById('carpCanvas');
 		this.ctx = this.canvas.getContext('2d');
 		this.addListeners();
 		this.resizeCanvas();
-
-		//Add event listeners
-
-
 		//Start game 
 
 		for (let i = 0; i < this.graphInfo.length; i++) {
@@ -370,7 +358,6 @@ class Game {
 	}
 
 	makeFloating(content, x, y){
-		console.log("Making floating, ", content, " ", x, " ", y);
 		let ft = new FloatingText(content, x, y);
 		this.floatingText.push(ft);
 	}
@@ -378,7 +365,6 @@ class Game {
 	checkHoles() {
 		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
-			// TODO: checkstate is broken
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
 				// Hole is filled. 
@@ -387,18 +373,23 @@ class Game {
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
 
+
+				let middlex = hole.x * this.tileSize + ((hole.holeSize * this.tileSize) / 2);
+				let middley = hole.y * this.tileSize + ((hole.holeSize * this.tileSize) / 2);
+
+
 				if(hole.overfill == 0){
-					this.makeFloating("Masterpiece", hole.x * this.tileSize, hole.y * this.tileSize);
+					this.makeFloating("Masterpiece", middlex, hole.y * this.tileSize);
+					this.combo++;
 
 				} else {
 					this.combo = 0;
-					console.log("OVERFILL: ", hole.overfill);
 					if(hole.overfill < 4){
-						this.makeFloating("Craftsmanship", hole.x * this.tileSize, hole.y * this.tileSize);
+						this.makeFloating("Craftsmanship", middlex, middley);
 					} else if(hole.overfill < 8){
-						this.makeFloating("Fine Work", hole.x * this.tileSize, hole.y * this.tileSize);
+						this.makeFloating("Fine Work", middlex, middley);
 					} else if(hole.overfill < 16){
-						this.makeFloating("Poor Work", hole.x * this.tileSize, hole.y * this.tileSize);
+						this.makeFloating("Poor Work", middlex, middley);
 					}
 				}
 				hole.regenerate(this.board);
@@ -466,6 +457,21 @@ class Game {
 	
 	}
 
+	drawDebug(){
+		for(let hole of this.holes){
+			if(hole.sTime != null){
+				let now = performance.now();
+				let time = (now - hole.sTime)/1000;
+				this.ctx.font = "16px Arial";
+				this.ctx.fillStyle = "black";
+				this.ctx.fillText(time, hole.x * this.tileSize, hole.y * this.tileSize);
+			}
+		}
+		for(let shape of this.shapes){
+			drawRect(this.ctx, shape.x * this.tileSize, shape.y * this.tileSize, shape.width * this.tileSize, shape.height * this.tileSize);
+		}
+	}
+
 
 
 
@@ -479,21 +485,7 @@ class Game {
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
 		this.drawFloating();
-		
-		for(let hole of this.holes){
-			if(hole.sTime != null){
-				let now = performance.now();
-				let time = (now - hole.sTime)/1000;
-			
-				this.ctx.fillStyle = "black";
-				this.ctx.fillText(time, hole.x * this.tileSize, hole.y * this.tileSize);
-			}
-		}
-
-		for(let shape of this.shapes){
-			drawRect(this.ctx, shape.x * this.tileSize, shape.y * this.tileSize, shape.width * this.tileSize, shape.height * this.tileSize);
-		
-		}
+		this.drawDebug();
 		drawArc(this.ctx, this.mx, this.my, 10);
 
 
@@ -512,11 +504,7 @@ class Game {
 			this.dragShape.checkBounds(this.boardWidth, this.boardHeight);
 			this.dragShape.checkPlace(this.board, this.holder);
 		}
-
-
 		this.holder.drawSpaces();
-
-
 		// We need to handle mouse events in the loop, some click events depend on the state of the game board that may or may not be populated when the event fires
 		this.handleMouse();
 
@@ -659,8 +647,16 @@ function pickShape() {
 		}
 	}
 }
-function random(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
+function random(min, max, signed = null) {
+	let rand = Math.floor( Math.random() * (max - min + 1) + min);
+
+	if(signed){
+		let srand = Math.random() * 10;
+		if(srand > 5.2){
+			rand *= -1;
+		}
+	}
+	return rand;
 }
 
 function randomColor() {
