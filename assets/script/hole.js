@@ -32,6 +32,7 @@ class Hole {
 	}
 
 	placed(shape){
+		// TODO: Delay
 		if(shape == null){
 			// Increment Decay
 		} else {
@@ -75,7 +76,7 @@ class Hole {
 						let shapePattern = shapePatterns[o];
 
 						let height = this.getHeight(shapePattern);
-						let width = this.getWidth(shapePattern);
+						let width  = this.getWidth(shapePattern )
 						let row = Math.floor(place[0] - height / 2);
 						let col = Math.floor(place[1] - width / 2);
 						placed = this.placeShape(shapePattern, this.grid, row, col);
@@ -128,8 +129,6 @@ class Hole {
 				if(grid[row+blockRow][col+blockCol] == 1){
 					console.log("Why are you placing here?");
 				}
-
-
 				grid[row + blockRow][col + blockCol] = 1;
 				this.nBlocks++;
 			}
@@ -137,10 +136,8 @@ class Hole {
 		return true;
 	}
 
-
-	//Returns true if index, false else
-
 	testPlace(grid, row, col) {
+		// Checks indexes are ok
 		if (row < 0 || col < 0) {
 			return false;
 		}
@@ -245,13 +242,11 @@ class Hole {
 
 		for (let i = this.y; i < this.y + this.holeSize; i++) {
 			for (let j = this.x; j < this.x + this.holeSize; j++) {
-
 				let fill = 0;
-				let off   = 0;
+				let off  = 0;
 				let ovf  = 0;
-
-
 				let cell = board[i][j];
+				// Cell is undefined error here, looks like y / x + hole size is somehow overflowing the board 
 				let contents = cell.contains;
 				if(contents.length && contents[0].type == "hole"){
 					for(let c = 1; c < contents.length; c++){

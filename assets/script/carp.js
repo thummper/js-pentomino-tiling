@@ -229,13 +229,13 @@ class Game {
 		// Remake everything canvas related.
 		console.log("Resizing Canvas");
 		this.shapes = [];
-		this.canvas.width = this.canvas.offsetWidth;
+		this.canvas.width  = this.canvas.offsetWidth;
 		this.canvas.height = this.canvas.offsetHeight;
 
-		let wCells = Math.floor(this.canvas.width / this.tileSize);
+		let wCells = Math.floor(this.canvas.width  / this.tileSize);
 		let hCells = Math.floor(this.canvas.height / this.tileSize);
 
-		this.boardWidth = wCells;
+		this.boardWidth  = wCells;
 		this.boardHeight = hCells;
 
 		this.holder = null;
@@ -283,29 +283,36 @@ class Game {
 
 		this.holes = [];
 
-		let minX = 1;
-		let maxX = this.boardWidth - 1;
-		let minY = 1;
+		let minX = 0;
+		let maxX = this.boardWidth - 1; // (Board width is length of array so minus 1)
+		let minY = 0;
 		let maxY = this.boardHeight - 6;
 
-		let nRow = Math.floor((maxY - minY) / (this.holeSize + 1));
-		let nCols = Math.floor((maxX - minX) / (this.holeSize + 1));
-
+		let nRow  = Math.floor((maxY - minY) / (this.holeSize));
+		let nCols = Math.floor((maxX - minX) / (this.holeSize));
 		// AHH 
 
 
+		if(nCols > this.maxHoles){
+			nCols = this.maxHoles;
+		}
+	
+		let holesPerRow = nCols;
+		if(nCols > nRow){
+			holesPerRow = nCols / nRow;
+		}
+		
 
 
+		let xPadding = Math.floor(( this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
 		let maxHoles = this.maxHoles;
-		let holesPerRow = maxHoles / nRow;
-		let xPadding = Math.floor((this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
-		console.log("XPadding: ", xPadding);
+
+
+
+
 		let x = Math.floor(minX + xPadding);
 		let y = minY;
 		// This many holes per row
-		console.log("HPR: ", holesPerRow);
-
-
 		for (let i = 0; i < nRow; i++) {
 			let hpr = holesPerRow;
 			for (let j = 0; j < nCols; j++) {
