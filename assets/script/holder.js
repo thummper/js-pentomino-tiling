@@ -22,8 +22,12 @@ class Holder {
 	makeSpaces() {
 		this.spaces = [];
 		let nHoles = this.nHoles;
-		console.log("Making: ", nHoles, " holes. BoardWidth: ", this.boardWidth);
-		let x = this.padding;
+		// Need to work out padding for holes. 
+		let boardWidth = this.boardWidth;
+		let holeSpace  = this.width + this.padding;
+		let totalSpace = holeSpace * nHoles;
+		let xPadding  = Math.floor((boardWidth - totalSpace) / 2);
+		let x = this.padding + xPadding;
 		for (let i = 0; i < nHoles; i++) {
 		
 			this.spaces.push({
@@ -36,8 +40,6 @@ class Holder {
 			});
 			x += this.width + this.padding;
 		}
-
-
 	}
 
 	drawSpaces() {

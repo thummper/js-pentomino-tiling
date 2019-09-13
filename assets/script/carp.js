@@ -115,7 +115,6 @@ class Game {
 			let width  = shape.width * this.tileSize;
 			let height = shape.height * this.tileSize;
 			if(this.mouseInGeneral(x, y, width, height)){
-				console.log("Mouse in: ", shape);
 				// Mouse is in general area of shape.
 				let blocks = shape.blocks;
 				for(let j = 0; j < blocks.length; j++){
@@ -133,7 +132,6 @@ class Game {
 	}
 
 	handleMouse(){
-
 		if(this.leftClick){
 			this.leftClick = false;
 			if (this.dragShape == null) {
@@ -150,6 +148,7 @@ class Game {
 						let hole = this.holes[i];
 						if(hole.checkBounds(shape)){
 							hole.placed(shape);
+							this.trySpawn = true;
 						} else {
 							hole.placed(null);
 						}
@@ -192,7 +191,6 @@ class Game {
 					this.dragShape.mirror();
 				}
 			}
-			this.trySpawn = true;
 		}.bind(this));
 
 		window.addEventListener("keydown", function (event) {
@@ -207,14 +205,18 @@ class Game {
 			}
 		}.bind(this));
 
-		window.addEventListener("wheel", function (event) {
-			event.preventDefault();
-			let direction = false;
-			if (event.deltaY < 0) {
-				direction = true;
-			}
-			this.scroll(direction);
-		}.bind(this));
+		window.addEventListener("mousewheel", this.wheelHandler.bind(this), { passive: false });
+		window.addEventListener("wheel", this.wheelHandler.bind(this), { passive: false });
+	}
+
+	wheelHandler(event){
+		event.preventDefault();
+		let direction = false;
+		if (event.deltaY < 0) {
+			direction = true;
+		}
+		this.scroll(direction);
+
 	}
 
 	scroll(direction) {
@@ -368,7 +370,7 @@ class Game {
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
 				// Hole is filled. 
-
+				this.average();
 				this.holeScores.push(hole.score);
 				this.totalScore += hole.score;
 				this.scoreTracker += hole.score;
@@ -425,7 +427,6 @@ class Game {
 				totalScores += holeScores[i];
 			}
 			totalScores = totalScores / holeScores.length;
-			console.log("AV Score: ", totalScores);
 			this.averageScores.push([
 				totalScores,
 				time
@@ -433,9 +434,6 @@ class Game {
 		} else {
 			this.averageScores.push([0, time]);
 		}
-
-
-
 		if (this.comboScore.length >= 20) {
 			let diff = this.comboScore.length - 20;
 			this.comboScore.splice(0, diff);
@@ -485,7 +483,7 @@ class Game {
 		//At this point the grid contains all shapes and holes.
 		this.drawBoard();
 		this.drawFloating();
-		this.drawDebug();
+		//this.drawDebug();
 		drawArc(this.ctx, this.mx, this.my, 10);
 
 
@@ -514,7 +512,6 @@ class Game {
 		if (this.ticker / 1000 >= 5) {
 			// 5 Second Timer.
 			this.ticker = 0;
-			this.average();
 			this.updateGraphs();
 		}
 		window.requestAnimationFrame(this.loop.bind(this));

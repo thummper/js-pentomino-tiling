@@ -9,12 +9,9 @@ class Graph{
 
     init(){
         let element = this.graphOptions.element;
-        
         let chart   = echarts.init(element);
-
         let options = this.getOptions();
         chart.setOption(options);
-
         this.chart = chart;
     }
 

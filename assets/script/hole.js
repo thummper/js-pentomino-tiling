@@ -51,7 +51,7 @@ class Hole {
 		}
 		if(this.delay <= 0){
 			// Either ruin the hole or remove the last shape from the hole. 
-			if(this.shape.length == 0){
+			if(this.shapes.length == 0){
 				this.ruinHole();
 			} else {
 				this.removeLast();
@@ -269,9 +269,6 @@ class Hole {
 		let overfill = 0;
 		let overflow = 0;
 		// We are looping through the grid spaces on the game board and checking if they are full
-
-
-
 		for (let i = this.y; i < this.y + this.holeSize; i++) {
 			for (let j = this.x; j < this.x + this.holeSize; j++) {
 				let fill = 0;
@@ -284,11 +281,13 @@ class Hole {
 					for(let c = 1; c < contents.length; c++){
 						let item = contents[c];
 						if(item.type == "shape"){
+
 							if(fill == 0){
 								fill++;
 							} else {
 								off++;
 							}
+							
 						}
 					}
 				} else if(contents.length){

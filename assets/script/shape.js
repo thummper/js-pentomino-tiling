@@ -32,13 +32,10 @@ class Shape {
 	}
 
 	checkPlace(board, holder) {
-		console.log("Checking place");
 		// In order to place a shape, at least one block belonging to it has to be in a hole cell or a holder cell.
 		let holeCounter = 0;
 		let holderCounter = 0;
-
 		// Given that we can only place a shape in one hole at a time.
-
 		for (let i = 0; i < this.blocks.length; i++) {
 			let block = this.blocks[i];
 			let row = block.x / this.tileSize;
@@ -49,7 +46,6 @@ class Shape {
 			}
 		}
 
-
 		if (holeCounter == 0 && holderCounter == 0) {
 			this.color = "red";
 			this.canPlace = false;
@@ -58,7 +54,24 @@ class Shape {
 			this.canPlace = true;
 		}
 
+		if(this.inHolder(holder)){
+			this.color = this.shape[1];
+			this.canPlace = true;
+		}
 
+
+	}
+
+	inHolder(holder){
+
+		let spaces = holder.spaces;
+		for(let i = 0; i < spaces.length; i++){
+			let space = spaces[i];
+			if(this.x >= space.x && this.x <= space.x + space.w && this.y >= space.y  && this.y <= space.y + space.h){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	checkBounds(boardWidth, boardHeight) {
@@ -210,9 +223,7 @@ class Shape {
 	}
 
 	scroll(dir) {
-	
 		let pattern = this.pattern.normal;
-		console.log(pattern);
 		if(dir){
 			if(this.orientation == 0){
 				this.orientation = pattern.length;
@@ -221,7 +232,6 @@ class Shape {
 		} else {
 			this.orientation = (this.orientation += 1) % pattern.length;
 		}
-		console.log(this.orientation);
 		this.makeBlocks();
 		this.getSize();
 	}
