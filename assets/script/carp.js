@@ -147,17 +147,19 @@ class Game {
 					for(let i = 0; i < this.holes.length; i++){
 						let hole = this.holes[i];
 						if(hole.checkBounds(shape)){
-							hole.placed(shape);
+							if(shape.placeIncrement){
+								hole.placed(shape);
+							}
 							this.trySpawn = true;
 						} else {
-							hole.placed(null);
+							if(shape.placeIncrement){
+								hole.placed(null);
+							}
 						}
-						
 					}
 					this.shapes.push(shape);
 					this.dragShape = null;
 				}
-
 			}
 		}
 
@@ -553,11 +555,16 @@ class Game {
 					for (let i = cell.contains.length - 1; i >= 0; i--) {
 						let block = cell.contains[i];
 						this.drawRect(cell.x, cell.y, this.tileSize, block.color, null);
+						if(block.drawEdges && block.edges && block.edges.length > 0){
+							this.drawEdges(cell.x, cell.y, this.tileSize, block.edges, block.edgeOpacity);
+						}
+
+
 						break; //Draw the last one only.
 					}
 				} else {
 					//Nothing in the cell. 
-					this.drawRect(cell.x, cell.y, this.tileSize, 'white', 'rgba(0, 0, 0, 0.2)');
+					this.drawRect(cell.x, cell.y, this.tileSize, 'white', 'rgba(0, 0, 0, 0.1)');
 				}
 			}
 		}
@@ -618,6 +625,33 @@ class Game {
 		}
 		cx.closePath();
 	}
+
+	
+	drawEdges(x, y, ts, edges, opacity){
+		
+
+		let edgeWidth = 3;
+		for(let i = 0; i < edges.length; i++){
+			let e = edges[i];
+			let ctx =  this.ctx;
+			ctx.fillStyle = "rgba(255, 0, 0, " + opacity + ")";
+			ctx.beginPath();
+			if(e == "up"){
+				ctx.rect(x, y, ts, edgeWidth);
+			}
+			if(e == "down"){
+				ctx.rect(x, y + ts - edgeWidth, ts, edgeWidth);
+			}
+			if(e == "right"){
+				ctx.rect(x + ts - edgeWidth, y, edgeWidth, ts);				
+			}
+			if(e == "left"){
+				ctx.rect(x, y, edgeWidth, ts);
+			}
+			ctx.fill();	
+			ctx.closePath();
+		}
+	}
 }
 
 
@@ -644,6 +678,15 @@ function pickShape() {
 		}
 	}
 }
+
+function randomIndex(array){
+	let min = 0;
+	let max = array.length - 1;
+	let index = random(min, max);
+	return index;
+}
+
+
 function random(min, max, signed = null) {
 	let rand = Math.floor( Math.random() * (max - min + 1) + min);
 

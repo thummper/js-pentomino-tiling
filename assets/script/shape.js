@@ -13,6 +13,7 @@ class Shape {
 		this.dragging = false;
 		this.delete = false;
 		this.canPlace = true;
+		this.placeIncrement = false;
 		this.flipped = 0;
 		this.width = 0;
 		this.height = 0;
@@ -52,9 +53,11 @@ class Shape {
 		} else {
 			this.color = this.shape[1];
 			this.canPlace = true;
+			this.placeIncrement = true;
 		}
 
 		if(this.inHolder(holder)){
+			this.placeIncrement = false;
 			this.color = this.shape[1];
 			this.canPlace = true;
 		}
