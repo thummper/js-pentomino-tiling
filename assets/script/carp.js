@@ -48,6 +48,14 @@ class Game {
 
 		//Hole & Levels
 		this.level = 0;
+		this.holeDifficulty = 3;
+
+		this.holesToFill = 4;
+		this.levelIncrement = 1;
+		this.levelScoreBonus = 20;
+
+
+
 		this.holeLevel = 10;
 		this.holesFilled = 0;
 		this.maxHoles = 4;
@@ -101,8 +109,16 @@ class Game {
 			}
 		]
 		this.graphs = [];
+		this.menus = {
+			main: document.getElementById("mainMenu"),
+			pause: document.getElementById("pauseMenu"),
+			game: document.getElementById("gameMenu"),
+		};
+		
 
 	}
+
+
 
 
 	getHoverShape(){
@@ -167,6 +183,13 @@ class Game {
 
 
 	addListeners() {
+		let startButton = document.getElementById("startGame");
+		startButton.addEventListener("click", function(){
+			this.changeState("game");
+		}.bind(this));
+
+
+
 		window.addEventListener("resize", function () {
 			this.resizeCanvas();
 		}.bind(this));
@@ -319,7 +342,7 @@ class Game {
 				if(maxHoles > 0 && hpr > 0){
 					maxHoles--;
 					hpr--;
-					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
+					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, this.holeDifficulty);
 					hole.generateHole();
 					this.holes.push(hole);
 					x += this.holeSize + 1;
@@ -357,8 +380,21 @@ class Game {
 			this.graphs.push(graph);
 		}
 
-		this.loop();
+		this.menuHandler = new MenuHandler(this.menus, "main");
+		this.menuHandler.changeState("main");
+	}
 
+	changeState(state){
+		// If state changes to game, make sure gameloop is running.
+		//Update MENUS
+		this.menuHandler.changeState(state);
+		// UPDATE GAME
+		if(state == "game"){
+			this.loop();
+
+		} else {
+			window.cancelAnimationFrame(this.gameRunning);
+		}
 	}
 
 	makeFloating(content, x, y){
@@ -395,6 +431,20 @@ class Game {
 					} else if(hole.overfill < 16){
 						this.makeFloating("Poor Work", middlex, middley);
 					}
+				}
+				// When a hole is filled increment hole counter. 
+				this.holesFilled++;
+				if(this.holesFilled >= this.holesToFill){
+					// We should level up.
+					this.level++;
+					this.holesToFill += this.levelIncrement;
+					this.holesFilled = 0;
+					
+					if(this.holeDifficulty <= 10){
+						this.holeDifficulty++;
+						hole.difficulty = this.holeDifficulty;
+					}
+
 				}
 				hole.regenerate(this.board);
 			}
@@ -476,6 +526,7 @@ class Game {
 
 
 	loop() {
+		console.log("Loop: ");
 		this.getFPS();
 		//Clear the grid and then add everything back to it.
 		this.clearCanvas();
@@ -516,7 +567,8 @@ class Game {
 			this.ticker = 0;
 			this.updateGraphs();
 		}
-		window.requestAnimationFrame(this.loop.bind(this));
+		this.gameRunning = window.requestAnimationFrame(this.loop.bind(this));
+		
 	}
 
 
