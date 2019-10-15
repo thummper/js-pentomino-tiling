@@ -73,6 +73,7 @@ class Hole {
 		};
 		let ind = indexes[randomEdge];
 		this.grid[ind[0]][ind[1]] = 1;
+		this.nBlocks++;
 	}
 
 	removeLast(){
