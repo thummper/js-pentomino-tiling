@@ -29,6 +29,7 @@ class Game {
 		this.boardHeight = 0;
 		this.board = [];
 		this.holder;
+		this.levelWrapper = document.getElementById("levelWrapper");
 
 		//Other Variables
 		this.framesTime;
@@ -48,6 +49,14 @@ class Game {
 
 		//Hole & Levels
 		this.level = 0;
+		this.holeDifficulty = 3;
+
+		this.holesToFill = 4;
+		this.levelIncrement = 1;
+		this.levelScoreBonus = 20;
+
+
+
 		this.holeLevel = 10;
 		this.holesFilled = 0;
 		this.maxHoles = 4;
@@ -101,8 +110,16 @@ class Game {
 			}
 		]
 		this.graphs = [];
+		this.menus = {
+			main: document.getElementById("mainMenu"),
+			pause: document.getElementById("pauseMenu"),
+			game: document.getElementById("gameMenu"),
+		};
+		
 
 	}
+
+
 
 
 	getHoverShape(){
@@ -167,6 +184,13 @@ class Game {
 
 
 	addListeners() {
+		let startButton = document.getElementById("startGame");
+		startButton.addEventListener("click", function(){
+			this.changeState("game");
+		}.bind(this));
+
+
+
 		window.addEventListener("resize", function () {
 			this.resizeCanvas();
 		}.bind(this));
@@ -265,6 +289,25 @@ class Game {
 	}
 
 
+	initLevelDisplay(){
+		this.levelWrapper.innerHTML = "";
+		for(let i = 0; i < this.holesToFill; i++){
+			let starOutline = document.createElement("img");
+			starOutline.classList.add("levelIndicator");
+			starOutline.src = "assets/images/staroutline.png";
+			this.levelWrapper.append(starOutline);
+		}
+	}
+
+	updateLevelDisplay(){
+		for(let i = 0; i < this.holesFilled; i++){
+			let stars = document.getElementsByClassName("levelIndicator");
+			stars[i].src = "assets/images/starFilled.png"
+		}
+
+	}
+
+
 	makeHolder() {
 		// Work out how many holders we can fit onto the board, and make them (with a max of 4).
 		this.holder = null;
@@ -274,8 +317,8 @@ class Game {
 			nHoles = this.maxHolders;
 		}
 		// Hole is 5 blocks + 2 blocks padding on left side.
-
-
+		this.initLevelDisplay();
+		this.levelWrapper.style.marginBottom = (this.tileSize * 1.3) + "px";
 		let holder = new Holder(this.canvas, this.ctx, this.tileSize, nHoles, this.boardWidth, this.boardHeight);
 		holder.makeSpaces();
 		this.holder = holder;
@@ -319,7 +362,7 @@ class Game {
 				if(maxHoles > 0 && hpr > 0){
 					maxHoles--;
 					hpr--;
-					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, 3);
+					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, this.holeDifficulty);
 					hole.generateHole();
 					this.holes.push(hole);
 					x += this.holeSize + 1;
@@ -357,8 +400,21 @@ class Game {
 			this.graphs.push(graph);
 		}
 
-		this.loop();
+		this.menuHandler = new MenuHandler(this.menus, "main");
+		this.menuHandler.changeState("main");
+	}
 
+	changeState(state){
+		// If state changes to game, make sure gameloop is running.
+		//Update MENUS
+		this.menuHandler.changeState(state);
+		// UPDATE GAME
+		if(state == "game"){
+			this.loop();
+
+		} else {
+			window.cancelAnimationFrame(this.gameRunning);
+		}
 	}
 
 	makeFloating(content, x, y){
@@ -367,10 +423,12 @@ class Game {
 	}
 
 	checkHoles() {
+		
 		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
+				
 				// Hole is filled. 
 				this.average();
 				this.holeScores.push(hole.score);
@@ -396,6 +454,21 @@ class Game {
 						this.makeFloating("Poor Work", middlex, middley);
 					}
 				}
+				// When a hole is filled increment hole counter. 
+				this.holesFilled++;
+				if(this.holesFilled >= this.holesToFill){
+					// We should level up.
+					this.level++;
+					this.holesToFill += this.levelIncrement;
+					this.holesFilled = 0;
+					
+					if(this.holeDifficulty <= 10){
+						this.holeDifficulty++;
+						hole.difficulty = this.holeDifficulty;
+					}
+
+				}
+				this.updateLevelDisplay();
 				hole.regenerate(this.board);
 			}
 		}
@@ -476,6 +549,7 @@ class Game {
 
 
 	loop() {
+		console.log("Loop: ");
 		this.getFPS();
 		//Clear the grid and then add everything back to it.
 		this.clearCanvas();
@@ -516,7 +590,8 @@ class Game {
 			this.ticker = 0;
 			this.updateGraphs();
 		}
-		window.requestAnimationFrame(this.loop.bind(this));
+		this.gameRunning = window.requestAnimationFrame(this.loop.bind(this));
+		
 	}
 
 
