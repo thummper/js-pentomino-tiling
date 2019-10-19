@@ -461,6 +461,7 @@ class Game {
 					this.level++;
 					this.holesToFill += this.levelIncrement;
 					this.holesFilled = 0;
+					this.initLevelDisplay();
 					
 					if(this.holeDifficulty <= 10){
 						this.holeDifficulty++;
