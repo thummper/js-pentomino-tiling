@@ -29,6 +29,7 @@ class Game {
 		this.boardHeight = 0;
 		this.board = [];
 		this.holder;
+		this.levelWrapper = document.getElementById("levelWrapper");
 
 		//Other Variables
 		this.framesTime;
@@ -288,6 +289,25 @@ class Game {
 	}
 
 
+	initLevelDisplay(){
+		this.levelWrapper.innerHTML = "";
+		for(let i = 0; i < this.holesToFill; i++){
+			let starOutline = document.createElement("img");
+			starOutline.classList.add("levelIndicator");
+			starOutline.src = "assets/images/staroutline.png";
+			this.levelWrapper.append(starOutline);
+		}
+	}
+
+	updateLevelDisplay(){
+		for(let i = 0; i < this.holesFilled; i++){
+			let stars = document.getElementsByClassName("levelIndicator");
+			stars[i].src = "assets/images/starFilled.png"
+		}
+
+	}
+
+
 	makeHolder() {
 		// Work out how many holders we can fit onto the board, and make them (with a max of 4).
 		this.holder = null;
@@ -297,8 +317,8 @@ class Game {
 			nHoles = this.maxHolders;
 		}
 		// Hole is 5 blocks + 2 blocks padding on left side.
-
-
+		this.initLevelDisplay();
+		this.levelWrapper.style.marginBottom = (this.tileSize * 1.3) + "px";
 		let holder = new Holder(this.canvas, this.ctx, this.tileSize, nHoles, this.boardWidth, this.boardHeight);
 		holder.makeSpaces();
 		this.holder = holder;
@@ -403,10 +423,12 @@ class Game {
 	}
 
 	checkHoles() {
+		
 		for (let i = 0, j = this.holes.length; i < j; i++) {
 			let hole = this.holes[i];
 			let filled = hole.checkState(this.board, this.combo);
 			if (filled) {
+				
 				// Hole is filled. 
 				this.average();
 				this.holeScores.push(hole.score);
@@ -446,6 +468,7 @@ class Game {
 					}
 
 				}
+				this.updateLevelDisplay();
 				hole.regenerate(this.board);
 			}
 		}
