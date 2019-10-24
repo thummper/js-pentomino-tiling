@@ -159,6 +159,12 @@ class Shape {
 				}
 			}
 		}
+
+		// help, we draw the shape into the grid using it's x and y and display it that way.
+		// To apply an animation we'll need to draw them independant of the grid
+		// So grid needs to be in background and handle game logic
+		// Then we need to draw everything based on its own x/y??? 
+
 	}
 
 
