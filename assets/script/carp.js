@@ -112,7 +112,7 @@ class Game {
 		this.graphs = [];
 		this.menus = {
 			main: document.getElementById("mainMenu"),
-			pause: document.getElementById("pauseMenu"),
+			stats: document.getElementById("statsMenu"),
 			game: document.getElementById("gameMenu"),
 		};
 		
@@ -228,6 +228,19 @@ class Game {
 			if (kc == 90) {
 				//Scroll
 				this.scroll(false);
+			}
+
+			if(kc == 80){
+				//P pressed 
+				if(this.menuHandler.activeMenu == this.menus.stats){
+					this.menuHandler.changeState("game");
+				} else {
+					this.menuHandler.changeState("stats");
+					this.updateGraphs();
+				
+				}
+
+
 			}
 		}.bind(this));
 
@@ -461,6 +474,7 @@ class Game {
 					this.level++;
 					this.holesToFill += this.levelIncrement;
 					this.holesFilled = 0;
+					this.initLevelDisplay();
 					
 					if(this.holeDifficulty <= 10){
 						this.holeDifficulty++;
@@ -623,6 +637,19 @@ class Game {
 	}
 
 	drawBoard() {
+		// We need to change how the board is drawn..
+		/* 
+		
+		1 - Draw the grid background
+		2 - Draw the holes based on x/y
+		3 - Draw the shape holders
+		4 - Draw the shapes based on x/y
+
+		Grid and shapes will need to maintain their own row/col vars which may be independent of their x/y (so we can apply stuff like animations easily)
+		
+		*/
+
+
 		for (let row = 0; row < this.boardHeight; row++) {
 			for (let col = 0; col < this.boardWidth; col++) {
 				let cell = this.board[row][col];

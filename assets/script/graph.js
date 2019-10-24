@@ -65,6 +65,7 @@ class Graph{
 
     update(){
         this.init();
+        this.chart.resize();
     }
 
 }
