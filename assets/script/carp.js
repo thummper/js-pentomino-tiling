@@ -9,7 +9,9 @@ let pieces = [
 	[W, '#1D6D53', 4],
 	[U, '#21746C', 4],
 	[V, '#2CAD7D', 4],
-	[Z, '#c23616', 4]
+	[Z, '#c23616', 4],
+	[X, '#130a04', 2],
+	[I, '#551b8c', 2]
 ];
 
 
@@ -769,7 +771,7 @@ window.onload = function () {
 };
 /* Global Functions */
 function pickShape() {
-	let randomInt = Math.random() * 89;
+	let randomInt = Math.random() * 93;
 	let counter = 0;
 	for(let i = 0; i < pieces.length; i++){
 		let p = pieces[i];
