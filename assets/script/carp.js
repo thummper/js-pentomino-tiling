@@ -562,33 +562,74 @@ class Game {
 	}
 
 
+	drawGame(){
+		// New draw function
+		// Currently, we add everything to the game grid and then draw it
+		this.makeBoard();
+		this.addHoles();
+		this.addShapes();
+		//Grid is now complete
+		this.drawBackground();
+		this.drawHoles();
+		this.drawShapes();
+		this.drawFloating();
+	}
+
+	drawBackground(){
+		this.drawBox(0, 0, this.boardWidth * this.tileSize, this.boardHeight * this.tileSize, "#ffff",  'rgba(0, 0, 0, 0.5)');
+	}
+
+	drawHoles(){
+		// TODO: some new logic to highlight holes
+
+		for(let i = 0, j = this.holes.length; i < j; i++){
+			let hole = this.holes[i];
+			let x = hole.x * this.tileSize;
+			let y = hole.y * this.tileSize;
+			let blocks = hole.blocks;
+
+			for(let k = 0, l = blocks.length; k < l; k++){
+				let block = blocks[k];
+				let blky = (block.row * this.tileSize) + y;
+				let blkx = (block.col * this.tileSize) + x;
+				this.drawRect(blkx, blky, this.tileSize, "black");
+			}
+		}
+	}
+	drawShapes(){
+		for(let i = 0, j = this.shapes.length; i < j; i++){
+			let shape = this.shapes[i];
+			let shapex = shape.x * this.tileSize;
+			let shapey = shape.y * this.tileSize;
+
+			// TODO: We can use shapex and shapey to modify the shape position without affecting the grid?
+
+			let blocks = shape.blocks;
+			for(let k = 0, i = blocks.length; k < i; k++){
+				let block  = blocks[k];
+				this.drawRect(block.x, block.y, this.tileSize, block.color);
+			}
+			
+		}
+
+	}
+
+
 
 
 	loop() {
-		console.log("Loop: ");
 		this.getFPS();
-		//Clear the grid and then add everything back to it.
-		this.clearCanvas();
-		this.drawHoles();
-		this.drawShapes();
 		this.checkHoles();
-		//At this point the grid contains all shapes and holes.
-		this.drawBoard();
-		this.drawFloating();
-		//this.drawDebug();
+		this.clearCanvas();
+		this.drawGame();
+
 		drawArc(this.ctx, this.mx, this.my, 10);
-
-
-
-
 		if (this.trySpawn) {
 			this.holder.checkSpaces(this.board);
 			let newShapes = this.holder.trySpawn();
 			this.shapes = this.shapes.concat(newShapes);
 			this.trySpawn = false;
 		}
-
-
 		if (this.dragShape) {
 			this.dragShape.drag(this.mx, this.my, this.ctx);
 			this.dragShape.checkBounds(this.boardWidth, this.boardHeight);
@@ -598,7 +639,6 @@ class Game {
 		// We need to handle mouse events in the loop, some click events depend on the state of the game board that may or may not be populated when the event fires
 		this.handleMouse();
 
-
 		this.frames++;
 		this.ticker += this.frameTime;
 		if (this.ticker / 1000 >= 5) {
@@ -607,7 +647,6 @@ class Game {
 			this.updateGraphs();
 		}
 		this.gameRunning = window.requestAnimationFrame(this.loop.bind(this));
-		
 	}
 
 
@@ -693,7 +732,8 @@ class Game {
 
 
 
-	drawHoles() {
+	addHoles() {
+		//Add holes to grid
 		this.checkHoles();
 		for (let i = 0; i < this.holes.length; i++) {
 			let hole = this.holes[i];
@@ -701,7 +741,8 @@ class Game {
 		}
 	}
 
-	drawShapes() {
+	addShapes() {
+		//Add shapes to grid
 		let liveShapes = [];
 		for (let i = 0, j = this.shapes.length; i < j; i++) {
 			let shape = this.shapes[i];
@@ -711,6 +752,23 @@ class Game {
 			}
 		}
 		this.shapes = liveShapes;
+	}
+
+	drawBox(x, y, width, height, color, border){
+		let cx = this.ctx;
+		cx.beginPath();
+		cx.rect(x, y, width, height);
+		if (color !== null) {
+			cx.fillStyle = color;
+		} else {
+			cx.fillStyle = 'black';
+		}
+		cx.fill();
+		if (border !== null) {
+			cx.strokeStyle = border;
+			cx.stroke();
+		}
+		cx.closePath();	
 	}
 
 	drawRect(x, y, size, color, border) {
