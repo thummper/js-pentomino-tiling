@@ -572,6 +572,7 @@ class Game {
 		this.drawBackground();
 		this.drawHoles();
 		this.drawShapes();
+		this.drawHoleEdges();
 		this.drawFloating();
 	}
 
@@ -584,30 +585,67 @@ class Game {
 
 		for(let i = 0, j = this.holes.length; i < j; i++){
 			let hole = this.holes[i];
+	
 			let x = hole.x * this.tileSize;
 			let y = hole.y * this.tileSize;
 			let blocks = hole.blocks;
 
 			for(let k = 0, l = blocks.length; k < l; k++){
 				let block = blocks[k];
+				let edges = block.edges;
+
 				let blky = (block.row * this.tileSize) + y;
 				let blkx = (block.col * this.tileSize) + x;
+			
 				this.drawRect(blkx, blky, this.tileSize, "black");
 			}
 		}
 	}
+
+	drawHoleEdges(){
+		for(let i = 0, j = this.holes.length; i < j; i++){
+			let hole = this.holes[i];
+			let x = hole.x * this.tileSize;
+			let y = hole.y * this.tileSize;
+			let blocks = hole.blocks;
+			for(let k = 0, l = blocks.length; k < l; k++){
+				let block = blocks[k];
+				let edges = block.edges;
+				let blky = (block.row * this.tileSize) + y;
+				let blkx = (block.col * this.tileSize) + x;
+				if(edges.length > 0 && block.drawEdges){
+					this.drawEdges(blkx, blky, this.tileSize, edges, block.edgeOpacity);
+				}
+			}
+		}
+
+	}
+
 	drawShapes(){
 		for(let i = 0, j = this.shapes.length; i < j; i++){
 			let shape = this.shapes[i];
 			let shapex = shape.x * this.tileSize;
 			let shapey = shape.y * this.tileSize;
+			if(shape.shake){
+				
+				shape.shake.update(this.frameTime);
+				shapex = shape.shake.x - shapex;
+				shapey = shape.shake.y - shapey;
+		
+			}
+
 
 			// TODO: We can use shapex and shapey to modify the shape position without affecting the grid?
 
 			let blocks = shape.blocks;
 			for(let k = 0, i = blocks.length; k < i; k++){
 				let block  = blocks[k];
-				this.drawRect(block.x, block.y, this.tileSize, block.color);
+				if(shape.shake){
+					this.drawRect(shapex + block.x, shapey + block.y, this.tileSize, block.color);
+				} else {
+					this.drawRect(block.x, block.y, this.tileSize, block.color);
+				}
+				
 			}
 			
 		}
@@ -791,6 +829,7 @@ class Game {
 	
 	drawEdges(x, y, ts, edges, opacity){
 		
+		
 
 		let edgeWidth = 3;
 		for(let i = 0; i < edges.length; i++){
@@ -848,6 +887,17 @@ function randomIndex(array){
 	return index;
 }
 
+function randomFloat(min, max, signed = null) {
+	let rand = Math.random() * (max - min + 1) + min;
+
+	if(signed){
+		let srand = Math.random() * 10;
+		if(srand > 5.2){
+			rand *= -1;
+		}
+	}
+	return rand;
+}
 
 function random(min, max, signed = null) {
 	let rand = Math.floor( Math.random() * (max - min + 1) + min);

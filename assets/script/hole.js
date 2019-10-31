@@ -12,6 +12,7 @@ class Hole {
 		this.score = null;
 		this.sTime = null;
 		this.eTime = null;
+		this.holeEdges = [];
 		this.blocks = [];
 		this.bEdges = [];
 		this.shapes = []; 
@@ -22,8 +23,8 @@ class Hole {
 		this.nBlocks = 0;
 		this.filled = 0;
 
-		this.baseDelay = 6;
-		this.delay = 6;
+		this.baseDelay = 8;
+		this.delay = 8;
 
 	}
 
@@ -36,28 +37,53 @@ class Hole {
 	}
 
 	placed(shape){
-		this.makeBlocks();
-		this.getEdgeHoles();
+		
 		// TODO: Delay
 		if(shape == null){
-			// Increment Decay
 			this.delay--;
 		} else {
-			this.shapes.push(shape);
 			this.delay = this.baseDelay;
+			// End shake
+			if(this.shapes.length){
+				this.shapes[this.shapes.length-1].shake = null;
+			}
+			this.shapes.push(shape);
 		}
+
+		if(this.delay <= 3){
+			if(this.shapes.length > 0){
+				let shape = this.shapes[this.shapes.length-1];
+
+				if(shape.shake == null){
+					shape.shake = new Shake(shape.x * this.tileSize, shape.y * this.tileSize);
+				} else {
+					let mapping = {
+						3: 1,
+						2: 2,
+						1: 3
+					};
+					shape.shake.intensity = mapping[this.delay];
+					shape.shake.calcSpeed();
+				}
+			
+			}
+		}
+		
 		if(this.delay <= 0){
+			console.log("Delay: ", this.delay);
 			if(this.shapes.length == 0){
+				console.log("Expanding Hole");
 				this.ruinHole();
 			} else {
+				console.log("Removing Last");
 				this.removeLast();
 			}
 			this.delay = this.baseDelay;
 		}
+		this.makeBlocks();
 	}
 
 	ruinHole(){
-
 		console.log("Hole is being expanded.");
 		let potentialExpand = this.getExpandableEdges();
 		let randomBlock = randomIndex(potentialExpand);
@@ -74,6 +100,7 @@ class Hole {
 		let ind = indexes[randomEdge];
 		this.grid[ind[0]][ind[1]] = 1;
 		this.nBlocks++;
+		
 	}
 
 	removeLast(){
@@ -91,6 +118,7 @@ class Hole {
 	}
 
 	generateHole() {
+		this.shapes = [];
 		this.makeGrid();
 		// Add a shape to the hole for each level of difficulty.
 		for (let i = 0; i < this.difficulty; i++) {
@@ -215,6 +243,8 @@ class Hole {
 	}
 
 	getExpandableEdges(){
+
+
 		let blocks = this.blocks;
 		let bEdges  = [];
 			for(let i = 0; i < blocks.length; i++){
@@ -252,44 +282,41 @@ class Hole {
 	getEdgeHoles(){
 		// Get the blocks and edges that have nothing next to them.
 		let blocks = this.blocks;
-		let bEdges  = [];
-
+		/* 
+		Loop through all blocks, 
+		test up down left right indexes to see if this block is an edge.
+		add all edges to the blocks edge array
+		
+		*/
+		this.bEdges = [];
 		for(let i = 0; i < blocks.length; i++){
 			let block = blocks[i];
-			let row = block.row;
-			let col = block.col;
-			bEdges[row + ' ' + col] = [];
-		}
-
-
-		for(let i = 0; i < blocks.length; i++){
-			let block = blocks[i];
-			let edges = [];
-			//Test each side. 
+			let blockEdges = [];
 			let row = block.row;
 			let col = block.col;
 			let inds = [ [row - 1, col, "up"], [row + 1, col, "down"], [row, col - 1, "left"], [row, col + 1, "right"] ];
-			for(let j = 0; j < inds.length; j++){
-				let ind = inds[j];
-				let r = ind[0];
-				let c = ind[1];
-				let dir = ind[2];
-				// Confused.. We check if the index exists, we don't check the value. If the index doesn't exist then it is an edge piece. 
-				let tested = this.testEdge(this.grid, r, c);
+			for(let j in inds){
+				let testIndex = inds[j];
+				let testRow = testIndex[0];
+				let testCol = testIndex[1];
+				let testDirection = testIndex[2];
+
+				let tested = this.testEdge(this.grid, testRow, testCol);
 				/* 
 				0 - Not edge. 
 				1 - Edge, but not expandable here
 				2 - Edge, can expand here
 				*/
 				if(tested == 1 || tested == 2){
-					edges.push(dir);
+					blockEdges.push(testDirection);
+					
 				}
 			}
-			if(edges.length > 0){
-				bEdges[row + ' ' + col] = edges;
+			block.edges = blockEdges;
+			if(blockEdges.length > 0){
+				this.bEdges[row + ' ' + col] = blockEdges;
 			}
 		}
-		this.bEdges = bEdges;
 	}
 
 
@@ -362,17 +389,7 @@ class Hole {
 				let edges   = this.bEdges[testInd];
 				let cell = board[this.y + i][this.x + j];
 				if (this.grid[i][j] == 1) {
-					let opacity = 1;
-					if(this.delay == 3){
-						opacity = 0.33;
-					}
-					if(this.delay == 2){
-						opacity = 0.66;
-					}
-					let drawEdges = false;
-					if(this.delay <= 3){
-						drawEdges = true;
-					}
+
 
 
 					let hole = {
@@ -383,12 +400,12 @@ class Hole {
 						border: "black",
 						type: "hole",
 						hole: this, // Not sure if this is turbo bad or not
-						edges: [],
-						drawEdges: drawEdges,
-						edgeOpacity: opacity,
 					};
 					if(edges){
+						this.holeEdges = edges;
 						hole.edges = edges;
+					} else {
+						this.holeEdges = [];
 					}
 					
 					cell.contains.push(hole);
@@ -437,8 +454,6 @@ class Hole {
 				overflow += ovf;
 			}	
 		}
-		//console.log("F: ", filled, " OV: ", overfill, " OF: ", overflow);
-		
 
 
 		this.filled = filled;
@@ -495,6 +510,18 @@ class Hole {
 
 
 	makeBlocks(){
+		let opacity = 1;
+		if(this.delay == 3){
+			opacity = 0.33;
+		}
+		if(this.delay == 2){
+			opacity = 0.66;
+		}
+		let drawEdges = false;
+		console.log("Shapes: ", this.shapes.length);
+		if(this.delay <= 3 && this.shapes.length <= 0){
+			drawEdges = true;
+		}
 		this.blocks = [];
 		for(let i = 0; i < this.grid.length; i++){
 			for(let j = 0; j < this.grid[i].length; j++){
@@ -505,11 +532,17 @@ class Hole {
 					let block = {
 						row: row,
 						col: col,
+						edges: [],
+						drawEdges: drawEdges,
+						edgeOpacity: opacity
 					}
+
+					// Would like to get edges here?
 					this.blocks.push(block);
 				}
 			}
 		}
+		this.getEdgeHoles();
 	}
 
 	removeShapes(board) {

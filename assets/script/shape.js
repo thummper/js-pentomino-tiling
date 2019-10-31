@@ -7,6 +7,7 @@ class Shape {
 		this.canvas = canvas;
 		this.x = x;
 		this.y = y;
+		this.shake = null;
 
 
 		this.orientation = 0;
