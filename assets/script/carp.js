@@ -809,7 +809,7 @@ class Game {
 		cx.closePath();	
 	}
 
-	drawRect(x, y, size, color, border) {
+	drawRect(x, y, size, color, border = null) {
 		let cx = this.ctx;
 		cx.beginPath();
 		cx.rect(x, y, size, size);

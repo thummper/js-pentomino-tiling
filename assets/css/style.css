@@ -1,7 +1,7 @@
 * {
   border: 0;
   margin: 0;
-  font-family: "Arial";
+  font-family: "Roboto";
   font-size: 16px; }
 
 html {
@@ -36,6 +36,23 @@ body {
   display: none;
   flex-direction: column; }
 
+#mainMenu {
+  align-items: center; }
+  #mainMenu .titleImage {
+    margin-top: 10%;
+    width: 80%; }
+  #mainMenu button {
+    font-weight: bold;
+    margin-top: 8%;
+    padding: 12px;
+    color: black;
+    background: rgba(255, 165, 0, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s; }
+    #mainMenu button:hover {
+      background: rgba(179, 116, 0, 0.2); }
+
 #gameMenu {
   pointer-events: none; }
 
@@ -53,6 +70,7 @@ body {
 #levelWrapper {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   align-self: flex-end;
   margin-top: auto;
   margin-bottom: 4%;

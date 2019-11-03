@@ -209,7 +209,7 @@ class Shape {
 		this.gridx = Math.floor(mx / tileSize);
 		this.gridy = Math.floor(my / tileSize);
 
-		drawCell(ctx, this.gridx * tileSize, this.gridy * tileSize, tileSize, "black");
+		//drawCell(ctx, this.gridx * tileSize, this.gridy * tileSize, tileSize, "black");
 		this.drawOnMouse(ctx);
 	}
 
