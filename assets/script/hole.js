@@ -47,6 +47,7 @@ class Hole {
 			if(this.shapes.length){
 				this.shapes[this.shapes.length-1].shake = null;
 			}
+			shape.dropInc--;
 			this.shapes.push(shape);
 		}
 

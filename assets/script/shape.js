@@ -10,6 +10,7 @@ class Shape {
 		this.shake = null;
 
 
+		this.dropInc = 2;
 		this.orientation = 0;
 		this.dragging = false;
 		this.delete = false;

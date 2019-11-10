@@ -3,6 +3,7 @@
 
 <head>
 	<link rel="stylesheet" href="assets/css/style.css"/>
+	<script src='https://www.kongregate.com/javascripts/kongregate_api.js'></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.min.js"></script>
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 	<script src="assets/script/shake.js">     </script>
@@ -18,6 +19,25 @@
 <body>
 	<div class="gameWrapper">
 		<div class="game">
+
+				<div id="tutorialWindow" class="draggable">
+						<div class="window-top">
+						<div class="window-title"> Tutorial</div>
+						<div class="window-close">&times;</div>
+					  </div>
+					  <div class="window-bottom">
+						Use the randomly generated pentominoes from the holders below to fill holes in the most efficient manner.
+						<br><br>
+						Mouse Click to pick up / drop
+						<br><br>
+						Scroll wheel to rotate
+						<br><br>
+						Neglecting holes will lead to pieces falling out
+						<br><br>
+						Each shape can only be placed twice. 
+					  </div>
+					</div>
+
 			<div class="canvasWrapper">
 				<canvas id="carpCanvas"></canvas>
 			</div>
@@ -29,7 +49,6 @@
 				</div>
 
 				<div class="menu" id="gameMenu">
-				
 					<div id="levelWrapper">
 						<img class="levelIndicator" src="assets/images/staroutline.png" />
 						<img class="levelIndicator" src="assets/images/starFilled.png" />
@@ -47,5 +66,55 @@
 		</div>
 
 	</div>
+	<script>
+	let elements = document.getElementsByClassName("draggable");
+for(let i = 0; i < elements.length; i++){
+  dragElement(elements[i]);
+}
+
+
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  elmnt.onmousedown = dragMouseDown;
+  // Get close button
+  let close = elmnt.getElementsByClassName("window-close")[0];
+  close.onclick = closeWindow;
+
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+  
+  function closeWindow(){
+    elmnt.parentNode.removeChild(elmnt);
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}</script>
 </body>
 </html>

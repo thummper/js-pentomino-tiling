@@ -10,17 +10,23 @@ let pieces = [
 	[U, '#21746C', 4],
 	[V, '#2CAD7D', 4],
 	[Z, '#c23616', 4],
-	[X, '#130a04', 2],
+	[X, '#a22d6c', 2],
 	[I, '#551b8c', 2]
 ];
+
+let kong;
+kongregateAPI.loadAPI(function(){
+	window.kongregate = kongregateAPI.getAPI();
+});
+
 
 
 
 class Game {
 	constructor() {
 		//Game Variables
-		this.tileSize = 23;
-		this.holeSize = 13;
+		this.tileSize = 21;
+		this.holeSize = 12;
 		this.shapes = [];
 		this.holes = [];
 		this.dragShape = null;
@@ -71,6 +77,8 @@ class Game {
 		this.scoreTracker = 0;
 		this.pastScores = [];
 		this.floatingText = []; //Holds any floating text on the screen.
+		this.maxCombo = 0;
+		this.maxAverage = 0;
 
 		//Average 
 		this.holeScores = [];
@@ -111,6 +119,9 @@ class Game {
 				]
 			}
 		]
+
+
+
 		this.graphs = [];
 		this.menus = {
 			main: document.getElementById("mainMenu"),
@@ -120,6 +131,8 @@ class Game {
 		
 
 	}
+
+
 
 
 
@@ -138,7 +151,7 @@ class Game {
 				let blocks = shape.blocks;
 				for(let j = 0; j < blocks.length; j++){
 					let block = blocks[j];
-					if(this.mouseIn(block)){
+					if(this.mouseIn(block) && shape.dropInc){
 						block.dragging = true;
 						shape.dragging = true;
 						this.dragShape = shape;
@@ -148,6 +161,26 @@ class Game {
 				}
 			}
 		}
+	}
+
+	showTutorial(){
+		let tutorial = document.getElementById("tutorialWindow");
+		tutorial.style.display = "block";
+		let w = tutorial.offsetWidth;
+		let h = tutorial.offsetHeight;
+
+
+		let cw = this.canvas.width * 0.12;
+		let ch = this.canvas.height * 0.25;
+
+		tutorial.style.top =  (ch - (h/2)) + "px";
+		tutorial.style.left = (cw) + "px";
+
+		
+
+
+		// Work out x and y to display in center.
+		
 	}
 
 	handleMouse(){
@@ -189,6 +222,10 @@ class Game {
 		let startButton = document.getElementById("startGame");
 		startButton.addEventListener("click", function(){
 			this.changeState("game");
+			// If start button is pressed first time show tutorial.
+			this.showTutorial();
+
+
 		}.bind(this));
 
 
@@ -274,6 +311,21 @@ class Game {
 		this.shapes = [];
 		this.canvas.width  = this.canvas.offsetWidth;
 		this.canvas.height = this.canvas.offsetHeight;
+		let wrapper = document.getElementsByClassName("game")[0];
+		
+
+		// So need to make this Kongregate friendly
+		let maxWidth = 960;
+		let maxHeight = 700;
+		wrapper.style.width = maxWidth + "px";
+		this.canvas.width = maxWidth;
+		wrapper.style.height = maxHeight + "px";
+		this.canvas.height = maxHeight;
+		
+
+		console.log("W: ", this.canvas.width, " H: ", this.canvas.height);
+
+
 
 		let wCells = Math.floor(this.canvas.width  / this.tileSize);
 		let hCells = Math.floor(this.canvas.height / this.tileSize);
@@ -343,49 +395,123 @@ class Game {
 
 	makeShapeHoles() {
 
-		this.holes = [];
 
+		// This is broken
+		this.holes = [];
 		let minX = 0;
-		let maxX = this.boardWidth - 1; // (Board width is length of array so minus 1)
-		let minY = 1;
+		let maxX = this.boardWidth;
+		let minY = 0;
 		let maxY = this.boardHeight - 6;
 
-		let nRow  = Math.floor((maxY - minY) / (this.holeSize));
-		let nCols = Math.floor((maxX - minX) / (this.holeSize));
-		// AHH 
+		let nRows = Math.floor((maxY - minY) / (this.holeSize + 1));
+		let nCols = Math.floor((maxX - minX) / (this.holeSize + 1));
 
 
+
+		// Problem - nCols and nRows needs to represent maxHoles.
+
+
+		// Holes per row = max width / hole size
+
+		let boardSpace = nRows * nCols; //The number of holes we can fit.
+		console.log("Board Space: ", boardSpace, " Max Holes: ", this.maxHoles);
 		if(nCols > this.maxHoles){
+			// More column space than we need. 
 			nCols = this.maxHoles;
 		}
-	
-		let holesPerRow = nCols;
-		if(nCols > nRow){
-			holesPerRow = nCols / nRow;
+		if(this.maxHoles > boardSpace){
+			this.maxHoles = boardSpace;
 		}
-		
-		let xPadding = Math.floor(( this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
-		let maxHoles = this.maxHoles;
+		if(this.maxHoles < boardSpace){
+			// This is the issue. 
 
-		let x = Math.floor(minX + xPadding);
-		let y = minY;
-		// This many holes per row
-		for (let i = 0; i < nRow; i++) {
-			let hpr = holesPerRow;
-			for (let j = 0; j < nCols; j++) {
+			/* 
+				We need to generate ncols/nrows so that we evenly distribute our holes over the rows and columns.
+			*/
+			boardSpace = this.maxHoles;
+		}
 
-				if(maxHoles > 0 && hpr > 0){
-					maxHoles--;
-					hpr--;
+
+
+
+		let xTaken = nCols * (this.holeSize + 1);
+		let yTaken = nRows * (this.holeSize + 1);
+		let xRemainder = this.boardWidth - xTaken;
+		let yRemainder = this.boardHeight - yTaken;
+
+		let xPadding = Math.floor(xRemainder / 2);
+		let yPadding = Math.floor(yRemainder / 2);
+
+		let x = minX + xPadding;
+		let y = minY + yPadding;
+
+
+		for(let i = 0; i < nRows; i++){
+			for(let j = 0; j < nCols; j++){
+				if(boardSpace > 0){
 					let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, this.holeDifficulty);
 					hole.generateHole();
 					this.holes.push(hole);
 					x += this.holeSize + 1;
+					boardSpace--;
 				}
+
 			}
-			y += this.holeSize + 3;
+			y += this.holeSize + 1;
 			x = minX + xPadding;
 		}
+
+
+
+
+
+
+
+
+
+		// this.holes = [];
+
+		// let minX = 0;
+		// let maxX = this.boardWidth - 1; // (Board width is length of array so minus 1)
+		// let minY = 1;
+		// let maxY = this.boardHeight - 6;
+
+		// let nRow  = Math.floor((maxY - minY) / (this.holeSize));
+		// let nCols = Math.floor((maxX - minX) / (this.holeSize));
+		// // AHH 
+
+
+		// if(nCols > this.maxHoles){
+		// 	nCols = this.maxHoles;
+		// }
+	
+		// let holesPerRow = nCols;
+		// if(nCols > nRow){
+		// 	holesPerRow = nCols / nRow;
+		// }
+		
+		// let xPadding = Math.floor(( this.boardWidth - (this.holeSize * holesPerRow)) / holesPerRow);
+		// let maxHoles = this.maxHoles;
+
+		// let x = Math.floor(minX + xPadding);
+		// let y = minY;
+		// // This many holes per row
+		// for (let i = 0; i < nRow; i++) {
+		// 	let hpr = holesPerRow;
+		// 	for (let j = 0; j < nCols; j++) {
+
+		// 		if(maxHoles > 0 && hpr > 0){
+		// 			maxHoles--;
+		// 			hpr--;
+		// 			let hole = new Hole(x, y, this.holeSize, this.boardWidth, this.boardHeight, this.tileSize, this.holeDifficulty);
+		// 			hole.generateHole();
+		// 			this.holes.push(hole);
+		// 			x += this.holeSize + 1;
+		// 		}
+		// 	}
+		// 	y += this.holeSize + 3;
+		// 	x = minX + xPadding;
+		// }
 	}
 
 
@@ -459,6 +585,17 @@ class Game {
 					this.makeFloating("Masterpiece", middlex, hole.y * this.tileSize);
 					this.combo++;
 
+					if(this.combo >= this.maxCombo){
+						this.maxCombo = this.combo;
+
+						try{
+							kongregate.stats.submit('Max Combo', this.maxCombo);
+						} catch(err) {
+							console.log("Could not submit maxCombo: ", err);
+						}
+
+					}
+
 				} else {
 					this.combo = 0;
 					if(hole.overfill < 4){
@@ -518,6 +655,16 @@ class Game {
 				totalScores += holeScores[i];
 			}
 			totalScores = totalScores / holeScores.length;
+
+			if(Math.floor(totalScores) > this.maxAverage){
+				this.maxAverage = totalScores;
+				try{
+					kongregate.stats.submit('Average Score', this.maxAverage);
+				} catch(err) {
+					console.log("Could not submit maxAverage: ", err);
+				}
+			}
+
 			this.averageScores.push([
 				totalScores,
 				time
